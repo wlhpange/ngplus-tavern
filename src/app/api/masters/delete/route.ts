@@ -6,7 +6,8 @@ export const dynamic = "force-dynamic";
 
 /**
  * P1 归档（软删除）自定义会长。
- * 官方会长与当前在任的会长不可删；只归档，历史与消息里的名字仍可解析。
+ * 官方会长与当前在任的会长不可删；归档时连带清除该会长的全部对话数据
+ * （任务/酒馆消息、会话、记忆、好感），master 行保留仅供历史账目解析名字。
  */
 export async function POST(req: NextRequest) {
   const body = (await req.json().catch(() => null)) as { masterId?: string } | null;

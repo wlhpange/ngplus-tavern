@@ -1,7 +1,7 @@
-import { and, desc, eq, inArray, isNull } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull, or } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import type { Db } from "./db";
-import { chatSessions, chatLog } from "./db/schema";
+import { chatSessions, chatLog, memory } from "./db/schema";
 import { deleteMemoriesForSessions } from "./memory";
 
 /**
@@ -148,25 +148,61 @@ export function listSessionIdsForMaster(
     .map((r) => r.id);
 }
 
+export interface PurgedMasterChatData {
+  sessions: number;
+  messages: number;
+  memories: number;
+  /** 被删消息的 id（调用方可据此清理消息配图等派生资产） */
+  messageIds: string[];
+}
+
 /**
- * 删除某会长的全部酒馆聊天记录：会话 + 消息 + 各对话的私有记忆。
- * 归档（删除）会长时调用——聊天记录必须随会长一起消失。返回删除的会话数。
+ * 彻底清除某会长名下的全部对话数据（归档 / 删除会长时调用）。
+ *
+ * 两条管线都要覆盖：
+ * - 任务模式（mode=quest）：用户与会长消息都带 master_id → 按 master_id 删；
+ * - 酒馆模式（mode=chat）：用户消息只带 session_id、不带 master_id → 按会话删。
+ * 另外清掉会长级永久记忆（session_id 为空）与各会话的私有记忆。
  */
-export function deleteSessionsForMaster(
+export function purgeMasterChatData(
   db: Db,
   userId: string,
   masterId: string,
-): number {
-  const ids = listSessionIdsForMaster(db, userId, masterId);
-  if (ids.length === 0) return 0;
-  db.delete(chatLog)
-    .where(and(eq(chatLog.userId, userId), eq(chatLog.mode, "chat"), inArray(chatLog.sessionId, ids)))
-    .run();
-  db.delete(chatSessions)
-    .where(and(eq(chatSessions.userId, userId), inArray(chatSessions.id, ids)))
-    .run();
-  deleteMemoriesForSessions(db, userId, ids);
-  return ids.length;
+): PurgedMasterChatData {
+  const sessionIds = listSessionIdsForMaster(db, userId, masterId);
+
+  const messageCond = sessionIds.length
+    ? or(eq(chatLog.masterId, masterId), inArray(chatLog.sessionId, sessionIds))
+    : eq(chatLog.masterId, masterId);
+  const messageIds = db
+    .select({ id: chatLog.id })
+    .from(chatLog)
+    .where(and(eq(chatLog.userId, userId), messageCond))
+    .all()
+    .map((r) => r.id);
+  const messages = messageIds.length
+    ? db
+        .delete(chatLog)
+        .where(and(eq(chatLog.userId, userId), inArray(chatLog.id, messageIds)))
+        .run().changes
+    : 0;
+
+  const sessions = sessionIds.length
+    ? db
+        .delete(chatSessions)
+        .where(and(eq(chatSessions.userId, userId), inArray(chatSessions.id, sessionIds)))
+        .run().changes
+    : 0;
+
+  const memoryCond = sessionIds.length
+    ? or(eq(memory.masterId, masterId), inArray(memory.sessionId, sessionIds))
+    : eq(memory.masterId, masterId);
+  const memories = db
+    .delete(memory)
+    .where(and(eq(memory.userId, userId), memoryCond))
+    .run().changes;
+
+  return { sessions, messages, memories, messageIds };
 }
 
 export function touchSession(db: Db, userId: string, sessionId: string): void {

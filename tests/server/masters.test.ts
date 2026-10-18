@@ -386,6 +386,69 @@ describe("P1 会长归档（软删除）", () => {
     const save = db.select().from(saves).where(eq(saves.userId, userId)).get()!;
     expect(save.chatMasterId).toBeNull();
   });
+
+  it("归档会长时任务模式对话、会长级永久记忆、好感一并清除", () => {
+    const { db, userId } = createTestDb();
+    const created = createCustomMaster(db, userId, {
+      name: "老周",
+      brief,
+      persona: {},
+    });
+    const now = Date.now();
+    db.insert(chatLog)
+      .values([
+        {
+          id: "q-user",
+          userId,
+          role: "user",
+          content: "任务模式里的提问",
+          masterId: created.id,
+          mode: "quest",
+          sessionId: null,
+          createdAt: now,
+        },
+        {
+          id: "q-master",
+          userId,
+          role: "master",
+          content: "任务模式里的回答",
+          masterId: created.id,
+          mode: "quest",
+          sessionId: null,
+          createdAt: now + 1,
+        },
+        {
+          id: "keep-vila",
+          userId,
+          role: "master",
+          content: "薇拉的对话",
+          masterId: VILA_MASTER_ID,
+          mode: "quest",
+          sessionId: null,
+          createdAt: now + 2,
+        },
+      ])
+      .run();
+    // 会长级永久记忆（session_id 为空）与好感
+    addMemory(db, userId, created.id, "story", "没开对话也会记住的事", null);
+    addAffinityPoints(db, userId, created.id, 30);
+    expect(getAffinity(db, userId, created.id).points).toBeGreaterThan(0);
+
+    archiveMaster(db, userId, created.id);
+
+    // 任务模式的对话也必须跟着会长一起消失
+    expect(
+      db.select().from(chatLog).where(eq(chatLog.masterId, created.id)).all(),
+    ).toHaveLength(0);
+    // 别人的对话不受影响
+    expect(
+      db.select().from(chatLog).where(eq(chatLog.masterId, VILA_MASTER_ID)).all(),
+    ).toHaveLength(1);
+    // 会长级永久记忆
+    expect(listMemories(db, userId, created.id, null)).toHaveLength(0);
+    // 好感
+    expect(getAffinity(db, userId, created.id).points).toBe(0);
+  });
 });
 
 describe("P11 亲密度（每会长一份，只由送礼推进）", () => {

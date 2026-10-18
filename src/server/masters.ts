@@ -7,9 +7,9 @@ import { startOfDayTs } from "./util/time";
 import type { PersonaJson } from "./llm/prompts";
 import { normalizeCard, parseCard, normalizeRelationshipStages } from "./cards";
 import type { ImportedCard } from "./cardImport";
-import { isSafeAssetName } from "./assets";
+import { deleteAsset, isSafeAssetName } from "./assets";
 import { replaceMasterBookFromCharacterBook, removeMasterBooks } from "./worldbook";
-import { deleteSessionsForMaster } from "./chatSessions";
+import { purgeMasterChatData } from "./chatSessions";
 
 /** 头像文件名兜底：只接受安全文件名（真实存在性由写入方保证） */
 function normalizeAvatarName(value: string | null | undefined): string | null {
@@ -537,7 +537,8 @@ export function setMasterSprite(
  * - 官方会长不可删除（isOfficial=1）；
  * - 只能删自己指名的（owner_id = userId）；
  * - 当前在任的会长不可直接删（先换一位）——避免把 save.active_master_id 指空；
- * - 只置 archived_at：master_history 与 chat_log 里的名字仍能解析，历史不丢。
+ * - 归档时清掉它的全部对话数据（任务模式 + 酒馆模式的消息、会话、记忆）与好感；
+ * - master 行本身只置 archived_at：master_history / 结算卡仍能解析名字，历史账目不丢。
  */
 export function archiveMaster(
   db: Db,
@@ -562,8 +563,18 @@ export function archiveMaster(
   .run();
   // 归档即拆掉它的世界书分配；只属于它、没别的会长在用的书册一并删掉（全局书不动）
   removeMasterBooks(db, userId, masterId);
-  // P12：删除该会长的全部酒馆聊天记录（会话 + 消息 + 各对话记忆）
-  deleteSessionsForMaster(db, userId, masterId);
+  // P12：清除该会长的全部对话数据——任务模式与酒馆模式的消息、会话，
+  // 会长级永久记忆与各对话私有记忆（只清 chat 会话是漏的）。
+  const purged = purgeMasterChatData(db, userId, masterId);
+  // 消息配图（以消息 id 命名的 data/scenes/<id>.png）与头像文件一并删掉
+  for (const messageId of purged.messageIds) {
+    deleteAsset("scene", `${messageId}.png`);
+  }
+  deleteAsset("avatar", master.avatar);
+  // 好感度跟着会长一起消失，避免之后重建同名会长继承旧数值
+  db.delete(masterAffinity)
+    .where(and(eq(masterAffinity.userId, userId), eq(masterAffinity.masterId, masterId)))
+    .run();
   // 若它正被指定为「聊天会长」，清掉指向（回落到任务会长）
   if (save?.chatMasterId === masterId) {
     db.update(saves).set({ chatMasterId: null }).where(eq(saves.id, save.id)).run();
