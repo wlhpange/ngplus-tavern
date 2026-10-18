@@ -33,7 +33,14 @@ pnpm dev
 
 打开 `http://localhost:3000`。停止服务：在本窗口按 **Control + C**。
 
-也可以双击 `start-mac.command`（macOS）或 `start.bat`（Windows），同样是前台运行，Ctrl+C 停止。
+也可以双击对应平台的脚本，同样是前台运行（Ctrl+C 停止）：
+
+| 平台 | 双击这个 | 说明 |
+|---|---|---|
+| **macOS** | `start-mac.command` | 前台运行；加 `--background` 才后台，停止用 `stop-mac.command` |
+| **Windows** | `start.bat` | 前台运行 |
+| Linux / macOS 终端 / Windows Git Bash | `./start.sh` | 前台运行 |
+| Android · Termux | `./start-termux.sh` | Termux 环境用 |
 
 ## 先配模型
 

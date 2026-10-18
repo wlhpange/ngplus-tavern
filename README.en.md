@@ -33,7 +33,14 @@ pnpm dev
 
 Open `http://localhost:3000`. To stop: press **Control + C** in that terminal.
 
-On macOS you can also double-click `start-mac.command`; on Windows, `start.bat`. Both run in the foreground.
+Or double-click the script for your platform (foreground, Ctrl+C to stop):
+
+| Platform | Double-click | Notes |
+|---|---|---|
+| **macOS** | `start-mac.command` | Foreground; add `--background` for background, stop with `stop-mac.command` |
+| **Windows** | `start.bat` | Foreground |
+| Linux / macOS terminal / Windows Git Bash | `./start.sh` | Foreground |
+| Android · Termux | `./start-termux.sh` | For Termux |
 
 ## Set up a model first
 
