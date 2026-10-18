@@ -6,6 +6,28 @@ A one-person guild. You talk to an AI guild master, turn the things you've alway
 
 Single-user, mobile-first, runs locally. Stack: Next.js 14 · React 18 · SQLite (drizzle + better-sqlite3) · any OpenAI-compatible model.
 
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center"><img src="./docs/screenshots/01-gate.jpg" width="200" /><br /><sub>The door</sub></td>
+    <td align="center"><img src="./docs/screenshots/02-masters.jpg" width="200" /><br /><sub>Pick a master</sub></td>
+    <td align="center"><img src="./docs/screenshots/03-chat.jpg" width="200" /><br /><sub>Chat / quests</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="./docs/screenshots/04-panel.jpg" width="200" /><br /><sub>Character panel</sub></td>
+    <td align="center"><img src="./docs/screenshots/05-shop.jpg" width="200" /><br /><sub>Shop</sub></td>
+    <td align="center"><img src="./docs/screenshots/06-skills.jpg" width="200" /><br /><sub>Skill tree</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="./docs/screenshots/07-worldbook.jpg" width="200" /><br /><sub>World book</sub></td>
+    <td align="center"><img src="./docs/screenshots/08-model.jpg" width="200" /><br /><sub>Model settings</sub></td>
+    <td align="center"><img src="./docs/screenshots/09-image.jpg" width="200" /><br /><sub>Image settings</sub></td>
+  </tr>
+</table>
+
+> Screenshots are from a fresh install with no personal data.
+
 ## License & content
 
 - Non-commercial license: [PolyForm Noncommercial 1.0.0](./LICENSE). Use, modify and share freely, **no commercial use**.

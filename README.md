@@ -6,6 +6,28 @@
 
 单用户、移动优先、本机运行。技术栈：Next.js 14 · React 18 · SQLite（drizzle + better-sqlite3）· 任意 OpenAI 兼容模型。
 
+## 界面预览
+
+<table>
+  <tr>
+    <td align="center"><img src="./docs/screenshots/01-gate.jpg" width="200" /><br /><sub>推门</sub></td>
+    <td align="center"><img src="./docs/screenshots/02-masters.jpg" width="200" /><br /><sub>选择会长</sub></td>
+    <td align="center"><img src="./docs/screenshots/03-chat.jpg" width="200" /><br /><sub>对话 / 任务</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="./docs/screenshots/04-panel.jpg" width="200" /><br /><sub>角色面板</sub></td>
+    <td align="center"><img src="./docs/screenshots/05-shop.jpg" width="200" /><br /><sub>协会商店</sub></td>
+    <td align="center"><img src="./docs/screenshots/06-skills.jpg" width="200" /><br /><sub>技能树</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="./docs/screenshots/07-worldbook.jpg" width="200" /><br /><sub>世界书</sub></td>
+    <td align="center"><img src="./docs/screenshots/08-model.jpg" width="200" /><br /><sub>模型与渠道</sub></td>
+    <td align="center"><img src="./docs/screenshots/09-image.jpg" width="200" /><br /><sub>生图设置</sub></td>
+  </tr>
+</table>
+
+> 截图来自全新的初始档，不含任何个人数据。
+
 ## 许可与内容
 
 - 非商业许可：[PolyForm Noncommercial 1.0.0](./LICENSE)。可以自由使用、修改、分发，**不能商用**。
