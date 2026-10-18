@@ -1,0 +1,61 @@
+{
+  "spec": "lorebook_v3",
+  "data": {
+    "name": "古巷镇 · 世界设定",
+    "description": "示例世界书：导入到 /worldbook 的任意一本世界书里（追加导入）。",
+    "scan_depth": 3,
+    "token_budget": 800,
+    "recursive_scanning": true,
+    "extensions": {},
+    "entries": [
+      {
+        "keys": [],
+        "secondary_keys": [],
+        "content": "古巷镇是一座倚着武当山脚的老镇，青石板路，四时多雾。镇上只有一条主街，街尾是协会的旧据点。",
+        "enabled": true,
+        "constant": true,
+        "selective": false,
+        "insertion_order": 1,
+        "case_sensitive": false,
+        "use_regex": false,
+        "extensions": { "position": "before", "depth": 4, "role": "system" }
+      },
+      {
+        "keys": ["客栈", "住店", "打尖"],
+        "secondary_keys": [],
+        "content": "悦来客栈在镇口，掌柜姓周，爱听江湖传闻。后院有一间常年上锁的柴房，没人知道里面放着什么。",
+        "enabled": true,
+        "constant": false,
+        "selective": false,
+        "insertion_order": 10,
+        "case_sensitive": false,
+        "use_regex": false,
+        "extensions": { "position": "before", "probability": 100, "useProbability": true, "scan_depth": 5 }
+      },
+      {
+        "keys": ["武当", "山上", "老道"],
+        "secondary_keys": ["旧事", "拜师"],
+        "content": "武当山顶有一位不问世事的老道，据说三十年前镇上一场大雪，他从那时起再没下过山。只有对着旧事的人，他才肯开口。",
+        "enabled": true,
+        "constant": false,
+        "selective": true,
+        "insertion_order": 20,
+        "case_sensitive": false,
+        "use_regex": false,
+        "extensions": { "position": "before", "depth": 4, "role": "system" }
+      },
+      {
+        "keys": ["柴房", "旧账本", "钥匙"],
+        "secondary_keys": [],
+        "content": "柴房的锁早就锈了。推开会看见一摞发霉的旧账本，最上面一本的封皮上，写着一个你不认识的名字。",
+        "enabled": true,
+        "constant": false,
+        "selective": false,
+        "insertion_order": 30,
+        "case_sensitive": false,
+        "use_regex": false,
+        "extensions": { "position": "at_depth", "depth": 2, "role": "system" }
+      }
+    ]
+  }
+}

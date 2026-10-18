@@ -1,0 +1,31 @@
+@import "./tokens.css";
+@import "./animation.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 星穹秘契（docs/design/DESIGN.md）全局基底：body 只给底色/文字/正文字体，
+   页面容器各自涂装 —— 聊天页五套主题不受影响 */
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+}
+
+/* Markdown 渲染（ChatText）：块级元素之间留一点间距，段落本身不额外撑高 */
+.chat-md > * + * {
+  margin-top: 0.45rem;
+}
+.chat-md p {
+  margin: 0;
+}
+.chat-md ul,
+.chat-md ol {
+  margin: 0;
+}
+/* 超长 token（无空格 URL、长代码串、窄屏表格）在需要时从任意位置断行；
+   anywhere（相对 break-word）会同时缩小 min-content，flex 子项才能真正收口，
+   否则消息泡会被撑宽、把整页挤出横向滚动条。 */
+.chat-md {
+  overflow-wrap: anywhere;
+}

@@ -1,0 +1,59 @@
+{
+  "name": "ngplus-tavern",
+  "version": "0.1.0",
+  "private": true,
+  "description": "二周目协会 · NG+ Guild — 单用户、移动优先的自律养成 PWA：和 AI 会长对话，把想做的事锻造成委托。",
+  "license": "SEE LICENSE IN LICENSE",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "node scripts/build.mjs",
+    "start": "next start",
+    "db:migrate": "tsx src/server/db/migrate.ts",
+    "icons": "node scripts/gen-icons.mjs",
+    "test": "vitest run",
+    "build:next": "next build",
+    "postinstall": "node scripts/patch-sqlite3.mjs"
+  },
+  "dependencies": {
+    "@ai-sdk/deepseek": "^3.0.42",
+    "@ai-sdk/openai-compatible": "^3.0.57",
+    "ai": "^7.0.97",
+    "better-sqlite3": "^12.11.1",
+    "drizzle-orm": "^0.44.0",
+    "next": "^14.2.35",
+    "node-cron": "^4.6.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-markdown": "^10.1.0",
+    "rehype-sanitize": "^6.0.0",
+    "remark-gfm": "^4.0.1",
+    "zod": "^4.6.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3",
+      "esbuild"
+    ],
+    "overrides": {
+      "@ai-sdk/provider": "4.0.13",
+      "@ai-sdk/provider-utils": "5.0.39"
+    }
+  },
+  "devDependencies": {
+    "@ai-sdk/provider": "4.0.13",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.0.0",
+    "@types/node-cron": "^3.0.11",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}

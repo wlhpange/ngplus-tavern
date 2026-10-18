@@ -1,0 +1,509 @@
+/* ============================================================================
+   星穹秘契 · 动效层
+   ----------------------------------------------------------------------------
+   与 tokens.css 配套：所有颜色引用变量，禁止裸 hex。
+   设计基准见 docs/design/DESIGN.md；手感规格见 .zcode/plans/design-prompts-gamefeel.md。
+   约定：单段动效 ≤1.6s（晋段特例 2.5s）；全部尊重 prefers-reduced-motion。
+   ============================================================================ */
+
+/* ───────────────────────────── 1. 会长「正在输入」
+   原 vn-typing 只有类名没有样式（V1.7.1 换肤时丢失），此处补齐：
+   三点依次呼吸上浮，颜色继承 currentColor（聊天页给它 --accent）。 */
+.vn-typing {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 1.25rem;
+}
+.vn-typing i {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.3;
+  animation: vn-dot 1.2s infinite ease-in-out;
+}
+.vn-typing i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.vn-typing i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+@keyframes vn-dot {
+  0%,
+  60%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+/* ───────────────────────────── 2. 仪式覆盖层（升级 / 晋段）
+   触发：/api/chat 返回 ceremony 事件（V1.7 后端已就绪，前端 V2.0 接入）。
+   升级：克制的一段光柱卡片，不遮屏、不阻塞操作，2.4s 自动消失。
+   晋段：全屏唯一焦点，蜡封重铸（旧段位熔解 → 新段位浇铸）+ 金箔扫光 + 金线涟漪。 */
+.ceremony-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  animation: ceremony-fade 0.25s ease-out both;
+}
+.ceremony-layer.rank_up {
+  background: color-mix(in oklch, var(--bg) 82%, transparent);
+  backdrop-filter: blur(3px);
+  cursor: pointer;
+}
+.ceremony-layer.level_up {
+  background: transparent;
+  pointer-events: none;
+}
+
+.ceremony-level {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--gold-line);
+  border-radius: var(--radius-lg);
+  background: color-mix(in oklch, var(--surface) 94%, transparent);
+  box-shadow: var(--shadow-2), var(--inset-gold);
+  padding: 18px 30px;
+  text-align: center;
+  animation: ceremony-rise 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.ceremony-level::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 46px;
+  height: 150%;
+  transform: translate(-50%, 60%);
+  background: linear-gradient(
+    to top,
+    transparent,
+    color-mix(in oklch, var(--gold) 55%, transparent),
+    transparent
+  );
+  animation: level-column 0.9s ease-out 0.15s both;
+  pointer-events: none;
+}
+@keyframes level-column {
+  from {
+    transform: translate(-50%, 60%);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, -60%);
+    opacity: 0;
+  }
+}
+@keyframes ceremony-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes ceremony-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.ceremony-rank {
+  position: relative;
+  text-align: center;
+  animation: ceremony-rise 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.ceremony-seal {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  margin: 0 auto;
+}
+.ceremony-seal .seal {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 25%, var(--danger-soft), var(--danger) 68%);
+  box-shadow:
+    inset 0 0 0 3px var(--gold-line),
+    inset 0 0 0 1px color-mix(in oklch, var(--gold) 70%, transparent),
+    var(--shadow-2);
+  font-family: var(--font-display);
+  font-size: 56px;
+  font-weight: 700;
+  color: var(--gold);
+}
+.ceremony-seal .seal.from {
+  animation: rank-melt 0.7s ease-in both;
+}
+.ceremony-seal .seal.to {
+  opacity: 0;
+  animation: rank-cast 0.9s 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes rank-melt {
+  to {
+    opacity: 0;
+    filter: blur(6px);
+    transform: scale(1.06);
+  }
+}
+@keyframes rank-cast {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+    transform: scale(0.86);
+  }
+  55% {
+    opacity: 1;
+    filter: none;
+    transform: scale(1.05);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.ceremony-seal .ripple {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1px solid var(--gold-line);
+  animation: seal-ripple 1.1s 0.8s ease-out both;
+  pointer-events: none;
+}
+@keyframes seal-ripple {
+  from {
+    opacity: 0.9;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+/* 金箔扫光：只亮不闪的一次「烫金质检」 */
+.ceremony-sweep {
+  position: absolute;
+  inset: -24%;
+  overflow: hidden;
+  pointer-events: none;
+  mask-image: radial-gradient(circle at 50% 42%, #000 0 42%, transparent 72%);
+}
+.ceremony-sweep::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    45deg,
+    transparent 42%,
+    color-mix(in oklch, var(--gold) 42%, transparent) 50%,
+    transparent 58%
+  );
+  transform: translateX(-130%);
+  animation: gold-sweep 0.9s 0.5s ease-out both;
+}
+@keyframes gold-sweep {
+  from {
+    transform: translateX(-130%);
+  }
+  to {
+    transform: translateX(130%);
+  }
+}
+
+.ceremony-kicker {
+  margin-top: 14px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.18em;
+  color: var(--muted);
+}
+.ceremony-value {
+  margin-top: 2px;
+  font-size: var(--fs-h1);
+  font-weight: 700;
+  color: var(--gold);
+}
+.ceremony-sub {
+  margin-top: 4px;
+  font-size: var(--fs-sm);
+  color: var(--fg);
+}
+.ceremony-hint {
+  margin-top: 10px;
+  font-size: var(--fs-micro);
+  color: var(--faint);
+}
+
+/* ───────────────────────────── 3. 结算仪式三连（对话时间线卡片）
+   规格来自 design-prompts-gamefeel.md：蜡封下压 620ms → 金箔扫光 900ms → 金币雨 1600ms。
+   变体：部分结算=暗铜蜡封 + 金币雨减半；逾期补结算=蜡封裂纹随后自愈。
+   只在 fresh（本轮新落账）卡片上播放一次，历史卡片静态呈现。 */
+.settlement-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: color-mix(in oklch, var(--surface) 90%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--gold) 8%, transparent);
+  padding: 12px 14px;
+}
+.settlement-seal {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 25%, var(--danger-soft), var(--danger) 65%);
+  color: var(--gold);
+  font-family: var(--font-display);
+  font-size: 13px;
+  box-shadow: var(--inset-gold);
+  transform: rotate(-8deg);
+}
+/* 部分结算：蜡封用暗铜色（金箔压暗当铜） */
+.settlement-card[data-partial] .settlement-seal {
+  background: radial-gradient(
+    circle at 30% 25%,
+    color-mix(in oklch, var(--gold) 48%, var(--bg)),
+    color-mix(in oklch, var(--gold) 28%, var(--bg)) 65%
+  );
+}
+/* 逾期补结算：蜡封上一道裂纹，随后自愈 */
+.settlement-card[data-overdue] .settlement-seal::after {
+  content: "";
+  position: absolute;
+  width: 2px;
+  height: 26px;
+  background: color-mix(in oklch, var(--bg) 78%, transparent);
+  transform: rotate(24deg);
+  opacity: 0.9;
+}
+
+.settlement-sweep {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.settlement-sweep::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    45deg,
+    transparent 42%,
+    color-mix(in oklch, var(--gold) 32%, transparent) 50%,
+    transparent 58%
+  );
+  transform: translateX(-130%);
+  opacity: 0;
+}
+
+.settlement-coins {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.settlement-coins i {
+  position: absolute;
+  top: -10px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 30%,
+    color-mix(in oklch, var(--gold) 85%, white),
+    var(--gold) 60%,
+    color-mix(in oklch, var(--gold) 55%, black)
+  );
+  opacity: 0;
+}
+.settlement-coins i:nth-child(1) { left: 8%; --dx: 8px; --d: 0.35s; }
+.settlement-coins i:nth-child(2) { left: 18%; --dx: -6px; --d: 0.5s; }
+.settlement-coins i:nth-child(3) { left: 29%; --dx: 10px; --d: 0.42s; }
+.settlement-coins i:nth-child(4) { left: 40%; --dx: -8px; --d: 0.62s; }
+.settlement-coins i:nth-child(5) { left: 52%; --dx: 6px; --d: 0.4s; }
+.settlement-coins i:nth-child(6) { left: 62%; --dx: -10px; --d: 0.55s; }
+.settlement-coins i:nth-child(7) { left: 72%; --dx: 8px; --d: 0.45s; }
+.settlement-coins i:nth-child(8) { left: 81%; --dx: -5px; --d: 0.6s; }
+.settlement-coins i:nth-child(9) { left: 89%; --dx: 7px; --d: 0.38s; }
+.settlement-coins i:nth-child(10) { left: 46%; --dx: -4px; --d: 0.68s; }
+
+.is-fresh .settlement-seal {
+  animation: seal-press 0.62s cubic-bezier(0.16, 0.84, 0.24, 1) both;
+}
+@keyframes seal-press {
+  0% {
+    opacity: 0;
+    transform: translateY(-26px) scale(0.55) rotate(-8deg);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(1px) scale(1.04) rotate(-8deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(-8deg);
+  }
+}
+.is-fresh .settlement-sweep::after {
+  animation: card-sweep 0.9s 0.5s ease-out both;
+}
+@keyframes card-sweep {
+  0% {
+    transform: translateX(-130%);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(130%);
+    opacity: 0;
+  }
+}
+.is-fresh .settlement-coins i {
+  animation: coin-drop 1.6s var(--d, 0.4s) ease-in both;
+}
+@keyframes coin-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.6);
+  }
+  10% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(86px) translateX(var(--dx, 0)) scale(1);
+  }
+}
+/* 部分结算：金币雨减半（后 5 枚不出现） */
+.is-fresh[data-partial] .settlement-coins i:nth-child(n + 6) {
+  display: none;
+}
+.is-fresh[data-overdue] .settlement-seal::after {
+  animation: crack-heal 1.2s 1.1s ease-out both;
+}
+@keyframes crack-heal {
+  from {
+    opacity: 0.9;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* ───────────────────────────── 4. 待机氛围：对话页炉火呼吸（可选素材） */
+.chat-home::before {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 45%;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(
+    60% 80% at 50% 100%,
+    color-mix(in oklch, var(--flame) 9%, transparent),
+    transparent 70%
+  );
+  animation: ember-breathe 7s ease-in-out infinite;
+}
+@keyframes ember-breathe {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+/* ───────────────────────────── 5. 连击火苗（委托卡常驻状态元素） */
+.combo-flame {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50% 50% 50% 0;
+  background: currentColor;
+  transform: rotate(-45deg);
+  animation: flame-sway 2s ease-in-out infinite;
+}
+@keyframes flame-sway {
+  0%,
+  100% {
+    transform: rotate(-45deg) scaleY(1);
+  }
+  50% {
+    transform: rotate(-45deg) scaleY(1.18) translateY(-1px);
+  }
+}
+
+/* ───────────────────────────── 6. 长列表渲染兜底 */
+/* 注：曾对 .chat-scroll > * 用 content-visibility:auto（56px 占位）省渲染，
+   但首屏「贴底」会在占位高度上估算，导致进入对话停在半空、看不到最新消息。
+   默认只加载最近 50 条，直接正常渲染，保证一次滚到最新。 */
+
+/* 降级：系统要求减少动态时，全部动画停用，只留静态呈现 */
+@media (prefers-reduced-motion: reduce) {
+  .vn-typing i,
+  .ceremony-layer,
+  .ceremony-level,
+  .ceremony-level::before,
+  .ceremony-rank,
+  .ceremony-seal .seal.from,
+  .ceremony-seal .seal.to,
+  .ceremony-seal .ripple,
+  .ceremony-sweep::after,
+  .settlement-card,
+  .is-fresh .settlement-seal,
+  .is-fresh .settlement-sweep::after,
+  .is-fresh .settlement-coins i,
+  .is-fresh[data-overdue] .settlement-seal::after,
+  .chat-home::before,
+  .combo-flame {
+    animation: none !important;
+  }
+  .ceremony-seal .seal.from {
+    display: none;
+  }
+  .ceremony-seal .seal.to {
+    opacity: 1;
+  }
+  .is-fresh[data-overdue] .settlement-seal::after,
+  .settlement-coins i,
+  .settlement-sweep::after {
+    display: none;
+  }
+}
+
