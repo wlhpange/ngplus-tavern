@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { checkinReward } from "../src/server/engine/checkin";
+import { checkinReward } from "../../src/server/engine/checkin";
 
 describe("签到结算（V1.8：平基准，不吃连击/难度）", () => {
   it("单属性：4 XP 全归主属性，金币 2", () => {

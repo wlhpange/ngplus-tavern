@@ -3,7 +3,7 @@ import {
   streakBonusMultiplier,
   incrementStreak,
   applyStreakBreak,
-} from "../src/server/engine/streak";
+} from "../../src/server/engine/streak";
 
 describe("streakBonusMultiplier", () => {
   it("streak 0 → ×1.0", () => {

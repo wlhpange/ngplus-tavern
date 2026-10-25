@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { applyOnceBonus } from "../src/server/engine/rarity";
+import { applyOnceBonus } from "../../src/server/engine/rarity";
 
 describe("单次/每周稀有奖励（V1.8）", () => {
   const cases: [number, string, number][] = [

@@ -6,7 +6,7 @@ import {
   rankFromLevel,
   promotedRank,
   rankUpGoldReward,
-} from "../src/server/engine/leveling";
+} from "../../src/server/engine/leveling";
 
 describe("升级曲线 150 + 100×(N-1)", () => {
   it("各级所需 XP", () => {

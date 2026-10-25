@@ -4,7 +4,7 @@ import {
   applyDailySoftCap,
   calibrationCompensationXp,
   type SettleInput,
-} from "../src/server/engine/settlement";
+} from "../../src/server/engine/settlement";
 
 const baseInput: SettleInput = {
   type: "daily",

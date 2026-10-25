@@ -4,8 +4,8 @@ import {
   isVerdictActionable,
   type ReviewInput,
   type ReviewVerdict,
-} from "../src/server/engine/review";
-import { config } from "../src/server/engine/config";
+} from "../../src/server/engine/review";
+import { config } from "../../src/server/engine/config";
 
 /** 默认输入：daily 难度 1、入账 10 XP、mind 70%/willpower 30% 分流（含连击加成 1） */
 function makeInput(overrides: Partial<ReviewInput> = {}): ReviewInput {
