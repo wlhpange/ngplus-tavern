@@ -40,7 +40,7 @@ Single-user, mobile-first, runs locally. Stack: Next.js 14 · React 18 · SQLite
 - Node.js **22+**
 - pnpm (`npm i -g pnpm`) or npm
 - An OpenAI-compatible API (DeepSeek / OpenCode Go / your own server)
-- Optional image generation: any OpenAI-compatible image endpoint
+- Optional image generation: local mflux (Apple Silicon), or a custom OpenAI-compatible image endpoint
 
 ## Install & run
 
@@ -72,7 +72,7 @@ Go to Settings → Model & channel:
 - **DeepSeek / OpenCode Go**: put the key in `.env.local` (see `.env.example`).
 - Click "Test connection".
 
-Image generation lives in Settings → Images: fill in the base URL, model and key. It posts to `{base}/images/generations`.
+Image generation lives in Settings → Images: choose "local mflux" or "Custom API". **No port needed** — mflux is a local command.
 
 ## How to play
 
@@ -88,7 +88,7 @@ The **R18 toggle** is hidden by default: tap the settings title area 5 times to 
 
 ## Image generation (optional)
 
-When enabled, each master message gets an "illustrate this scene" button. Turn it off and the button disappears. It uses any OpenAI-compatible endpoint (`{base}/images/generations`, `b64_json` or `url`). Pick a size your endpoint supports; some reject others.
+When enabled, each master message gets an "illustrate this scene" button. Turn it off and the button disappears. Use local mflux (Apple Silicon, slow on first load) or a custom OpenAI-compatible endpoint (`{base}/images/generations`). Image and text models share GPU memory — don't run both hard at once.
 
 ## Data & backup
 
@@ -97,8 +97,8 @@ Everything lives in `data/`: `ngplus.db` (database), `avatars/`, `scenes/`, `bac
 ## FAQ
 
 - **The master won't talk**: model/key not configured. Check Settings → Model & channel → Test connection.
-- **Test times out**: the network or endpoint is slow; wait and retry. A local server may still be loading.
-- **Image generation fails**: check the base URL, model name, key, and whether the endpoint supports the chosen size. Try "Test image" in Settings → Images.
+- **Test times out / out of memory**: the local model may still be loading, or competing with image generation. Wait, or lower context/resolution.
+- **Image generation seems stuck**: mflux is slow on first load; wait a minute or two, or hit Stop.
 - **Can't find the R18 toggle**: tap the settings title area 5 times.
 - **Moving machines**: `pnpm install && pnpm db:migrate`, and bring `data/` along.
 

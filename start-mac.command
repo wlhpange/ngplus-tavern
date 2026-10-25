@@ -165,6 +165,18 @@ if grep -q "^CRON_ENABLED=1" .env.local 2>/dev/null; then
   echo "      [i] 定时巡检已启用：服务运行期间每天凌晨 01:00 做断签判定（合盖休眠会跳过）。"
 fi
 
+# ---------- 本地生图（可选）：探测 mflux ----------
+MFLUX_BIN="$(command -v mflux-generate-flux2 2>/dev/null || true)"
+for p in "$HOME/.local/bin/mflux-generate-flux2" /opt/homebrew/bin/mflux-generate-flux2 /usr/local/bin/mflux-generate-flux2; do
+  [ -n "$MFLUX_BIN" ] && break
+  [ -x "$p" ] && MFLUX_BIN="$p"
+done
+if [ -n "$MFLUX_BIN" ]; then
+  echo "[生图] mflux 已就绪：$MFLUX_BIN"
+else
+  echo "[生图] 未检测到 mflux（可选功能，默认关闭）。要用本地生图：uv tool install mflux"
+fi
+
 if [ "$MODE" = "--check" ]; then
   echo ""
   echo "[OK] 自检通过：Node、pnpm、依赖、密钥、数据库都就绪。"

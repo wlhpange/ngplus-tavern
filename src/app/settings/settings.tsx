@@ -218,7 +218,7 @@ export default function SettingsClient() {
           <NavRow href="/worldbook" title="世界书" hint="角色设定 · 会长专属" />
           <NavRow href="/memory" title="记忆书" hint="长期记忆 · 永久 / 每段对话" />
           <NavRow href="/settings/model" title="模型与渠道" hint="DeepSeek / Go / 本地" />
-          <NavRow href="/settings/image" title="生图" hint="OpenAI 兼容接口 · 模型 / 尺寸 / 画风" />
+          <NavRow href="/settings/image" title="生图" hint="mflux / 自定义 API · 画风 / LoRA" />
 
           {/* P12 聊天模式会长：与任务会长解耦；相同则共享记忆书 */}
           <label className="flex w-full items-center justify-between gap-3 border-b border-border py-2.5">

@@ -16,7 +16,7 @@ import {
   setImageSettings,
   type ImageConfig,
 } from "@/server/image/config";
-import { buildScenePrompt, generateImage, ImageBackendError } from "@/server/image/generate";
+import { buildScenePrompt, generateImage, ImageBackendError, MFLUX_MODELS } from "@/server/image/mflux";
 import { registerImageRun, finishImageRun, cancelImageRun } from "@/server/image/jobs";
 import { assetUrl, saveScene } from "@/server/assets";
 import { randomUUID } from "node:crypto";
@@ -37,6 +37,7 @@ export async function GET() {
     ...getLlmConfigState(db),
     rp: getRpSettings(db),
     image: getImageConfig(db),
+    imageModels: MFLUX_MODELS.map((m) => ({ id: m.id, label: m.label })),
     // P12 聊天（酒馆）会长：显式设置（null=跟随）+ 生效 id + 可选会长列表
     chatMasterId: getChatMasterSetting(db, userId),
     chatMasterEffectiveId: getChatMasterId(db, userId),
@@ -155,24 +156,24 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // 生图（情景配图）：保存设置
+  // 本地生图（情景配图）：保存设置
   if (body.action === "saveImage") {
     const image = setImageSettings(db, body.image ?? {});
     return NextResponse.json({ ...getLlmConfigState(db), image });
   }
 
-  // 生图：停止正在进行的测试生图（取消后台请求）
+  // 本地生图：停止正在进行的测试生图（kill 后台 mflux 进程）
   if (body.action === "cancelTestImage") {
     const ok = cancelImageRun(body.token ?? "");
     return NextResponse.json({ ok });
   }
 
-  // 生图：连通性 / 效果测试——生成一张样例图返回，不挂到任何消息
+  // 本地生图：连通性 / 效果测试——生成一张样例图返回，不挂到任何消息
   if (body.action === "testImage") {
     const cfg = getImageConfig(db);
     if (!cfg.enabled) {
       return NextResponse.json(
-        { ok: false, error: "先在「设置 → 生图」里打开开关。" },
+        { ok: false, error: "先在「本地生图」里打开开关。" },
         { status: 400 },
       );
     }
@@ -181,9 +182,9 @@ export async function POST(req: NextRequest) {
     const startedAt = Date.now();
     const token = typeof body.token === "string" && body.token ? body.token : null;
     const controller = token ? registerImageRun(token) : null;
-    // 用户点停止 / 客户端断开 / 5 分钟超时，任一触发都取消请求
+    // 用户点停止 / 客户端断开 / 30 分钟超时，任一触发都 kill mflux
     const signal = AbortSignal.any(
-      [req.signal, ...(controller ? [controller.signal] : []), AbortSignal.timeout(5 * 60 * 1000)],
+      [req.signal, ...(controller ? [controller.signal] : []), AbortSignal.timeout(30 * 60 * 1000)],
     );
     try {
       const bytes = await generateImage(cfg, {

@@ -4,7 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { bootstrap } from "@/server/bootstrap";
 import { chatLog } from "@/server/db/schema";
 import { getImageConfig } from "@/server/image/config";
-import { buildScenePrompt, generateImage, ImageBackendError } from "@/server/image/generate";
+import { buildScenePrompt, generateImage, ImageBackendError } from "@/server/image/mflux";
 import { assetUrl, saveScene, sceneFilename } from "@/server/assets";
 import { getSceneJob, startSceneJob, cancelSceneJob } from "@/server/image/jobs";
 
@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
  *
  *   POST   { messageId }            → 启动后台生成，**立即返回**，不随请求断开而中止
  *   POST   { action: "test", prompt } → 设置页连通性测试（同步）
- *   DELETE ?messageId=              → 停止生成：取消后台请求并把任务移出表
+ *   DELETE ?messageId=              → 停止生成：kill 后台 mflux 进程并把任务移出表
  *   GET    ?messageId=              → 查询状态 { status, url?, error? }
  *
  * 生图在服务端跑完并落盘（data/scenes/<消息id>.png）；是否已生成以**文件**为准，
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
   const cfg = getImageConfig(db);
   if (!cfg.enabled) {
     return NextResponse.json(
-      { error: "生图还没开启。到「设置 → 生图」打开。" },
+      { error: "本地生图还没开启。到「设置 → 本地生图」打开。" },
       { status: 400 },
     );
   }
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     try {
       const bytes = await generateImage(cfg, {
         prompt,
-        signal: AbortSignal.timeout(5 * 60 * 1000),
+        signal: AbortSignal.timeout(30 * 60 * 1000),
       });
       const filename = saveScene(randomUUID(), bytes);
       return NextResponse.json({
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ ok: true, status: job.status, startedAt: job.startedAt });
 }
 
-/** 停止某条消息的后台配图：中止生成请求 */
+/** 停止某条消息的后台配图：中止生成进程 */
 export async function DELETE(req: NextRequest) {
   const messageId = req.nextUrl.searchParams.get("messageId") ?? "";
   if (!messageId) return NextResponse.json({ error: "缺少 messageId" }, { status: 400 });
