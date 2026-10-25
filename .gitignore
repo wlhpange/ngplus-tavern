@@ -1,35 +1,50 @@
-# === 依赖 / 构建产物 ===
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# dependencies
 node_modules/
-.pnpm-store/
-.next/
-out/
-build/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env*.local
+
+# typescript
 *.tsbuildinfo
 
-# === 运行时数据（**绝不要提交**：含你的存档、对话、记忆、角色卡、配图）===
+example
+
+# generated native folders
+/ios
+/android
+
+# local runtime / build leftovers
 data/
 backups/
 logs/
-*.log
-.ngplus.pid
-
-# === 环境变量（提交 .env.example，不提交真实值）===
-.env
-.env.*
-!.env.example
-
-# === 个人 / 迁移文件（不属于开源仓库）===
-.zcode/
-.node24-backup/
-MIGRATION-BASELINE.json
-MIGRATION-macOS.md
-scripts/tmp/
-scripts/restore-macos.sh
-scripts/verify-migration.mjs
-AGENT-RESTORE.md
-ngplus-macbook-migration-*.zip
-
-# === 系统 / 编辑器 ===
-.DS_Store
-.idea/
-.vscode/
+.next/
+.openchamber/

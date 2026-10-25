@@ -1,5 +1,5 @@
 import { and, eq, inArray } from "drizzle-orm";
-import { randomUUID } from "node:crypto";
+import { randomUUID } from "./util/id";
 import type { Db } from "./db";
 import { worldBookEntries, worldBooks, masterWorldBooks } from "./db/schema";
 
@@ -248,6 +248,11 @@ function entryMatches(
 ): boolean {
   if (decorators.activate !== undefined) return true;
   if (decorators.dont_activate !== undefined) return false;
+  // 可选概率（0~1）：与 Web 基准兼容的扩展字段；未设置 = 100% 命中。
+  const probability = entry.extensions?.probability;
+  if (typeof probability === "number" && probability >= 0 && probability < 1) {
+    if (Math.random() > probability) return false;
+  }
   if (entry.constant) return true;
 
   const cs = entry.caseSensitive;

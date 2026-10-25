@@ -32,7 +32,7 @@ export interface GenerateInput {
 export async function generateImage(
   cfg: Pick<ImageConfig, "apiBaseUrl" | "apiKey" | "apiModel" | "width" | "height">,
   input: GenerateInput,
-): Promise<Buffer> {
+): Promise<Uint8Array> {
   try {
     return await generateImageViaApi(cfg, {
       prompt: input.prompt,

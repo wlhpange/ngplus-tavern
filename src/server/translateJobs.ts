@@ -1,8 +1,8 @@
-import { randomUUID } from "node:crypto";
+import { randomUUID } from "./util/id";
 import type { Db } from "./db";
 import type { ImportedCard } from "./cardImport";
 import { createMasterFromCard } from "./masters";
-import { modelFromDb } from "./modelConfig";
+import { requireLlmConfig } from "./modelConfig";
 import {
   translateImportedCard,
   countTranslationUnits,
@@ -71,7 +71,7 @@ export function startTranslateJob(db: Db, userId: string, card: ImportedCard): s
 
   (async () => {
     try {
-      const model = modelFromDb(db);
+      const model = requireLlmConfig(db);
       const r = await translateImportedCard(model, card, {
         onProgress: (done, total) => {
           job.done = done;

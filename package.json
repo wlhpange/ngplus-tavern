@@ -1,59 +1,60 @@
 {
-  "name": "ngplus-tavern",
+  "name": "ngplus-android",
   "version": "0.1.1",
-  "private": true,
-  "description": "二周目协会 · NG+ Guild — 单用户、移动优先的自律养成 PWA：和 AI 会长对话，把想做的事锻造成委托。",
-  "license": "SEE LICENSE IN LICENSE",
-  "engines": {
-    "node": ">=22"
-  },
-  "scripts": {
-    "dev": "next dev",
-    "build": "node scripts/build.mjs",
-    "start": "next start",
-    "db:migrate": "tsx src/server/db/migrate.ts",
-    "icons": "node scripts/gen-icons.mjs",
-    "test": "vitest run",
-    "build:next": "next build",
-    "postinstall": "node scripts/patch-sqlite3.mjs"
-  },
+  "main": "expo-router/entry",
   "dependencies": {
-    "@ai-sdk/deepseek": "^3.0.42",
-    "@ai-sdk/openai-compatible": "^3.0.57",
-    "ai": "^7.0.97",
-    "better-sqlite3": "^12.11.1",
-    "drizzle-orm": "^0.44.0",
-    "next": "^14.2.35",
-    "node-cron": "^4.6.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-markdown": "^10.1.0",
-    "rehype-sanitize": "^6.0.0",
-    "remark-gfm": "^4.0.1",
-    "zod": "^4.6.2"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "better-sqlite3",
-      "esbuild"
-    ],
-    "overrides": {
-      "@ai-sdk/provider": "4.0.13",
-      "@ai-sdk/provider-utils": "5.0.39"
-    }
+    "@expo/ui": "~58.0.23",
+    "@expo/vector-icons": "^15.0.2",
+    "base64-js": "^1.5.1",
+    "drizzle-orm": "^0.45.4",
+    "expo": "~58.0.19",
+    "expo-blur": "~58.0.5",
+    "expo-build-properties": "~58.0.11",
+    "expo-constants": "~58.0.13",
+    "expo-device": "~58.0.5",
+    "expo-document-picker": "~58.0.4",
+    "expo-file-system": "~58.0.11",
+    "expo-font": "~58.0.10",
+    "expo-glass-effect": "~58.0.5",
+    "expo-haptics": "~58.0.7",
+    "expo-image": "~58.0.17",
+    "expo-linking": "~58.0.14",
+    "expo-notifications": "~58.1.6",
+    "expo-router": "~58.0.26",
+    "expo-secure-store": "~58.0.2",
+    "expo-sharing": "~58.0.20",
+    "expo-splash-screen": "~58.0.11",
+    "expo-sqlite": "~58.0.14",
+    "expo-status-bar": "~58.0.4",
+    "expo-symbols": "~58.0.4",
+    "expo-system-ui": "~58.0.6",
+    "expo-web-browser": "~58.0.6",
+    "fast-png": "^8.0.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-native": "0.88.0",
+    "react-native-gesture-handler": "~3.3.0",
+    "react-native-reanimated": "4.7.1",
+    "react-native-safe-area-context": "~5.10.1",
+    "react-native-screens": "~4.30.0",
+    "react-native-svg": "15.16.0",
+    "react-native-web": "~0.21.4",
+    "react-native-worklets": "0.13.0"
   },
   "devDependencies": {
-    "@ai-sdk/provider": "4.0.13",
-    "@types/better-sqlite3": "^7.6.13",
-    "@types/node": "^22.0.0",
-    "@types/node-cron": "^3.0.11",
-    "@types/react": "^18.3.0",
-    "@types/react-dom": "^18.3.0",
-    "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.17",
-    "tsx": "^4.19.0",
-    "typescript": "^5.6.0",
-    "vitest": "^2.1.0"
-  }
+    "@types/react": "~19.3.0",
+    "typescript": "~6.0.3",
+    "vitest": "^2.1.9"
+  },
+  "scripts": {
+    "start": "expo start",
+    "reset-project": "node ./scripts/reset-project.js",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "lint": "expo lint",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "private": true
 }

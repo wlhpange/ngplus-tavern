@@ -1,5 +1,5 @@
 import type { SettlementRecord } from "./character";
-import { ATTR_LABEL, KIND_LABEL, itemDisplay } from "../lib/labels";
+import { ATTR_LABEL, KIND_LABEL, itemDisplay } from "../weblib/labels";
 
 /**
  * 结算流水导出（面板「月账单 → 导出」）。

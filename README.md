@@ -1,123 +1,54 @@
-中文 | [English](./README.en.md)
+# 二周目协会 · Android
 
-# 二周目协会 · NG+ Guild
+一间只有一个人的小协会。你和 AI「会长」对话，把想做却一直没做成的事锻造成委托；完成后结算经验与金币，升级、晋段、维持连击。也可以切到酒馆模式，和角色待一会儿。
 
-一间只有一个人的小协会。你和 AI「会长」对话，把想做却一直没做成的事锻造成委托；完成后结算经验与金币，升级、晋段、维持连击。也可以切到酒馆模式，单纯和角色待一会儿。
+**本仓库现在只有 Android 端**（Expo / React Native）。  
+Web 版已归档到 GitHub 的 `web` 分支与 `web-v0.1.1` tag，不再维护。
 
-单用户、移动优先、本机运行。技术栈：Next.js 14 · React 18 · SQLite（drizzle + better-sqlite3）· 任意 OpenAI 兼容模型。
+- 数据只在手机本地 SQLite，不依赖电脑常开，不上传云端。
+- API Key 只进 Android Keystore / iOS Keychain。
+- 模型与生图都走你自己的 OpenAI 兼容 API；不包含本地生图/本地模型。
 
-## 界面预览
-
-<table>
-  <tr>
-    <td align="center"><img src="./docs/screenshots/01-gate.jpg" width="200" /><br /><sub>推门</sub></td>
-    <td align="center"><img src="./docs/screenshots/02-masters.jpg" width="200" /><br /><sub>选择会长</sub></td>
-    <td align="center"><img src="./docs/screenshots/03-chat.jpg" width="200" /><br /><sub>对话 / 任务</sub></td>
-  </tr>
-  <tr>
-    <td align="center"><img src="./docs/screenshots/04-panel.jpg" width="200" /><br /><sub>角色面板</sub></td>
-    <td align="center"><img src="./docs/screenshots/05-shop.jpg" width="200" /><br /><sub>协会商店</sub></td>
-    <td align="center"><img src="./docs/screenshots/06-skills.jpg" width="200" /><br /><sub>技能树</sub></td>
-  </tr>
-  <tr>
-    <td align="center"><img src="./docs/screenshots/07-worldbook.jpg" width="200" /><br /><sub>世界书</sub></td>
-    <td align="center"><img src="./docs/screenshots/08-model.jpg" width="200" /><br /><sub>模型与渠道</sub></td>
-    <td align="center"><img src="./docs/screenshots/09-image.jpg" width="200" /><br /><sub>生图设置</sub></td>
-  </tr>
-</table>
-
-> 截图来自全新的初始档，不含任何个人数据。
-
-## 许可与内容
-
-- 非商业许可：[PolyForm Noncommercial 1.0.0](./LICENSE)。可以自由使用、修改、分发，**不能商用**。
-- 含 R18 内容开关，默认关闭，**18+**。
-- 单用户、没有登录与鉴权，**不要部署到公网**。
-- `public/sprites/lpc/` 的像素素材按各自许可分发，署名见 [docs/CREDITS-lpc.md](./docs/CREDITS-lpc.md)。
-
-## 环境要求
-
-- Node.js **22+**
-- pnpm（`npm i -g pnpm`）或 npm
-- 一个 OpenAI 兼容的 API（DeepSeek / OpenCode Go / 你自己的服务）
-- 生图可选：一个 OpenAI 兼容的生图接口（`{地址}/images/generations`）
-
-## 安装与启动
+## 运行
 
 ```bash
-git clone https://github.com/wlhpange/ngplus-tavern.git
-cd ngplus-tavern
-pnpm install
-cp .env.example .env.local
-pnpm db:migrate
-pnpm dev
+npm install
+npx expo start
 ```
 
-打开 `http://localhost:3000`。停止服务：在本窗口按 **Control + C**。
+- 手机装 **Expo Go**（需支持 SDK 58）扫码；或接 Android 设备/模拟器：
+  ```bash
+  npx expo run:android
+  ```
 
-也可以双击对应平台的脚本，同样是前台运行（Ctrl+C 停止）：
-
-| 平台 | 双击这个 | 说明 |
-|---|---|---|
-| **macOS** | `start-mac.command` | 前台运行；加 `--background` 才后台，停止用 `stop-mac.command` |
-| **Windows** | `start.bat` | 前台运行 |
-| Linux / macOS 终端 / Windows Git Bash | `./start.sh` | 前台运行 |
-| Android · Termux | `./start-termux.sh` | Termux 环境用 |
-
-## 先配模型
-
-第一次进来，去「设置 → 模型与渠道」：
-
-- **自定义 API**：填你自己的 OpenAI 兼容地址、模型名和 Key（本机服务 Key 可留空）。
-- **DeepSeek 官方 / OpenCode Go**：在 `.env.local` 里填对应 Key（见 `.env.example`）。
-- 填完点「测试连接」。
-
-生图在「设置 → 生图」：填接口地址 / 模型 / Key，会请求 `{地址}/images/generations`。
-
-## 使用指南
-
-**第一次**：推门 → 选会长（第五扇门可以按你的描述让 AI 造一位）→ 说一件想做的事 → 生成第一份委托 → 接受。
-
-**任务模式**：用来汇报和结算。做完一件委托，进来说一句，会长判定后结算经验、金币和属性。升级、晋段、连击都在这里。
-
-**聊天模式**：纯角色扮演，没有数值。可以开多段会话，每段有自己的开场白和记忆。
-
-**其他页面**：
-
-- 委托板：按状态看所有委托，完成的可以一键重挂。
-- 面板：等级、六维、评级、称号、图鉴、月账单。
-- 商店：休整卷轴（断签时保连击）与礼物；送礼推进好感，按会长各记一份。
-- 技能树：金币 + 等级解锁，效果在结算/签到时生效。
-- 世界书：给会长加设定，按关键词或常驻注入，可挂给多位会长。
-- 记忆书：会长在对话里自动记下的事，分「永久记忆」和每段酒馆对话的私有记忆，可改可删。
-- 冒险者卡：关于你自己的设定，任务和聊天都会带上。
-
-**R18 开关**默认隐藏：在设置页连点标题区 5 下出现，旁边可以「收起」。
-
-## 生图（可选）
-
-打开后，聊天里每条会长消息下会出现「给这一幕配图」，点一下后台生成，好了挂在消息下。关掉开关按钮就不出现。
-
-- 只接 API：在「设置 → 生图」填 OpenAI 兼容接口的地址、模型和 Key。
-- 请求 `{地址}/images/generations`，兼容 b64_json 和 url 两种返回。
-- 尺寸要按接口支持的来；不支持时接口会报错，换一个尺寸即可。
-
-## 数据与备份
-
-所有数据在 `data/`：`ngplus.db` 是数据库，`avatars/`、`scenes/`、`backgrounds/` 是图片。备份就整个拷走；删掉 `data/` 等于清档。
-
-## 常见问题
-
-- **会长不说话**：模型没配好或 Key 没填，去「设置 → 模型与渠道」测试连接。
-- **测试连接超时**：网络或接口较慢，稍等再试；本地服务可能还在加载。
-- **生图失败**：检查接口地址 / 模型名 / Key，以及接口是否支持所选尺寸；可在「设置 → 生图」点「测试生图」。
-- **R18 开关找不到**：设置页连点标题区 5 下。
-- **换机/换环境**：`pnpm install && pnpm db:migrate`，把 `data/` 一起带过去即可。
-
-## 开发
+## 构建 APK
 
 ```bash
-pnpm test              # 单元测试（LLM 走 mock，不需要真实 Key）
-pnpm exec tsc --noEmit # 类型检查
-pnpm build             # 生产构建（不要并行跑多个 build）
+npx expo prebuild -p android
+cd android
+./gradlew assembleRelease
 ```
+
+产物：`android/app/build/outputs/apk/release/app-release.apk`（debug keystore 签名，适合个人侧载；上架需换成正式 keystore）。
+
+## 主要功能
+
+- 推门 / 选会长 / 更换会长 / 新增会长（AI 锻造）/ 导入 V1–V3 角色卡（含世界书）/ 翻译
+- 任务 + 聊天双管线：流式、工具调用、多会话、开场白、背景、分页、删除、场景配图、Markdown、升级/晋段仪式、复核与争议
+- 委托板 / 档案室 / 结算 / 逾期
+- 面板：等级、评级、六维、称号、图鉴、周常 Boss、月账单（CSV / Markdown 导出）
+- 商店（购买、库存、休整卷轴、礼物、亲密度）、技能树
+- 世界书、记忆书、聊天记录、冒险者卡、R18 开关、每日事件、签到/连击/跨天补算
+- LPC 像素小人：1053 张分层素材、7 槽位、5 材质色、变体颜色、待机/动作/走路
+- 模型渠道：DeepSeek / OpenCode / 自定义 API + 测试连接；API 生图
+
+## 文档
+
+- `docs/PARITY.md`：Web → Android 功能逐项对照与验收记录
+- `docs/MANUAL-TEST.md`：真机手动验收清单
+- `docs/CREDITS-lpc.md`：LPC 像素素材署名
+
+## 许可
+
+非商业许可 [PolyForm Noncommercial 1.0.0](./LICENSE)。可以自由使用、修改、分发，**不能商用**。  
+含 R18 内容开关（默认关闭，18+）；单用户、无鉴权，不要部署到公网。

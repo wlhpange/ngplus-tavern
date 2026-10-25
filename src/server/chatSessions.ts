@@ -1,5 +1,5 @@
 import { and, desc, eq, inArray, isNull, or } from "drizzle-orm";
-import { randomUUID } from "node:crypto";
+import { randomUUID } from "./util/id";
 import type { Db } from "./db";
 import { chatSessions, chatLog, memory } from "./db/schema";
 import { deleteMemoriesForSessions } from "./memory";

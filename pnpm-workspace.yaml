@@ -1,6 +1,0 @@
-allowBuilds:
-  # better-sqlite3 的 install 脚本（prebuild-install || node-gyp）在本机必败：
-  # GitHub releases 下载不稳 + 无 C++ 工具链。预编译产物由
-  # scripts/patch-sqlite3.mjs（package.json postinstall）从 npmmirror 镜像安装。
-  better-sqlite3: false
-  esbuild: true

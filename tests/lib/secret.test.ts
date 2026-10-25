@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { registerSecretTap, SECRET_TAPS, SECRET_WINDOW_MS } from "../../src/lib/secret";
+import { registerSecretTap, SECRET_TAPS, SECRET_WINDOW_MS } from "../../src/weblib/secret";
 
 describe("设置页彩蛋：连点解锁", () => {
   it("连续 SECRET_TAPS 次（间隔内）达成解锁，并清空计数", () => {

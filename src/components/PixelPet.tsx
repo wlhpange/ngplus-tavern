@@ -1,178 +1,244 @@
-"use client";
+import { useEffect, useMemo, useState } from "react";
+import { Image, StyleSheet, View } from "react-native";
+import { fromByteArray, toByteArray } from "base64-js";
+import { decode, encode } from "fast-png";
 
-import { useEffect, useRef, useState } from "react";
+import catalogJson from "@/server/pet_catalog.json";
+import palettesJson from "@/server/pet_palettes.json";
+import lpcData from "@/weblib/lpcData.json";
 import {
   resolveLayers,
   type PetCatalog,
   type PetDescriptor,
   type PetMaterial,
   type PetPalettes,
-} from "@/lib/petCatalog";
+  type ResolvedLayer,
+} from "@/weblib/petCatalog";
 
 /**
- * PixelPet · 桌面宠物式像素小人（路线 A：内置 LPC 部件拼装 + 调色板重上色）
- *
- * 输入一份「形象描述」descriptor（出处：角色卡映射 or 手动选择），
- * 从 catalog.json 解析出图层、按 z 叠放，取正面行（第 3 行）轮播帧。
+ * LPC 像素小人：与 Web 相同的 catalog / palettes / 分层 sprite sheet。
+ * - 运行时用 fast-png 解 PNG，按调色板替换 RGB，再编码成 data URI；
+ * - 用 64×64 的裁剪窗口播放正面行（frontRow）的动画帧；
+ * - 素材随 APK 打包，不需要网络。
  */
-
 export type PetAnim = "idle" | "walk" | "emote";
-export type PetColors = Partial<Record<PetMaterial, string>>;
 
+const catalog = catalogJson as unknown as PetCatalog;
+const palettes = palettesJson as unknown as PetPalettes;
+const LPC_DATA = lpcData as Record<string, { b64: string; w: number; h: number }>;
 const FRAME = 64;
-const FRONT_ROW = 2; // LPC：0=上 1=左 2=下(正面) 3=右
 
-const DEFAULT_ANIMS: Record<string, { frames: number; fps: number }> = {
-  idle: { frames: 2, fps: 4 },
-  walk: { frames: 9, fps: 10 },
-  emote: { frames: 3, fps: 5 },
-};
+type LayerImage = { uri: string; width: number; height: number; z: number };
 
-let catalogCache: PetCatalog | null = null;
-let palettesCache: PetPalettes | null = null;
+const recolorCache = new Map<string, LayerImage>();
 
-export async function loadCatalog(basePath = "/sprites/lpc/"): Promise<PetCatalog> {
-  if (!catalogCache) catalogCache = (await (await fetch(`${basePath}catalog.json`)).json()) as PetCatalog;
-  return catalogCache;
-}
-export async function loadPalettes(basePath = "/sprites/lpc/"): Promise<PetPalettes> {
-  if (!palettesCache) palettesCache = (await (await fetch(`${basePath}palettes.json`)).json()) as PetPalettes;
-  return palettesCache;
+function hexToInt(hex: string): number {
+  const h = hex.replace("#", "");
+  return parseInt(h.length >= 6 ? h.slice(0, 6) : h.padEnd(6, "0"), 16);
 }
 
-function hexOf(r: number, g: number, b: number): string {
-  return `#${[r, g, b].map((x) => x.toString(16).padStart(2, "0")).join("")}`;
-}
-function loadImage(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.src = src;
-  });
-}
-
-function buildColorMap(materials: PetMaterial[], colors: PetColors, palettes: PetPalettes): Map<string, string> {
-  const map = new Map<string, string>();
-  for (const mat of materials) {
+function buildColorMap(layer: ResolvedLayer, colors: Record<string, string | undefined>) {
+  const map = new Map<number, number>();
+  for (const mat of layer.materials as PetMaterial[]) {
     const p = palettes[mat];
     if (!p) continue;
     const base = p.colors[p.base];
-    const target = colors[mat] ? p.colors[colors[mat]] : null;
+    const key = colors[mat];
+    const target = key ? p.colors[key] : null;
     if (!base || !target) continue;
-    for (let i = 0; i < base.length; i++) {
-      map.set(base[i].toLowerCase(), (target[i] ?? base[i]).toLowerCase());
-    }
+    const n = Math.min(base.length, target.length);
+    for (let i = 0; i < n; i++) map.set(hexToInt(base[i]), hexToInt(target[i] ?? base[i]));
   }
   return map;
 }
 
-async function loadRecolored(
-  src: string,
-  materials: PetMaterial[],
-  colors: PetColors,
-  palettes: PetPalettes,
-): Promise<HTMLCanvasElement> {
-  const img = await loadImage(src);
-  const c = document.createElement("canvas");
-  c.width = img.width;
-  c.height = img.height;
-  const cx = c.getContext("2d");
-  if (!cx) return c;
-  cx.imageSmoothingEnabled = false;
-  cx.drawImage(img, 0, 0);
-
-  const map = materials.length ? buildColorMap(materials, colors, palettes) : null;
-  if (map && map.size) {
-    const data = cx.getImageData(0, 0, c.width, c.height);
-    const d = data.data;
-    for (let i = 0; i < d.length; i += 4) {
-      if (d[i + 3] === 0) continue;
-      const t = map.get(hexOf(d[i], d[i + 1], d[i + 2]));
-      if (t) {
-        d[i] = parseInt(t.slice(1, 3), 16);
-        d[i + 1] = parseInt(t.slice(3, 5), 16);
-        d[i + 2] = parseInt(t.slice(5, 7), 16);
-      }
+/** fast-png 可能返回 RGBA（type 6）或索引色（type 3）；统一展开为 RGBA。 */
+function toRgba(png: {
+  width: number;
+  height: number;
+  channels: number;
+  data: Uint8Array;
+  depth: number;
+  palette?: number[][];
+}): Uint8Array {
+  if (png.channels === 4) return png.data;
+  const n = png.width * png.height;
+  const out = new Uint8Array(n * 4);
+  if (png.channels === 3) {
+    for (let i = 0; i < n; i++) {
+      out[i * 4] = png.data[i * 3];
+      out[i * 4 + 1] = png.data[i * 3 + 1];
+      out[i * 4 + 2] = png.data[i * 3 + 2];
+      out[i * 4 + 3] = 255;
     }
-    cx.putImageData(data, 0, 0);
+    return out;
   }
-  return c;
+  if (png.channels === 1 && png.palette) {
+    for (let i = 0; i < n; i++) {
+      const c = png.palette[png.data[i]] ?? [0, 0, 0, 0];
+      out[i * 4] = c[0] ?? 0;
+      out[i * 4 + 1] = c[1] ?? 0;
+      out[i * 4 + 2] = c[2] ?? 0;
+      out[i * 4 + 3] = c[3] ?? 255;
+    }
+    return out;
+  }
+  return out;
 }
 
-export default function PixelPet({
+function sheetKey(layer: ResolvedLayer, anim: PetAnim): { key: string; fallback: string } {
+  const variant = layer.variant ?? "";
+  return layer.layout === "variant"
+    ? { key: `${layer.path}${anim}/${variant}.png`, fallback: `${layer.path}idle/${variant}.png` }
+    : { key: `${layer.path}${anim}.png`, fallback: `${layer.path}idle.png` };
+}
+
+async function loadLayer(
+  layer: ResolvedLayer,
+  anim: PetAnim,
+  colors: Record<string, string | undefined>,
+): Promise<LayerImage | null> {
+  const { key, fallback } = sheetKey(layer, anim);
+  const chosen = LPC_DATA[key] ? key : LPC_DATA[fallback] ? fallback : null;
+  if (!chosen) return null;
+  const colorKey = layer.materials.map((m) => colors[m] ?? "").join(",");
+  const cacheKey = `${chosen}|${colorKey}`;
+  const cached = recolorCache.get(cacheKey);
+  if (cached) return cached;
+
+  const entry = LPC_DATA[chosen];
+  const map = buildColorMap(layer, colors);
+
+  let result: LayerImage;
+  if (map.size === 0) {
+    result = {
+      uri: `data:image/png;base64,${entry.b64}`,
+      width: entry.w,
+      height: entry.h,
+      z: layer.z,
+    };
+  } else {
+    const bytes = toByteArray(entry.b64);
+    const png = decode(bytes) as unknown as {
+      width: number;
+      height: number;
+      channels: number;
+      data: Uint8Array;
+      depth: number;
+      palette?: number[][];
+    };
+    const rgba = toRgba(png);
+    for (let i = 0; i < rgba.length; i += 4) {
+      if (rgba[i + 3] === 0) continue;
+      const packed = (rgba[i] << 16) | (rgba[i + 1] << 8) | rgba[i + 2];
+      const target = map.get(packed);
+      if (target !== undefined) {
+        rgba[i] = (target >> 16) & 255;
+        rgba[i + 1] = (target >> 8) & 255;
+        rgba[i + 2] = target & 255;
+      }
+    }
+    const out = encode({ width: png.width, height: png.height, data: rgba, channels: 4, depth: 8 });
+    result = {
+      uri: `data:image/png;base64,${fromByteArray(out)}`,
+      width: png.width,
+      height: png.height,
+      z: layer.z,
+    };
+  }
+
+  recolorCache.set(cacheKey, result);
+  return result;
+}
+
+export function PixelPet({
   descriptor,
   animation = "idle",
   display = 64,
-  basePath = "/sprites/lpc/",
-  className,
+  face,
 }: {
   descriptor: PetDescriptor;
   animation?: PetAnim;
-  /** 显示边长（px）。建议 64 或整数倍，缩小会丢像素 */
   display?: number;
-  basePath?: string;
-  className?: string;
+  face?: string | null;
 }) {
-  const ref = useRef<HTMLCanvasElement>(null);
-  const rafRef = useRef(0);
-  const [, setTick] = useState(0);
-  const descKey = JSON.stringify(descriptor);
+  const desc = useMemo<PetDescriptor>(
+    () => (face ? { ...descriptor, items: { ...descriptor.items, face } } : descriptor),
+    [descriptor, face],
+  );
+  const descKey = JSON.stringify(desc);
+  const anim = catalog.animations[animation] ?? { frames: 2, fps: 4 };
+  const frames = Math.max(1, anim.frames);
+  const [layers, setLayers] = useState<LayerImage[]>([]);
+  const [frame, setFrame] = useState(0);
 
   useEffect(() => {
-    const canvas = ref.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    ctx.imageSmoothingEnabled = false;
-
-    const desc: PetDescriptor = JSON.parse(descKey);
-    const colors = (desc.colors ?? {}) as PetColors;
     let cancelled = false;
-
+    setLayers([]);
     (async () => {
-      const [catalog, palettes] = await Promise.all([loadCatalog(basePath), loadPalettes(basePath)]);
-      const anim = catalog.animations[animation] ?? DEFAULT_ANIMS[animation];
-      const layers = resolveLayers(catalog, desc);
-      const drawn = await Promise.all(
-        layers.map(async (l) => {
-          const src =
-            l.layout === "variant"
-              ? `${basePath}${l.path}${animation}/${l.variant}.png`
-              : `${basePath}${l.path}${animation}.png`;
-          return { img: await loadRecolored(src, l.materials, colors, palettes) };
-        }),
+      const resolved = resolveLayers(catalog, desc);
+      const out = await Promise.all(
+        resolved.map((l) => loadLayer(l, animation, desc.colors ?? {}).catch(() => null)),
       );
-      if (cancelled) return;
-
-      const start = performance.now();
-      const loop = (t: number) => {
-        const frame = Math.floor(((t - start) / 1000) * anim.fps) % anim.frames;
-        ctx.clearRect(0, 0, FRAME, FRAME);
-        for (const { img } of drawn) {
-          ctx.drawImage(img, frame * FRAME, FRONT_ROW * FRAME, FRAME, FRAME, 0, 0, FRAME, FRAME);
-        }
-        rafRef.current = requestAnimationFrame(loop);
-      };
-      rafRef.current = requestAnimationFrame(loop);
-      setTick((x) => x + 1);
+      if (!cancelled) setLayers(out.filter((x): x is LayerImage => Boolean(x)));
     })();
-
     return () => {
       cancelled = true;
-      cancelAnimationFrame(rafRef.current);
     };
-  }, [descKey, animation, basePath]);
+  }, [descKey, animation]);
+
+  useEffect(() => {
+    setFrame(0);
+    if (frames <= 1) return;
+    const timer = setInterval(() => setFrame((f) => (f + 1) % frames), Math.max(60, 1000 / anim.fps));
+    return () => clearInterval(timer);
+  }, [frames, anim.fps, animation]);
+
+  const scale = display / FRAME;
+  const row = catalog.frontRow ?? 2;
 
   return (
-    <canvas
-      ref={ref}
-      width={FRAME}
-      height={FRAME}
-      className={className}
-      style={{ width: display, height: display, imageRendering: "pixelated" }}
-      aria-label="会长像素小人"
-      role="img"
-    />
+    <View style={[styles.frame, { width: display, height: display }]}>
+      {layers.map((l, i) => (
+        <Image
+          key={i}
+          source={{ uri: l.uri }}
+          resizeMode="stretch"
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            width: l.width * scale,
+            height: l.height * scale,
+            transform: [
+              { translateX: -frame * FRAME * scale },
+              { translateY: -row * FRAME * scale },
+            ],
+          }}
+        />
+      ))}
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  frame: { overflow: "hidden" },
+});
+
+export function defaultDescriptor(): PetDescriptor {
+  return {
+    bodyType: "female",
+    items: {
+      body: "body",
+      head: "heads_human_female",
+      face: "face_neutral",
+      hair: "hair_ponytail",
+      top: "torso_clothes_longsleeve2",
+      bottom: "legs_pants2",
+      shoes: "feet_shoes_basic",
+    },
+    colors: { body: "light", hair: "blonde", cloth: "purple", eye: "green" },
+  };
+}
+
+

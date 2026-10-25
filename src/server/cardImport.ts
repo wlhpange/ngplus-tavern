@@ -1,4 +1,5 @@
 import type { PersonaJson } from "./llm/prompts";
+import { decodeBase64, latin1Decode, utf8Decode } from "./util/bytes";
 
 /**
  * P5 生态导入：解析 Character Card V1/V2/V3（JSON 或 PNG 内嵌 tEXt chunk），
@@ -23,7 +24,7 @@ const PNG_SIGNATURE = [137, 80, 78, 71, 13, 10, 26, 10];
 
 /** 从 PNG 字节里抽出全部 tEXt chunk（keyword, text） */
 export function extractPngTextChunks(
-  bytes: Buffer,
+  bytes: Uint8Array,
 ): { keyword: string; text: string }[] {
   for (let i = 0; i < 8; i++) {
     if (bytes[i] !== PNG_SIGNATURE[i]) throw new Error("不是 PNG 文件");
@@ -31,8 +32,8 @@ export function extractPngTextChunks(
   const chunks: { keyword: string; text: string }[] = [];
   let off = 8;
   while (off + 8 <= bytes.length) {
-    const len = bytes.readUInt32BE(off);
-    const type = bytes.toString("latin1", off + 4, off + 8);
+    const len = ((bytes[off] << 24) | (bytes[off + 1] << 16) | (bytes[off + 2] << 8) | bytes[off + 3]) >>> 0;
+    const type = latin1Decode(bytes, off + 4, off + 8);
     const dataStart = off + 8;
     const dataEnd = dataStart + len;
     if (dataEnd > bytes.length) break;
@@ -41,8 +42,8 @@ export function extractPngTextChunks(
       const nul = data.indexOf(0);
       if (nul >= 0) {
         chunks.push({
-          keyword: data.toString("latin1", 0, nul),
-          text: data.toString("latin1", nul + 1),
+          keyword: latin1Decode(data, 0, nul),
+          text: latin1Decode(data, nul + 1),
         });
       }
     }
@@ -56,7 +57,7 @@ export function extractPngTextChunks(
  * 解析卡文件字节为原始卡对象：PNG 走 tEXt chunk（ccv3 优先于 chara），
  * 其余按 UTF-8 JSON 文本解析。
  */
-export function parseCardBytes(bytes: Buffer, filename = ""): unknown {
+export function parseCardBytes(bytes: Uint8Array, filename = ""): unknown {
   const isPng =
     bytes.length > 8 &&
     PNG_SIGNATURE.every((b, i) => bytes[i] === b);
@@ -67,9 +68,9 @@ export function parseCardBytes(bytes: Buffer, filename = ""): unknown {
       chunks.find((c) => c.keyword.toLowerCase() === kw)?.text;
     const encoded = pick("ccv3") ?? pick("chara");
     if (!encoded) throw new Error("PNG 里没有角色卡数据（缺 ccv3/chara chunk）");
-    jsonText = Buffer.from(encoded, "base64").toString("utf8");
+    jsonText = utf8Decode(decodeBase64(encoded));
   } else {
-    jsonText = bytes.toString("utf8");
+    jsonText = utf8Decode(bytes);
   }
   try {
     return JSON.parse(jsonText);

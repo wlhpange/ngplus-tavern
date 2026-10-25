@@ -1,31 +1,37 @@
-"use client";
+import { useMemo, useState } from "react";
+import {
+  FlatList,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
-import { useEffect, useMemo, useState } from "react";
-import PixelPet, { loadCatalog, loadPalettes, type PetAnim } from "@/components/PixelPet";
+import { C, Fonts, R, S } from "@/constants/theme";
+import catalogJson from "@/server/pet_catalog.json";
+import palettesJson from "@/server/pet_palettes.json";
 import {
   SLOT_ORDER,
-  itemForBody,
+  availableAnims,
   usedMaterials,
   type PetCatalog,
   type PetDescriptor,
+  type PetMaterial,
   type PetPalettes,
-} from "@/lib/petCatalog";
+} from "@/weblib/petCatalog";
+import { PixelPet, defaultDescriptor, type PetAnim } from "./PixelPet";
+import { Chip } from "./ui";
 
-/**
- * PetDesigner · 像素小人形象设计器
- * 左侧预览（PixelPet），右侧按槽位选部件 + 按材质选颜色。
- * 供会长页「形象」区与 spike 演示页复用。
- */
+const catalog = catalogJson as unknown as PetCatalog;
+const palettes = palettesJson as unknown as PetPalettes;
 
-const SLOT_LABELS: Record<string, string> = {
-  body: "身体",
-  head: "头型",
-  face: "表情",
-  hair: "发型",
-  top: "上衣",
-  bottom: "下装",
-  shoes: "鞋",
-};
+const SLOT_LABELS: Record<string, string> = Object.fromEntries(
+  catalog.slots.map((s) => [s.key, s.label]),
+);
+const OPTIONAL_SLOTS = new Set(["face", "hair", "top", "bottom", "shoes"]);
+const BODY_LABELS: Record<string, string> = { female: "女相", male: "男相" };
 const MATERIAL_LABELS: Record<string, string> = {
   body: "肤色",
   hair: "发色",
@@ -33,219 +39,357 @@ const MATERIAL_LABELS: Record<string, string> = {
   eye: "瞳色",
   metal: "金属色",
 };
-// body 必选；其余可「无」
-const OPTIONAL_SLOTS = new Set(["face", "hair", "top", "bottom", "shoes"]);
+const ANIM_LABELS: Record<string, string> = { idle: "待机", emote: "动作", walk: "走路" };
 
-export function defaultDescriptor(): PetDescriptor {
-  return {
-    bodyType: "female",
-    items: {
-      body: "body",
-      head: "heads_human_female",
-      face: "face_neutral",
-      hair: "hair_ponytail",
-      top: "torso_clothes_tshirt",
-      bottom: "legs_pants",
-      shoes: "feet_boots_basic",
-    },
-    colors: { body: "light", hair: "blonde", cloth: "purple", eye: "green" },
-  };
+type Option = { id: string; label: string; hint?: string };
+type PickerState = {
+  title: string;
+  options: Option[];
+  selected?: string;
+  onPick: (id: string) => void;
+};
+
+function firstFor(slot: string, bodyType: string): string | undefined {
+  return Object.entries(catalog.items).find(
+    ([, it]) => it.slot === slot && it.bodyTypes.includes(bodyType),
+  )?.[0];
 }
 
-/** 让描述在给定目录下保持有效（体型变化后剔除不适用部件；补齐 body/head 必选） */
-export function sanitizeDescriptor(catalog: PetCatalog, d: PetDescriptor): PetDescriptor {
-  const items: Record<string, string | undefined> = {};
-  for (const slot of SLOT_ORDER) {
-    const id = d.items[slot];
-    if (id && itemForBody(catalog, id, d.bodyType)) items[slot] = id;
-  }
-  const firstOf = (slot: string, preferBody?: string): string | undefined => {
-    const opts = Object.entries(catalog.items).filter(
-      ([, it]) => it.slot === slot && it.bodyTypes.includes(d.bodyType),
-    );
-    return (
-      (preferBody && opts.find(([id]) => id.endsWith(`_${preferBody}`))?.[0]) ?? opts[0]?.[0]
-    );
-  };
-  // body / head 是必选（LPC 身体本身没有头，头是独立图层）
-  if (!items.body) items.body = firstOf("body");
-  if (!items.head) items.head = firstOf("head", d.bodyType);
-  // 变体布局部件的颜色兜底（缺省取该部件第一个颜色）
-  const itemVariants: Record<string, string | undefined> = {};
-  for (const slot of SLOT_ORDER) {
-    const it = items[slot] ? catalog.items[items[slot]!] : null;
-    if (it?.layout === "variant" && it.variants?.length) {
-      const cur = d.itemVariants?.[slot];
-      itemVariants[slot] = cur && it.variants.includes(cur) ? cur : it.variants[0];
-    }
-  }
-  return { ...d, items, itemVariants };
-}
-
-export default function PetDesigner({
+export function PetDesigner({
   value,
   onChange,
-  animation = "idle",
   display = 128,
-  showAnimationSwitch = false,
+  showAnimationSwitch,
 }: {
   value: PetDescriptor;
-  onChange: (next: PetDescriptor) => void;
-  animation?: PetAnim;
+  onChange: (d: PetDescriptor) => void;
   display?: number;
   showAnimationSwitch?: boolean;
 }) {
-  const [catalog, setCatalog] = useState<PetCatalog | null>(null);
-  const [palettes, setPalettes] = useState<PetPalettes | null>(null);
-  const [anim, setAnim] = useState<PetAnim>(animation);
+  const [anim, setAnim] = useState<PetAnim>("idle");
+  const [picker, setPicker] = useState<PickerState | null>(null);
+  const [query, setQuery] = useState("");
 
-  useEffect(() => {
-    Promise.all([loadCatalog(), loadPalettes()])
-      .then(([c, p]) => {
-        setCatalog(c);
-        setPalettes(p);
-        onChange(sanitizeDescriptor(c, value));
-      })
-      .catch(() => {
-        setCatalog(null);
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const slots = useMemo(() => {
+    return SLOT_ORDER.map((key) => {
+      const item = catalog.items[value.items[key] ?? ""];
+      const valid = item && item.bodyTypes.includes(value.bodyType) ? item : null;
+      return { key, item: valid };
+    });
+  }, [value]);
 
-  const materials = useMemo(
-    () => (catalog ? usedMaterials(catalog, value) : []),
-    [catalog, value],
-  );
+  const materials = useMemo(() => usedMaterials(catalog, value), [value]);
 
-  if (!catalog || !palettes) {
-    return <p className="text-fs-micro text-faint">正在加载部件库……</p>;
+  function openPicker(state: PickerState) {
+    setQuery("");
+    setPicker(state);
   }
 
-  const setItem = (slot: string, id: string) =>
-    onChange(sanitizeDescriptor(catalog, { ...value, items: { ...value.items, [slot]: id || undefined } }));
-  const setColor = (mat: string, name: string) =>
-    onChange({ ...value, colors: { ...value.colors, [mat]: name } });
+  function setItem(slot: string, id: string) {
+    const item = id ? catalog.items[id] : null;
+    const items = { ...value.items, [slot]: id || undefined };
+    const itemVariants = { ...(value.itemVariants ?? {}) };
+    if (item?.layout === "variant" && item.variants?.length) {
+      itemVariants[slot] = item.variants[0];
+    } else {
+      delete itemVariants[slot];
+    }
+    onChange({ ...value, items, itemVariants });
+  }
+
+  function setBodyType(bodyType: string) {
+    const items = { ...value.items };
+    for (const slot of SLOT_ORDER) {
+      const id = items[slot];
+      const item = id ? catalog.items[id] : null;
+      if (item && !item.bodyTypes.includes(bodyType)) {
+        items[slot] = OPTIONAL_SLOTS.has(slot) ? undefined : firstFor(slot, bodyType);
+      }
+      if (!items[slot] && (slot === "body" || slot === "head")) {
+        items[slot] = firstFor(slot, bodyType);
+      }
+    }
+    const itemVariants = { ...(value.itemVariants ?? {}) };
+    for (const slot of SLOT_ORDER) {
+      const item = items[slot] ? catalog.items[items[slot]!] : null;
+      if (item?.layout === "variant" && item.variants?.length) {
+        itemVariants[slot] = itemVariants[slot] ?? item.variants[0];
+      } else {
+        delete itemVariants[slot];
+      }
+    }
+    onChange({ ...value, bodyType, items, itemVariants });
+  }
+
+  function slotOptions(slot: string): Option[] {
+    const out: Option[] = Object.entries(catalog.items)
+      .filter(([, it]) => it.slot === slot && it.bodyTypes.includes(value.bodyType))
+      .map(([id, it]) => ({ id, label: it.label, hint: it.category }));
+    if (OPTIONAL_SLOTS.has(slot)) out.unshift({ id: "", label: "无" });
+    return out;
+  }
+
+  function variantOptions(slot: string, item: NonNullable<(typeof slots)[number]["item"]>): Option[] {
+    return (item.variants ?? []).map((v) => ({ id: v, label: v }));
+  }
+
+  function colorOptions(mat: PetMaterial): Option[] {
+    const p = palettes[mat];
+    if (!p) return [];
+    return [
+      { id: "", label: "默认（基色）" },
+      ...Object.keys(p.colors).map((c) => ({ id: c, label: c, hint: p.label })),
+    ];
+  }
+
+  const anims = availableAnims(catalog, value);
+  const animOptions: PetAnim[] = (["idle", "emote", "walk"] as PetAnim[]).filter(
+    (a) => a === "idle" || a === "emote" || anims.includes("walk"),
+  );
+
+  const filtered = picker
+    ? picker.options.filter(
+        (o) =>
+          !query.trim() ||
+          o.label.toLowerCase().includes(query.trim().toLowerCase()) ||
+          o.id.toLowerCase().includes(query.trim().toLowerCase()),
+      )
+    : [];
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
-      <div className="flex flex-col items-center gap-2">
-        <div className="border-border bg-surface-2 rounded-card border p-3">
-          <PixelPet descriptor={value} animation={anim} display={display} />
-        </div>
-        {showAnimationSwitch && (
-          <div className="flex gap-1">
-            {(["idle", "walk", "emote"] as PetAnim[]).map((a) => (
-              <button
+    <View style={{ gap: S.md }}>
+      <View style={styles.preview}>
+        <PixelPet descriptor={value} display={display} animation={anim} />
+        {showAnimationSwitch ? (
+          <View style={styles.animRow}>
+            {animOptions.map((a) => (
+              <Chip
                 key={a}
-                type="button"
-                onClick={() => setAnim(a)}
-                className={
-                  anim === a
-                    ? "bg-accent text-on-accent rounded-pill px-2 py-0.5 text-fs-micro"
-                    : "text-muted rounded-pill border border-border px-2 py-0.5 text-fs-micro"
-                }
-              >
-                {a}
-              </button>
+                label={ANIM_LABELS[a] ?? a}
+                active={anim === a}
+                onPress={() => setAnim(a)}
+                tone="gold"
+              />
             ))}
-          </div>
-        )}
-      </div>
+          </View>
+        ) : null}
+      </View>
 
-      <div className="min-w-0 flex-1 space-y-2">
-        <label className="flex items-center gap-2 text-fs-micro text-muted">
-          <span className="w-12 shrink-0">体型</span>
-          <select
-            className="border-border-strong bg-surface-2 text-fg rounded-btn min-w-0 flex-1 border px-2 py-1 text-fs-micro outline-none"
-            value={value.bodyType}
-            onChange={(e) => onChange(sanitizeDescriptor(catalog, { ...value, bodyType: e.target.value }))}
-          >
-            {catalog.bodyTypes.map((bt) => (
-              <option key={bt} value={bt}>
-                {bt === "female" ? "女性" : bt === "male" ? "男性" : bt}
-              </option>
-            ))}
-          </select>
-        </label>
+      <PickerRow
+        title="体型"
+        value={BODY_LABELS[value.bodyType] ?? value.bodyType}
+        onPress={() =>
+          openPicker({
+            title: "体型",
+            options: catalog.bodyTypes.map((b) => ({ id: b, label: BODY_LABELS[b] ?? b })),
+            selected: value.bodyType,
+            onPick: setBodyType,
+          })
+        }
+      />
 
-        {SLOT_ORDER.map((slot) => {
-          // 按 category 分组（hair 有上百项，optgroup 归类才用得了）
-          const groups = new Map<string, { id: string; label: string }[]>();
-          for (const [id, it] of Object.entries(catalog.items)) {
-            if (it.slot !== slot || !it.bodyTypes.includes(value.bodyType)) continue;
-            const c = it.category ?? "其他";
-            if (!groups.has(c)) groups.set(c, []);
-            groups.get(c)!.push({ id, label: it.label });
+      {slots.map(({ key, item }) => (
+        <View key={key} style={{ gap: S.sm }}>
+          <PickerRow
+            title={SLOT_LABELS[key] ?? key}
+            value={item?.label ?? (OPTIONAL_SLOTS.has(key) ? "无" : "未选")}
+            onPress={() =>
+              openPicker({
+                title: SLOT_LABELS[key] ?? key,
+                options: slotOptions(key),
+                selected: value.items[key] ?? "",
+                onPick: (id) => setItem(key, id),
+              })
+            }
+          />
+          {item?.layout === "variant" && item.variants?.length ? (
+            <PickerRow
+              title={`${SLOT_LABELS[key] ?? key}颜色`}
+              value={value.itemVariants?.[key] ?? item.variants[0]}
+              onPress={() =>
+                openPicker({
+                  title: `${SLOT_LABELS[key] ?? key}颜色`,
+                  options: variantOptions(key, item),
+                  selected: value.itemVariants?.[key] ?? item.variants?.[0],
+                  onPick: (id) =>
+                    onChange({
+                      ...value,
+                      itemVariants: { ...(value.itemVariants ?? {}), [key]: id },
+                    }),
+                })
+              }
+            />
+          ) : null}
+        </View>
+      ))}
+
+      {materials.map((mat) => (
+        <PickerRow
+          key={mat}
+          title={MATERIAL_LABELS[mat] ?? mat}
+          value={value.colors[mat] ?? "默认（基色）"}
+          onPress={() =>
+            openPicker({
+              title: MATERIAL_LABELS[mat] ?? mat,
+              options: colorOptions(mat),
+              selected: value.colors[mat] ?? "",
+              onPick: (id) =>
+                onChange({
+                  ...value,
+                  colors: { ...value.colors, [mat]: id || undefined },
+                }),
+            })
           }
-          if (!groups.size) return null;
-          const ordered = [...groups.entries()].sort((a, b) => a[0].localeCompare(b[0]));
-          const selItem = value.items[slot] ? catalog.items[value.items[slot]!] : null;
-          const showVariant = selItem?.layout === "variant" && (selItem.variants?.length ?? 0) > 0;
-          return (
-            <div key={slot} className="space-y-1">
-              <label className="flex items-center gap-2 text-fs-micro text-muted">
-                <span className="w-12 shrink-0">{SLOT_LABELS[slot] ?? slot}</span>
-                <select
-                  className="border-border-strong bg-surface-2 text-fg rounded-btn min-w-0 flex-1 border px-2 py-1 text-fs-micro outline-none"
-                  value={value.items[slot] ?? ""}
-                  onChange={(e) => setItem(slot, e.target.value)}
-                >
-                  {OPTIONAL_SLOTS.has(slot) && <option value="">无</option>}
-                  {ordered.map(([cat, opts]) => (
-                    <optgroup key={cat} label={cat}>
-                      {opts.map((o) => (
-                        <option key={o.id} value={o.id}>
-                          {o.label}
-                        </option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </select>
-              </label>
-              {/* 变体布局部件（裙子/和服等）自带预上色，单独选颜色 */}
-              {showVariant && (
-                <label className="flex items-center gap-2 text-fs-micro text-muted">
-                  <span className="w-12 shrink-0">颜色</span>
-                  <select
-                    className="border-border-strong bg-surface-2 text-fg rounded-btn min-w-0 flex-1 border px-2 py-1 text-fs-micro outline-none"
-                    value={value.itemVariants?.[slot] ?? selItem!.variants![0]}
-                    onChange={(e) =>
-                      onChange({ ...value, itemVariants: { ...value.itemVariants, [slot]: e.target.value } })
-                    }
-                  >
-                    {selItem!.variants!.map((v) => (
-                      <option key={v} value={v}>
-                        {v}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              )}
-            </div>
-          );
-        })}
+        />
+      ))}
 
-        {materials.map((mat) => {
-          const p = palettes[mat];
-          if (!p) return null;
-          return (
-            <label key={mat} className="flex items-center gap-2 text-fs-micro text-muted">
-              <span className="w-12 shrink-0">{MATERIAL_LABELS[mat] ?? mat}</span>
-              <select
-                className="border-border-strong bg-surface-2 text-fg rounded-btn min-w-0 flex-1 border px-2 py-1 text-fs-micro outline-none"
-                value={value.colors[mat] ?? p.base}
-                onChange={(e) => setColor(mat, e.target.value)}
-              >
-                {Object.keys(p.colors).map((name) => (
-                  <option key={name} value={name}>
-                    {name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          );
-        })}
-      </div>
-    </div>
+      <Modal
+        visible={!!picker}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setPicker(null)}
+      >
+        <Pressable style={styles.overlay} onPress={() => setPicker(null)}>
+          <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+            <View style={styles.sheetHead}>
+              <Text style={styles.sheetTitle}>{picker?.title}</Text>
+              <Pressable onPress={() => setPicker(null)} hitSlop={10}>
+                <Text style={styles.close}>关闭</Text>
+              </Pressable>
+            </View>
+            {picker && picker.options.length > 12 ? (
+              <TextInput
+                style={styles.search}
+                value={query}
+                onChangeText={setQuery}
+                placeholder="筛选…"
+                placeholderTextColor={C.faint}
+                autoCapitalize="none"
+              />
+            ) : null}
+            <FlatList
+              data={filtered}
+              keyExtractor={(o) => o.id || "__none__"}
+              style={{ maxHeight: 420 }}
+              keyboardShouldPersistTaps="handled"
+              renderItem={({ item: o }) => {
+                const active = (picker?.selected ?? "") === o.id;
+                return (
+                  <Pressable
+                    style={[styles.option, active && styles.optionActive]}
+                    onPress={() => {
+                      picker?.onPick(o.id);
+                      setPicker(null);
+                    }}
+                  >
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.optionLabel, active && { color: C.gold }]}>
+                        {o.label}
+                      </Text>
+                      {o.hint ? <Text style={styles.optionHint}>{o.hint}</Text> : null}
+                    </View>
+                    {active ? <Text style={styles.check}>✓</Text> : null}
+                  </Pressable>
+                );
+              }}
+              ListEmptyComponent={<Text style={styles.empty}>没有匹配项</Text>}
+            />
+          </Pressable>
+        </Pressable>
+      </Modal>
+    </View>
   );
 }
+
+function PickerRow({
+  title,
+  value,
+  onPress,
+}: {
+  title: string;
+  value: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable style={styles.row} onPress={onPress}>
+      <Text style={styles.rowTitle}>{title}</Text>
+      <Text style={styles.rowValue} numberOfLines={1}>
+        {value}
+      </Text>
+      <Text style={styles.chevron}>›</Text>
+    </Pressable>
+  );
+}
+
+export { defaultDescriptor };
+
+const styles = StyleSheet.create({
+  preview: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: S.sm,
+    borderRadius: 16,
+    backgroundColor: C.surface2,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: C.border,
+    gap: S.sm,
+  },
+  animRow: { flexDirection: "row", gap: 6 },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: S.sm,
+    paddingHorizontal: S.md,
+    paddingVertical: 10,
+    borderRadius: R.btn,
+    backgroundColor: C.surface2,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: C.border,
+  },
+  rowTitle: { width: 76, fontFamily: Fonts.body, fontSize: 12, color: C.muted },
+  rowValue: { flex: 1, fontFamily: Fonts.body, fontSize: 13, color: C.fg },
+  chevron: { fontFamily: Fonts.body, fontSize: 18, color: C.faint },
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.55)",
+    justifyContent: "flex-end",
+    padding: S.lg,
+  },
+  sheet: {
+    backgroundColor: C.surface,
+    borderRadius: R.card,
+    borderWidth: 1,
+    borderColor: C.borderStrong,
+    padding: S.lg,
+    gap: S.sm,
+    maxHeight: "78%",
+  },
+  sheetHead: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  sheetTitle: { fontFamily: Fonts.display, fontSize: 18, color: C.fg },
+  close: { fontFamily: Fonts.body, fontSize: 12, color: C.muted },
+  search: {
+    minHeight: 40,
+    borderRadius: R.btn,
+    backgroundColor: C.surface2,
+    borderWidth: 1,
+    borderColor: C.border,
+    paddingHorizontal: 12,
+    color: C.fg,
+    fontFamily: Fonts.body,
+    fontSize: 13,
+  },
+  option: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: S.sm,
+    paddingVertical: 10,
+    paddingHorizontal: S.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: C.border,
+  },
+  optionActive: { backgroundColor: C.goldSoft },
+  optionLabel: { fontFamily: Fonts.body, fontSize: 13, color: C.fg },
+  optionHint: { fontFamily: Fonts.body, fontSize: 10, color: C.faint, marginTop: 1 },
+  check: { fontFamily: Fonts.body, fontSize: 14, color: C.gold },
+  empty: { fontFamily: Fonts.body, fontSize: 12, color: C.faint, padding: S.md },
+});

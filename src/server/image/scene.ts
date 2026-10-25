@@ -1,6 +1,6 @@
-import { generateText } from "ai";
+import { generateText } from "../llm/client";
 import type { Db } from "../db";
-import { modelFromDb } from "../modelConfig";
+import { requireLlmConfig } from "../modelConfig";
 
 /**
  * 情景图「场景提炼」。
@@ -64,12 +64,12 @@ type SceneCall = (prompt: string, signal: AbortSignal) => Promise<string>;
 /** 默认提炼：走文字渠道的 LLM */
 function llmSceneCall(db: Db): SceneCall {
   return async (prompt, signal) => {
-    const { text } = await generateText({
-      model: modelFromDb(db),
+    const { text } = await generateText(requireLlmConfig(db), {
       system: SCENE_SYSTEM,
       prompt,
-      maxOutputTokens: 120,
-      abortSignal: signal,
+      maxTokens: 120,
+      signal,
+      timeoutMs: 20_000,
     });
     return text;
   };

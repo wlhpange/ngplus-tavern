@@ -1,33 +1,57 @@
-"use client";
+import { Image } from "expo-image";
+import { StyleSheet, Text, View } from "react-native";
 
-import { useState } from "react";
+import { C, Fonts } from "@/constants/theme";
 
-/**
- * 会长头像（对齐酒馆：一个角色一张图）。
- * 有图 → 圆形裁切显示；无图或加载失败 → 回落名字首字。
- * 尺寸 / 边框等样式由 className 决定（沿用各处的圆形章样式）。
- */
-export default function Avatar({
+export function Avatar({
   src,
   name,
-  className,
+  size = 44,
+  active,
 }: {
   src?: string | null;
   name: string;
-  className?: string;
+  size?: number;
+  active?: boolean;
 }) {
-  // 记住「加载失败的那个 src」而不是一个布尔：换了新头像（src 变化）时能重新尝试
-  const [failedSrc, setFailedSrc] = useState<string | null>(null);
-  if (src && failedSrc !== src) {
+  if (src) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={src}
-        alt={name}
-        className={`${className ?? ""} object-cover`}
-        onError={() => setFailedSrc(src)}
+      <Image
+        source={{ uri: src }}
+        style={{
+          width: size,
+          height: size,
+          borderRadius: size / 2,
+          borderWidth: 1,
+          borderColor: active ? C.goldLine : C.border,
+          backgroundColor: C.surface3,
+        }}
+        contentFit="cover"
+        transition={120}
       />
     );
   }
-  return <span className={className}>{name.slice(0, 1)}</span>;
+  return (
+    <View
+      style={[
+        styles.fallback,
+        {
+          width: size,
+          height: size,
+          borderRadius: size / 2,
+          borderColor: active ? C.goldLine : C.border,
+          backgroundColor: active ? C.goldSoft : C.surface3,
+        },
+      ]}
+    >
+      <Text style={[styles.initial, { color: active ? C.gold : C.fg, fontSize: size * 0.4 }]}>
+        {name.slice(0, 1)}
+      </Text>
+    </View>
+  );
 }
+
+const styles = StyleSheet.create({
+  fallback: { alignItems: "center", justifyContent: "center", borderWidth: 1 },
+  initial: { fontFamily: Fonts.display },
+});

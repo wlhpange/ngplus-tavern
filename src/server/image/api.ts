@@ -1,4 +1,5 @@
 import type { ImageConfig } from "./config";
+import { decodeBase64 } from "../util/bytes";
 
 /**
  * 自定义生图接口（OpenAI 兼容 `POST {base}/images/generations`）。
@@ -8,7 +9,7 @@ import type { ImageConfig } from "./config";
 export async function generateImageViaApi(
   cfg: Pick<ImageConfig, "apiBaseUrl" | "apiKey" | "apiModel" | "width" | "height">,
   input: { prompt: string; signal?: AbortSignal },
-): Promise<Buffer> {
+): Promise<Uint8Array> {
   const base = cfg.apiBaseUrl.trim().replace(/\/+$/, "");
   if (!base) throw new Error("还没填生图接口地址（设置 → 生图）。");
   if (!cfg.apiModel.trim()) throw new Error("还没填生图模型名（设置 → 生图）。");
@@ -46,11 +47,11 @@ export async function generateImageViaApi(
   }
   const item = json?.data?.[0];
   if (!item) throw new Error("生图接口没有返回图片数据。");
-  if (item.b64_json) return Buffer.from(item.b64_json, "base64");
+  if (item.b64_json) return decodeBase64(item.b64_json);
   if (item.url) {
     const r2 = await fetch(item.url, { signal: input.signal });
     if (!r2.ok) throw new Error(`下载生成的图片失败：${r2.status}`);
-    return Buffer.from(await r2.arrayBuffer());
+    return new Uint8Array(await r2.arrayBuffer());
   }
   throw new Error("生图接口返回里既没有 b64_json 也没有 url。");
 }

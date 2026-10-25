@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { randomUUID } from "node:crypto";
+import { randomUUID } from "./util/id";
 import type { Db } from "./db";
 import { character, chatLog, disputes, quests, settlementLog, titles } from "./db/schema";
 import { getTodaySettledXp } from "./character";

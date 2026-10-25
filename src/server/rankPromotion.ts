@@ -1,5 +1,5 @@
 
-import { randomUUID } from "node:crypto";
+import { randomUUID } from "./util/id";
 import { and, eq } from "drizzle-orm";
 import type { Db } from "./db";
 import { items, memory, settlementLog, titles } from "./db/schema";

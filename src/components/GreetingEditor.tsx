@@ -1,149 +1,123 @@
-"use client";
-
 import { useEffect, useState } from "react";
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-/**
- * P9 开场白编辑（会长卡字段）：
- * - 首条开场白（first_mes）+ 若干备选开场白（alternate_greetings）
- * - 保存后写回会长卡；下次换会长/重开会话时生效
- */
-export default function GreetingEditor({
+import { C, Fonts, R, S } from "@/constants/theme";
+import { masterCard, updateMasterCard } from "@/lib/service";
+import { Button, Field, Input, MultiInput, haptic } from "./ui";
+
+export function GreetingEditor({
+  visible,
   masterId,
   masterName,
   onClose,
   onSaved,
 }: {
+  visible: boolean;
   masterId: string;
   masterName: string;
   onClose: () => void;
-  onSaved?: () => void;
+  onSaved: () => void;
 }) {
   const [first, setFirst] = useState("");
   const [alternates, setAlternates] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`/api/masters/card?masterId=${encodeURIComponent(masterId)}`)
-      .then((r) => r.json())
-      .then((d: { card?: { first_mes?: string; alternate_greetings?: string[] } }) => {
-        setFirst(d.card?.first_mes ?? "");
-        setAlternates(d.card?.alternate_greetings ?? []);
-      })
-      .catch(() => setError("读不到这位会长的卡。"))
-      .finally(() => setLoading(false));
-  }, [masterId]);
-
-  async function save() {
-    setSaving(true);
-    setError(null);
+    if (!visible) return;
     try {
-      const res = await fetch("/api/masters/card", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          masterId,
-          patch: { first_mes: first, alternate_greetings: alternates },
-        }),
-      });
-      const d = await res.json();
-      if (!res.ok || d.error) {
-        setError(d.error ?? "保存失败。");
-        return;
-      }
-      onSaved?.();
+      const { card } = masterCard(masterId);
+      setFirst(card.first_mes);
+      setAlternates(card.alternate_greetings);
+      setError(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "读取失败");
+    }
+  }, [visible, masterId]);
+
+  const save = () => {
+    setSaving(true);
+    try {
+      updateMasterCard(masterId, { first_mes: first, alternate_greetings: alternates });
+      haptic("success");
+      onSaved();
       onClose();
-    } catch {
-      setError("网络不通，保存失败。");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "保存失败");
     } finally {
       setSaving(false);
     }
-  }
+  };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center"
-      style={{ background: "color-mix(in oklch, var(--bg) 60%, transparent)" }}
-      onClick={onClose}
-    >
-      <div
-        className="border-border bg-surface max-h-[85dvh] w-full max-w-md space-y-3 overflow-y-auto rounded-t-card border p-4"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between">
-          <h2 className="font-display text-fs-h2">编辑开场白</h2>
-          <button className="text-fs-meta text-muted hover:text-fg" onClick={onClose}>
-            关闭
-          </button>
-        </div>
-        <p className="text-fs-micro text-faint leading-relaxed">
-          「{masterName}」见你时说的第一句话。首条是默认；备选会在聊天页「换一条」时轮流使用。
-        </p>
-
-        {loading ? (
-          <p className="text-muted py-6 text-center text-sm">读取中……</p>
-        ) : (
-          <>
-            <label className="block">
-              <span className="text-fs-micro text-muted">首条开场白</span>
-              <textarea
-                className="border-border-strong bg-surface-2 text-fg rounded-btn mt-1 min-h-20 w-full border px-3 py-2 text-fs-sm leading-relaxed outline-none"
-                value={first}
-                onChange={(e) => setFirst(e.target.value)}
-                placeholder="ta 见到你说的第一句话"
+    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
+      <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
+        <View style={styles.header}>
+          <Text style={styles.title}>{masterName} · 开场白</Text>
+          <Pressable onPress={onClose}>
+            <Text style={styles.close}>关闭</Text>
+          </Pressable>
+        </View>
+        <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
+          <Field label="正式开场白（first_mes）" hint="新对话的第一条消息；支持 {{char}} / {{user}} 宏。">
+            <MultiInput value={first} onChangeText={setFirst} maxLength={800} />
+          </Field>
+          <Text style={styles.section}>备选开场白（换一条时轮换）</Text>
+          {alternates.map((g, i) => (
+            <View key={i} style={styles.altRow}>
+              <MultiInput
+                value={g}
+                onChangeText={(v) => setAlternates((prev) => prev.map((x, j) => (j === i ? v : x)))}
+                maxLength={800}
+                style={{ flex: 1, minHeight: 64 }}
               />
-            </label>
-
-            <div className="space-y-2">
-              <span className="text-fs-micro text-muted">备选开场白</span>
-              {alternates.map((g, i) => (
-                <div key={i} className="flex gap-2">
-                  <textarea
-                    className="border-border-strong bg-surface-2 text-fg rounded-btn min-h-14 flex-1 border px-3 py-2 text-fs-sm leading-relaxed outline-none"
-                    value={g}
-                    onChange={(e) =>
-                      setAlternates((prev) => prev.map((x, j) => (j === i ? e.target.value : x)))
-                    }
-                    placeholder={`备选 ${i + 1}`}
-                  />
-                  <button
-                    type="button"
-                    className="text-muted hover:text-danger-text shrink-0 self-start px-1 py-2 text-fs-micro"
-                    onClick={() => setAlternates((prev) => prev.filter((_, j) => j !== i))}
-                  >
-                    删
-                  </button>
-                </div>
-              ))}
-              {alternates.length < 8 && (
-                <button
-                  type="button"
-                  className="border-accent-line text-accent hover:bg-accent-soft rounded-btn w-full border border-dashed py-2 text-fs-sm transition-colors"
-                  onClick={() => setAlternates((prev) => [...prev, ""])}
-                >
-                  + 加一条备选
-                </button>
-              )}
-            </div>
-
-            {error && (
-              <p className="border-danger text-danger-text rounded-tile border px-3 py-2 text-fs-sm">
-                {error}
-              </p>
-            )}
-
-            <button
-              type="button"
-              disabled={saving}
-              className="bg-accent text-on-accent rounded-btn w-full py-2 text-fs-sm font-medium disabled:opacity-40"
-              onClick={save}
-            >
-              {saving ? "保存中……" : "保存"}
-            </button>
-          </>
-        )}
-      </div>
-    </div>
+              <Pressable onPress={() => setAlternates((prev) => prev.filter((_, j) => j !== i))} style={styles.remove}>
+                <Text style={styles.removeText}>删</Text>
+              </Pressable>
+            </View>
+          ))}
+          {alternates.length < 8 ? (
+            <Button variant="outline" small onPress={() => setAlternates((prev) => [...prev, ""])}>
+              + 添加备选开场白
+            </Button>
+          ) : null}
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+          <Button variant="gold" onPress={save} loading={saving}>
+            保存开场白
+          </Button>
+          <Text style={styles.hint}>已经开口的会话不能换开场白；新开会话才会使用新内容。</Text>
+        </ScrollView>
+      </SafeAreaView>
+    </Modal>
   );
 }
+
+const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: C.bg },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: S.lg,
+    paddingVertical: S.md,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: C.border,
+  },
+  title: { flex: 1, fontFamily: Fonts.display, fontSize: 20, color: C.fg },
+  close: { fontFamily: Fonts.body, fontSize: 13, color: C.muted },
+  body: { padding: S.lg, paddingBottom: S.xxl, gap: S.md },
+  section: { fontFamily: Fonts.display, fontSize: 16, color: C.gold, marginTop: S.sm },
+  altRow: { flexDirection: "row", gap: S.sm, alignItems: "flex-start" },
+  remove: {
+    width: 38,
+    height: 38,
+    borderRadius: R.btn,
+    borderWidth: 1,
+    borderColor: C.danger,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  removeText: { fontFamily: Fonts.body, fontSize: 12, color: C.dangerText },
+  error: { fontFamily: Fonts.body, fontSize: 12, color: C.dangerText },
+  hint: { fontFamily: Fonts.body, fontSize: 10, color: C.faint, lineHeight: 16 },
+});

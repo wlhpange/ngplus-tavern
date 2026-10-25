@@ -1,4 +1,4 @@
-import { generateText, type LanguageModel } from "ai";
+import { generateText, type LlmConfig } from "./llm/client";
 import type { ImportedCard } from "./cardImport";
 import type { PersonaJson } from "./llm/prompts";
 
@@ -35,17 +35,16 @@ export function needsTranslation(text: string | undefined | null): boolean {
 }
 
 /** 单段忠实翻译（长文本用，逐字段调用，避免结构化输出截断） */
-export async function translateText(model: LanguageModel, text: string): Promise<string> {
+export async function translateText(model: LlmConfig, text: string): Promise<string> {
   if (!text || !needsTranslation(text)) return text;
   // 思考型模型偶尔把 token 全花在 reasoning 上导致正文为空 → 重试
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
-      const { text: out } = await generateText({
-        model,
+      const { text: out } = await generateText(model, {
         system: SYSTEM,
         prompt: text,
-        maxOutputTokens: 8000,
-        abortSignal: AbortSignal.timeout(60_000),
+        maxTokens: 8000,
+        timeoutMs: 60_000,
       });
       const trimmed = out.trim();
       if (trimmed.length > 0) return trimmed;
@@ -83,7 +82,7 @@ const BATCH_SEP = "<<<===>>>";
  * 用 generateText + 分隔符，而不是结构化输出——跨供应商更稳，也更便于测试。
  */
 export async function translateBatch(
-  model: LanguageModel,
+  model: LlmConfig,
   items: string[],
 ): Promise<string[]> {
   if (items.length === 0) return [];
@@ -97,12 +96,11 @@ export async function translateBatch(
   ].join("\n");
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
-      const { text: out } = await generateText({
-        model,
+      const { text: out } = await generateText(model, {
         system: SYSTEM,
         prompt,
-        maxOutputTokens: 8000,
-        abortSignal: AbortSignal.timeout(90_000),
+        maxTokens: 8000,
+        timeoutMs: 90_000,
       });
       const parts = out.split(BATCH_SEP).map((s) => s.trim());
       if (parts.length === items.length) {
@@ -170,7 +168,7 @@ export function countTranslationUnits(card: ImportedCard): number {
 
 /** 逐字段翻译会长卡（persona）——所有字段并发，显著提速 */
 async function translatePersona(
-  model: LanguageModel,
+  model: LlmConfig,
   p: PersonaJson,
   bump: () => void,
   shouldStop: () => boolean,
@@ -239,7 +237,7 @@ interface CcBook {
 
 /** 翻译卡内世界书：内容 + 关键词（关键词保留原文并追加译文，兼顾中英触发） */
 async function translateCharacterBook(
-  model: LanguageModel,
+  model: LlmConfig,
   book: unknown,
   bump: () => void,
   shouldStop: () => boolean,
@@ -310,7 +308,7 @@ export interface ImportedCardTranslation {
  * 支持进度回调与取消（shouldStop 抛 TranslateCancelledError）。
  */
 export async function translateImportedCard(
-  model: LanguageModel,
+  model: LlmConfig,
   card: ImportedCard,
   opts: TranslateOptions = {},
 ): Promise<ImportedCardTranslation> {

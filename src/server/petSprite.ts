@@ -1,12 +1,12 @@
-import fs from "node:fs";
-import path from "node:path";
-import { generateText, type LanguageModel } from "ai";
+import { generateText, type LlmConfig } from "./llm/client";
 import { eq } from "drizzle-orm";
 import type { Db } from "./db";
 import { masters } from "./db/schema";
 import { setMasterSprite } from "./masters";
-import { modelFromDb } from "./modelConfig";
-import { SLOT_ORDER, type PetCatalog, type PetDescriptor, type PetPalettes } from "@/lib/petCatalog";
+import { resolveLlmConfig } from "./modelConfig";
+import { SLOT_ORDER, type PetCatalog, type PetDescriptor, type PetPalettes } from "@/weblib/petCatalog";
+import catalogJson from "@/server/pet_catalog.json";
+import palettesJson from "@/server/pet_palettes.json";
 
 /**
  * 会长 → 像素小人形象参数的映射。
@@ -16,14 +16,12 @@ import { SLOT_ORDER, type PetCatalog, type PetDescriptor, type PetPalettes } fro
  * 结果再由 catalog / palettes 校验收敛，保证一定可渲染。
  */
 
-const LPC_DIR = path.join(process.cwd(), "public", "sprites", "lpc");
-
 let vocabCache: { catalog: PetCatalog; palettes: PetPalettes } | null = null;
 function loadVocab(): { catalog: PetCatalog; palettes: PetPalettes } {
   if (!vocabCache) {
     vocabCache = {
-      catalog: JSON.parse(fs.readFileSync(path.join(LPC_DIR, "catalog.json"), "utf8")) as PetCatalog,
-      palettes: JSON.parse(fs.readFileSync(path.join(LPC_DIR, "palettes.json"), "utf8")) as PetPalettes,
+      catalog: catalogJson as unknown as PetCatalog,
+      palettes: palettesJson as unknown as PetPalettes,
     };
   }
   return vocabCache;
@@ -37,9 +35,9 @@ export function defaultSprite(): PetDescriptor {
       head: "heads_human_female",
       face: "face_neutral",
       hair: "hair_ponytail",
-      top: "torso_clothes_tshirt",
-      bottom: "legs_pants",
-      shoes: "feet_boots_basic",
+      top: "torso_clothes_longsleeve2",
+      bottom: "legs_pants2",
+      shoes: "feet_shoes_basic",
     },
     colors: { body: "light", hair: "blonde", cloth: "purple", eye: "green" },
   };
@@ -115,13 +113,13 @@ export function keywordSprite(text: string): PetDescriptor {
     [["盔甲", "铠甲", "皮甲", "护甲"], "torso_armour_leather"],
     [["长袖", "风衣", "大衣"], "torso_clothes_longsleeve2"],
     [["背心", "无袖", "吊带"], "torso_clothes_sleeveless2"],
-    [["衬衫", "衬衣"], "torso_clothes_shortsleeve"],
-  ], "torso_clothes_tshirt");
+    [["衬衫", "衬衣", "T恤", "T恤衫"], "torso_clothes_shortsleeve"],
+  ], "torso_clothes_longsleeve2");
   d.items.bottom = pickItem("bottom", [
     [["短裤"], "legs_shorts"],
     [["裙", "长裙"], "legs_skirts_plain"],
     [["长裤", "裤子", "西裤"], "legs_pants2"],
-  ], "legs_pants");
+  ], "legs_pants2");
   d.items.shoes = pickItem("shoes", [
     [["靴", "军靴"], "feet_boots_basic"],
     [["凉鞋", "拖鞋", "草鞋"], "feet_sandals"],
@@ -182,7 +180,7 @@ const SYSTEM = [
   "只能从下面清单里取值，不要编造；拿不准就用默认值。",
 ].join("\n");
 
-async function llmSprite(model: LanguageModel, text: string): Promise<PetDescriptor> {
+async function llmSprite(model: LlmConfig, text: string): Promise<PetDescriptor> {
   const { catalog, palettes } = loadVocab();
   const slotLines = catalog.slots.map((s) => {
     const ids = Object.entries(catalog.items)
@@ -194,7 +192,7 @@ async function llmSprite(model: LanguageModel, text: string): Promise<PetDescrip
   const colorLines = Object.keys(palettes).map(
     (m) => `${m}(${palettes[m].label ?? m}): ${Object.keys(palettes[m].colors).join(", ")}`,
   );
-  const shape = `{"bodyType":"female","items":{"body":"body","head":"heads_human_female","face":"face_neutral","hair":"hair_ponytail","top":"torso_clothes_tshirt","bottom":"legs_pants","shoes":"feet_boots_basic"},"colors":{"body":"light","hair":"blonde","cloth":"purple","eye":"green"}}`;
+  const shape = `{"bodyType":"female","items":{"body":"body","head":"heads_human_female","face":"face_neutral","hair":"hair_ponytail","top":"torso_clothes_longsleeve2","bottom":"legs_pants2","shoes":"feet_shoes_basic"},"colors":{"body":"light","hair":"blonde","cloth":"purple","eye":"green"}}`;
 
   const prompt = [
     `【角色设定】\n${text.slice(0, 2000)}`,
@@ -204,19 +202,18 @@ async function llmSprite(model: LanguageModel, text: string): Promise<PetDescrip
     `只输出一个 JSON 对象，结构示例：\n${shape}`,
   ].join("\n\n");
 
-  const { text: out } = await generateText({
-    model,
+  const { text: out } = await generateText(model, {
     system: SYSTEM,
     prompt,
-    maxOutputTokens: 700,
-    abortSignal: AbortSignal.timeout(120_000),
+    maxTokens: 700,
+    timeoutMs: 120_000,
   });
   return sanitizeSprite(extractJson(out) as Partial<PetDescriptor>);
 }
 
 /** 由卡文字得到形象参数：LLM 优先，失败退关键词 */
 export async function mapSpriteFromText(
-  model: LanguageModel | null,
+  model: LlmConfig | null,
   text: string,
 ): Promise<PetDescriptor> {
   if (model) {
@@ -261,9 +258,9 @@ export async function autoMapSpriteForMaster(
   const row = db.select().from(masters).where(eq(masters.id, masterId)).get();
   if (!row) throw new Error("会长不存在");
   const text = masterSpriteText(row.name, row.personaJson);
-  let model: LanguageModel | null = null;
+  let model: LlmConfig | null = null;
   try {
-    model = modelFromDb(db);
+    model = resolveLlmConfig(db);
   } catch {
     model = null;
   }

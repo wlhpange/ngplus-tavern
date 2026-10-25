@@ -1,4 +1,4 @@
-import { generateText, type LanguageModel } from "ai";
+import { generateText, type LlmConfig } from "./llm/client";
 import { z } from "zod";
 
 /**
@@ -205,7 +205,7 @@ function normalizeForged(raw: unknown): ForgedCard {
  * 已填字段保留其核心设定（落库时还会被表单值覆盖，双保险），空字段由模型发挥。
  */
 export async function forgeCardFromFields(
-  model: LanguageModel,
+  model: LlmConfig,
   input: ForgeFieldsInput,
 ): Promise<ForgedCard> {
   const lines: string[] = [];
@@ -231,12 +231,11 @@ export async function forgeCardFromFields(
   let lastError: unknown = null;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      const { text } = await generateText({
-        model,
+      const { text } = await generateText(model, {
         system: FORGE_SYSTEM,
         prompt,
-        maxOutputTokens: 1200,
-        abortSignal: AbortSignal.timeout(240_000),
+        maxTokens: 1200,
+        timeoutMs: 240_000,
       });
       return normalizeForged(extractJson(text));
     } catch (e) {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { detectFace } from "../../src/lib/mood";
+import { detectFace } from "../../src/weblib/mood";
 
 describe("情绪 → 表情识别", () => {
   it("命中对应情绪", () => {

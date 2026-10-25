@@ -1,8 +1,10 @@
-"use client";
-
 import { useEffect, useState } from "react";
-import { ATTR_LABEL, KIND_LABEL, itemDisplay } from "@/lib/labels";
-import { playCue } from "@/lib/audio";
+import { StyleSheet, Text, View } from "react-native";
+import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
+
+import { ATTR_LABEL, KIND_LABEL, itemDisplay } from "@/weblib/labels";
+import { A, C, Fonts, R, S } from "@/constants/theme";
+import { haptic } from "./ui";
 
 export interface SettlementCardData {
   id: string;
@@ -23,123 +25,142 @@ function formatTime(ts: number): string {
   return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-/**
- * 对话时间线里的结算卡片（V2.0）。
- * 数据全部来自 settlement_log；数值由引擎写入，前端只负责展示。
- * fresh=true 时播放结算仪式三连（蜡封下压 / 金箔扫光 / 金币雨，见 animation.css §3）：
- * - 部分结算（completionRatio<1）：蜡封暗铜色、金币雨减半
- * - 逾期补结算（adjustments.was_overdue）：蜡封带裂纹，随后自愈
- */
-export default function SettlementCard({
-  s,
-  fresh = false,
-  silent = false,
-}: {
-  s: SettlementCardData;
-  fresh?: boolean;
-  /** 同一轮有更隆重的仪式（升级/晋段）时静音，避免音效叠放 */
-  silent?: boolean;
-}) {
-  // 本轮新卡：按事件类型播一声（历史卡片重放不发声）
-  useEffect(() => {
-    if (!fresh || silent) return;
-    if (s.kind === "quest_complete" || s.kind === "mainline_complete") {
-      playCue(s.completionRatio != null && s.completionRatio < 1 ? "settle_partial" : "settle");
-    } else if (s.kind === "purchase") {
-      playCue("purchase");
-    } else if (s.kind === "gift") {
-      playCue("gift");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+function Seal({ children, tone }: { children: string; tone?: "partial" | "normal" }) {
+  return (
+    <View style={[styles.seal, tone === "partial" && { backgroundColor: "#6B4B2A", borderColor: "#9A7B4F" }]}>
+      <Text style={styles.sealText}>{children}</Text>
+    </View>
+  );
+}
 
+export function SettlementCard({ s, fresh = false }: { s: SettlementCardData; fresh?: boolean }) {
   const kindLabel = KIND_LABEL[s.kind] ?? s.kind;
   const title = s.questTitle ?? kindLabel;
   const isGain = s.kind === "quest_complete" || s.kind === "mainline_complete" || s.kind === "bonus";
   const partial = s.completionRatio != null && s.completionRatio < 1;
-  const overdue = s.adjustments?.was_overdue === true;
-  const rarity =
-    s.adjustments?.rarity === "legendary"
-      ? "传说"
-      : s.adjustments?.rarity === "rare"
-        ? "稀有"
-        : null;
+  const rarity = s.adjustments?.rarity === "legendary" ? "传说" : s.adjustments?.rarity === "rare" ? "稀有" : null;
   const itemKey = typeof s.adjustments?.item_key === "string" ? s.adjustments.item_key : null;
   const reason = typeof s.adjustments?.reason === "string" ? s.adjustments.reason : null;
   const attrs = Object.entries(s.attrSplit).filter(([, v]) => v !== 0);
   const hasDetails = attrs.length > 0 || Boolean(rarity) || Boolean(itemKey) || Boolean(reason);
-  // 长列表优化：历史卡片默认收起详情（只留一行），本轮新卡片展开并播动画
   const [open, setOpen] = useState(fresh || !hasDetails);
 
+  useEffect(() => {
+    if (fresh) haptic(isGain ? "success" : "light");
+  }, [fresh, isGain]);
+
+  const glow = useSharedValue(0);
+  useEffect(() => {
+    if (!fresh) return;
+    glow.value = withSequence(withTiming(1, { duration: 320 }), withTiming(0, { duration: 1400 }));
+  }, [fresh, glow]);
+  const glowStyle = useAnimatedStyle(() => ({ opacity: glow.value * 0.55 }));
+
   return (
-    <article
-      className={`settlement-card ${fresh ? "is-fresh" : ""}`}
-      data-kind={s.kind}
-      data-partial={partial ? "1" : undefined}
-      data-overdue={overdue ? "1" : undefined}
-    >
-      <div className="settlement-sweep" aria-hidden />
-      <div className="settlement-coins" aria-hidden>
-        {Array.from({ length: 10 }).map((_, i) => (
-          <i key={i} />
-        ))}
-      </div>
-      <div className="relative flex items-start gap-3">
-        <span className="settlement-seal" aria-hidden>
-          契
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="font-display text-fs-h3 leading-snug">{title}</p>
-          <p className="font-numeric text-fs-micro tabular-nums text-muted">
+    <Animated.View entering={fresh ? FadeInDown.duration(260) : undefined} style={styles.card}>
+      <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.sweep, glowStyle]} />
+      <View style={styles.top}>
+        <Seal tone={partial ? "partial" : "normal"}>契</Seal>
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <Text style={styles.title} numberOfLines={2}>
+            {title}
+          </Text>
+          <Text style={styles.meta}>
             {kindLabel} · {formatTime(s.createdAt)}
-          </p>
-        </div>
-        <div className="shrink-0 text-right font-numeric text-fs-sm tabular-nums">
-          {s.xpAwarded !== 0 && (
-            <p className="text-accent">{s.xpAwarded > 0 ? `+${s.xpAwarded}` : s.xpAwarded} XP</p>
-          )}
-          {s.goldAwarded !== 0 && (
-            <p className={s.goldAwarded > 0 ? "text-gold" : "text-muted"}>
-              {s.goldAwarded > 0 ? `+${s.goldAwarded}` : s.goldAwarded} 金币
-            </p>
-          )}
-        </div>
-      </div>
-
-      {hasDetails && open && (
-        <div className="relative mt-2 border-t border-border pt-2 text-fs-micro text-muted">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            {partial ? ` · 完成度 ${Math.round((s.completionRatio ?? 0) * 100)}%` : ""}
+          </Text>
+        </View>
+        <View style={{ alignItems: "flex-end" }}>
+          {s.xpAwarded !== 0 ? (
+            <Text style={styles.xp}>
+              {s.xpAwarded > 0 ? "+" : ""}
+              {s.xpAwarded} XP
+            </Text>
+          ) : null}
+          {s.goldAwarded !== 0 ? (
+            <Text style={styles.gold}>
+              {s.goldAwarded > 0 ? "+" : ""}
+              {s.goldAwarded} 金币
+            </Text>
+          ) : null}
+        </View>
+      </View>
+      {hasDetails && open ? (
+        <>
+          <View style={styles.details}>
             {attrs.map(([k, v]) => (
-              <span key={k} className="font-numeric tabular-nums">
+              <Text key={k} style={[styles.attr, { color: A[k as keyof typeof A] ?? C.muted }]}>
                 {ATTR_LABEL[k] ?? k} {v > 0 ? `+${v}` : v}
-              </span>
+              </Text>
             ))}
-            {rarity && (
-              <span className="rounded-chip border border-gold-line bg-gold-soft px-1.5 py-0.5 font-numeric text-gold">
-                {rarity}
-              </span>
-            )}
-            {itemKey && (
-              <span>
+            {rarity ? (
+              <View style={styles.rarity}>
+                <Text style={styles.rarityText}>{rarity}</Text>
+              </View>
+            ) : null}
+            {itemKey ? (
+              <Text style={styles.attr}>
                 {s.kind === "purchase" ? "购入" : "送出"}：{itemDisplay(itemKey)}
-              </span>
-            )}
-          </div>
-          {reason && isGain && (
-            <p className="mt-1 leading-relaxed text-gold">复核理由：{reason}</p>
-          )}
-        </div>
-      )}
-
-      {hasDetails && (
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          className="relative mt-1 block w-full text-right text-fs-micro text-faint transition-colors hover:text-fg"
-        >
+              </Text>
+            ) : null}
+          </View>
+          {reason && isGain ? <Text style={styles.reason}>复核理由：{reason}</Text> : null}
+        </>
+      ) : null}
+      {hasDetails ? (
+        <Text style={styles.toggle} onPress={() => setOpen((v) => !v)}>
           {open ? "收起 ▴" : "详情 ▾"}
-        </button>
-      )}
-    </article>
+        </Text>
+      ) : null}
+    </Animated.View>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    borderRadius: R.card,
+    borderWidth: 1,
+    borderColor: C.goldLine,
+    backgroundColor: C.surface,
+    padding: S.md,
+    gap: 6,
+    overflow: "hidden",
+  },
+  sweep: { backgroundColor: C.gold, opacity: 0 },
+  top: { flexDirection: "row", alignItems: "flex-start", gap: S.sm },
+  seal: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    borderWidth: 1,
+    borderColor: C.goldLine,
+    backgroundColor: C.danger,
+    alignItems: "center",
+    justifyContent: "center",
+    transform: [{ rotate: "-8deg" }],
+  },
+  sealText: { fontFamily: Fonts.display, fontSize: 14, color: C.gold },
+  title: { fontFamily: Fonts.display, fontSize: 15, color: C.fg },
+  meta: { fontFamily: Fonts.mono, fontSize: 10, color: C.muted, marginTop: 1 },
+  xp: { fontFamily: Fonts.mono, fontSize: 12, color: C.accent },
+  gold: { fontFamily: Fonts.mono, fontSize: 12, color: C.gold },
+  details: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: C.border,
+    paddingTop: 6,
+  },
+  attr: { fontFamily: Fonts.mono, fontSize: 11, color: C.muted },
+  rarity: {
+    borderRadius: R.pill,
+    borderWidth: 1,
+    borderColor: C.goldLine,
+    backgroundColor: C.goldSoft,
+    paddingHorizontal: 7,
+  },
+  rarityText: { fontFamily: Fonts.mono, fontSize: 10, color: C.gold },
+  reason: { fontFamily: Fonts.body, fontSize: 11, color: C.gold, lineHeight: 16 },
+  toggle: { fontFamily: Fonts.body, fontSize: 10, color: C.faint, textAlign: "right" },
+});

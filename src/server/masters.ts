@@ -1,5 +1,5 @@
 import { and, desc, eq, gte, isNull, or } from "drizzle-orm";
-import { randomUUID } from "node:crypto";
+import { randomUUID } from "./util/id";
 import type { Db } from "./db";
 import { masters, masterHistory, saves, chatLog, masterAffinity } from "./db/schema";
 import { config } from "./engine/config";

@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import type { Db } from "../db";
 import { appSettings } from "../db/schema";
+import { getSecret } from "../secure";
 
 /**
  * 情景配图（生图）设置。
@@ -82,21 +83,20 @@ function toInt(v: string | undefined, fallback: number, min: number, max: number
  * 面板没设过（DB 里没有这个键）时，回落到环境变量。
  * 只要面板里保存过（哪怕存的是空串），就以面板为准，环境变量不再覆盖。
  */
-function pick(m: Map<string, string>, key: string, envName: string): string {
-  const v = m.get(key);
-  return v !== undefined ? v : process.env[envName] ?? "";
+function pick(m: Map<string, string>, key: string): string {
+  return m.get(key) ?? "";
 }
 
 export function getImageConfig(db: Db): ImageConfig {
   const m = readMap(db);
   return {
-    enabled: m.has(KEY.enabled) ? m.get(KEY.enabled) === "1" : process.env.IMAGE_ENABLED === "1",
-    width: toInt(pick(m, KEY.width, "IMAGE_WIDTH"), DEFAULT_IMAGE_CONFIG.width, 256, 2048),
-    height: toInt(pick(m, KEY.height, "IMAGE_HEIGHT"), DEFAULT_IMAGE_CONFIG.height, 256, 2048),
-    style: pick(m, KEY.style, "IMAGE_STYLE").trim() || DEFAULT_IMAGE_CONFIG.style,
-    apiBaseUrl: pick(m, KEY.apiBaseUrl, "IMAGE_API_BASE_URL").trim(),
-    apiKey: pick(m, KEY.apiKey, "IMAGE_API_KEY").trim(),
-    apiModel: pick(m, KEY.apiModel, "IMAGE_API_MODEL").trim(),
+    enabled: m.get(KEY.enabled) === "1",
+    width: toInt(pick(m, KEY.width), DEFAULT_IMAGE_CONFIG.width, 256, 2048),
+    height: toInt(pick(m, KEY.height), DEFAULT_IMAGE_CONFIG.height, 256, 2048),
+    style: pick(m, KEY.style).trim() || DEFAULT_IMAGE_CONFIG.style,
+    apiBaseUrl: pick(m, KEY.apiBaseUrl).trim(),
+    apiKey: getSecret("image"),
+    apiModel: pick(m, KEY.apiModel).trim(),
   };
 }
 
@@ -106,7 +106,6 @@ export function setImageSettings(db: Db, patch: Partial<ImageConfig>): ImageConf
   if (patch.height !== undefined) upsert(db, KEY.height, String(patch.height));
   if (patch.style !== undefined) upsert(db, KEY.style, patch.style);
   if (patch.apiBaseUrl !== undefined) upsert(db, KEY.apiBaseUrl, patch.apiBaseUrl.trim());
-  if (patch.apiKey !== undefined) upsert(db, KEY.apiKey, patch.apiKey.trim());
   if (patch.apiModel !== undefined) upsert(db, KEY.apiModel, patch.apiModel.trim());
   return getImageConfig(db);
 }

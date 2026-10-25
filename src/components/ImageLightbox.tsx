@@ -1,58 +1,25 @@
-"use client";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image } from "expo-image";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { useState } from "react";
+import { C, Fonts } from "@/constants/theme";
 
-/**
- * 图片预览 / 放大：点击图片在「适应屏幕」与「原始尺寸（可滚动）」之间切换；
- * 点图片外空白或右上角 × 关闭。移动端也可直接用系统双指缩放。
- */
-export default function ImageLightbox({
-  src,
-  onClose,
-}: {
-  src: string;
-  onClose: () => void;
-}) {
-  const [zoom, setZoom] = useState(false);
+export function ImageLightbox({ src, onClose }: { src: string | null; onClose: () => void }) {
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label="查看大图"
-      onClick={onClose}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-2"
-    >
-      <button
-        type="button"
-        aria-label="关闭"
-        onClick={onClose}
-        className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-black/50 text-lg text-white"
-      >
-        ×
-      </button>
-      <div
-        className={`h-full w-full ${
-          zoom ? "overflow-auto" : "flex items-center justify-center"
-        }`}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={src}
-          alt=""
-          onClick={(e) => {
-            e.stopPropagation();
-            setZoom((z) => !z);
-          }}
-          className={
-            zoom
-              ? "mx-auto max-w-none cursor-zoom-out"
-              : "max-h-full max-w-full cursor-zoom-in object-contain"
-          }
-        />
-      </div>
-      <p className="pointer-events-none absolute inset-x-0 bottom-4 text-center text-fs-micro text-white/70">
-        {zoom ? "点击图片还原 · 点空白关闭" : "点击图片放大 · 点空白关闭"}
-      </p>
-    </div>
+    <Modal visible={!!src} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
+      <SafeAreaView style={styles.safe}>
+        <Pressable style={styles.close} onPress={onClose}>
+          <Text style={styles.closeText}>关闭</Text>
+        </Pressable>
+        {src ? <Image source={{ uri: src }} style={styles.image} contentFit="contain" /> : null}
+      </SafeAreaView>
+    </Modal>
   );
 }
+
+const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: "rgba(0,0,0,0.94)", justifyContent: "center" },
+  close: { position: "absolute", top: 54, right: 20, zIndex: 2, padding: 8 },
+  closeText: { fontFamily: Fonts.body, fontSize: 14, color: C.gold },
+  image: { width: "100%", height: "100%" },
+});

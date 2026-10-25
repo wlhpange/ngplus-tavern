@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { randomUUID } from "node:crypto";
+import { randomUUID } from "../util/id";
 import type { Db } from "./index";
 import { users, masters, saves, masterHistory, character } from "./schema";
 
