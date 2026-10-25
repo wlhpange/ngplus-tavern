@@ -993,6 +993,21 @@ export function getUiPref(key: string, fallback: string): string {
   return row?.value ?? fallback;
 }
 
+/** 页面里 useUiPref 的订阅回调：写偏好后同步通知，跨标签页即时生效。 */
+const uiPrefListeners = new Map<string, Set<() => void>>();
+
+export function subscribeUiPref(key: string, onChange: () => void): () => void {
+  let set = uiPrefListeners.get(key);
+  if (!set) {
+    set = new Set();
+    uiPrefListeners.set(key, set);
+  }
+  set.add(onChange);
+  return () => {
+    set.delete(onChange);
+  };
+}
+
 export function setUiPref(key: string, value: string): void {
   const { db } = ctx();
   const k = `ui.${key}`;
@@ -1000,6 +1015,7 @@ export function setUiPref(key: string, value: string): void {
   const existing = db.select({ key: appSettings.key }).from(appSettings).where(eq(appSettings.key, k)).get();
   if (existing) db.update(appSettings).set({ value, updatedAt: now }).where(eq(appSettings.key, k)).run();
   else db.insert(appSettings).values({ key: k, value, updatedAt: now }).run();
+  uiPrefListeners.get(key)?.forEach((fn) => fn());
 }
 
 export function avatarUri(filename: string | null | undefined): string | null {

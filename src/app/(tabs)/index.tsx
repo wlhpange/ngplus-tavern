@@ -44,6 +44,7 @@ import {
   cancelScene,
   uploadBackground,
 } from "@/lib/service";
+import { useUiPrefOn } from "@/lib/uiPrefs";
 
 type Mode = "quest" | "chat";
 interface ApiMessage {
@@ -140,7 +141,7 @@ export default function ChatScreen() {
   const [sceneStartedAt, setSceneStartedAt] = useState<number | null>(null);
   const [sceneElapsed, setSceneElapsed] = useState(0);
   const [sceneError, setSceneError] = useState<string | null>(null);
-  const [showPet, setShowPet] = useState(true);
+  const showPet = useUiPrefOn("pet");
   const [petReact, setPetReact] = useState(false);
   const [moodFace, setMoodFace] = useState<FaceId | null>(null);
   const [chatLoadingEarlier, setChatLoadingEarlier] = useState(false);
@@ -167,7 +168,6 @@ export default function ChatScreen() {
   useEffect(() => {
     setOnboarded(onboardingState().onboarded);
     setMode(getUiPref(MODE_KEY, "quest") === "chat" ? "chat" : "quest");
-    setShowPet(getUiPref("pet", "1") !== "0");
     setModeReady(true);
   }, []);
 

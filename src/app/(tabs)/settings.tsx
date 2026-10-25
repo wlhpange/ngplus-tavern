@@ -7,6 +7,7 @@ import { C, Fonts, R, S } from "@/constants/theme";
 import { Button, Card, ErrorBar, Field, Input, Loading, MultiInput, PressableScale, Screen, haptic } from "@/components/ui";
 import { useToast } from "@/components/Toast";
 import { registerSecretTap } from "@/weblib/secret";
+import { useUiPrefOn } from "@/lib/uiPrefs";
 import {
   getUiPref,
   saveChatMaster,
@@ -38,7 +39,7 @@ export default function SettingsScreen() {
   const [state, setState] = useState<SettingsState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [sound, setSound] = useState(true);
-  const [pet, setPet] = useState(true);
+  const pet = useUiPrefOn("pet");
   const [rpEnabled, setRpEnabled] = useState(false);
   const [adultUnlocked, setAdultUnlocked] = useState(false);
   const [upName, setUpName] = useState("");
@@ -62,7 +63,6 @@ export default function SettingsScreen() {
 
   useEffect(() => {
     setSound(getUiPref("sound", "1") !== "0");
-    setPet(getUiPref("pet", "1") !== "0");
     setAdultUnlocked(getUiPref(ADULT_KEY, "0") === "1");
     try {
       const p = userPersonaGet();
@@ -93,7 +93,6 @@ export default function SettingsScreen() {
 
   function togglePet() {
     const next = !pet;
-    setPet(next);
     setUiPref("pet", next ? "1" : "0");
     haptic("select");
   }
