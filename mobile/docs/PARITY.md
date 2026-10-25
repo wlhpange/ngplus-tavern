@@ -13,7 +13,7 @@
 | 平台限制 | Android 无 Web 对应能力（无常驻 Node、浏览器下载、PWA、本地模型/生图等），已用原生等价物替换；理由与等价物写在行内。 |
 | 阻塞 | 实现缺失、自动化验证失败、或缺少设备验收前置（APK／模拟器）。必须写阻塞原因与最小解锁条件。 |
 
-设备验收列：`未跑` / `通过` / `失败(原因)`。目标要求逐行在模拟器/真机跑通并留证。
+设备验收列：`未跑` / `通过` / `失败(原因)`。目标要求逐行在模拟器/真机跑通并留证。**只有该行全部子项都跑过才标“通过”**；已跑过的子项按时间记在 §18。
 
 ## 0. 本轮基线（checkpoint 1baca12 之后）
 
@@ -303,8 +303,31 @@
 | `aapt dump badging`：`com.wlhpange.ngplus` + 启动 Activity | 通过（`.MainActivity`） |
 | `apksigner verify` | 通过（v2） |
 | `adb install -r` 冷启动 | 通过（COLD 3.7s，无 FATAL） |
-| 本地 OpenAI 兼容 stub：chat 流式/非流式、工具调用、翻译、锻造、复核、场景提炼、`images/generations` | 未跑 |
-| 杀进程重开数据仍在 | 通过（force-stop 后重启，时间线完整） |
+| 本地 OpenAI 兼容 stub：chat 流式/非流式、工具调用、翻译、锻造、复核、场景提炼、`images/generations` | 部分通过：chat 流式、非流式、create/accept/settle 工具链已跑；翻译、锻造、复核、场景提炼、生图未跑 |
+| 杀进程重开数据仍在 | 通过（两轮：旧数据与全新 onboarding 数据；force-stop 后重启，时间线/结算卡完整） |
 | 跨天启动补算 | 未跑 |
 | 截图 / `adb screenrecord` / `dumpsys gfxinfo` | 截图已有（启动/重开）；screenrecord、gfxinfo 未跑 |
 | `main` 的 `pnpm test/build` | 未跑（Web 冻结，未改动） |
+
+## 18. 设备验收运行记录
+
+环境：`emulator-5554`（AVD `ngtest`，1080×2400），release APK，本机 stub `http://10.0.2.2:8787/v1`（`mobile/tools/stub-server.mjs`），模型 `stub-model`。
+
+| 时间 | 步骤 | 结果 | 证据 |
+| --- | --- | --- | --- |
+| 15:55 | `adb install -r` + 冷启动 | 通过；`com.wlhpange.ngplus/.MainActivity`，无 FATAL | `android-gate.png`（旧数据） |
+| 16:00 | `pm clear` 后首次启动 | 通过；弹出通知权限，允许后进入推门页 | `android-fresh-gate2.png` |
+| 16:00 | 推门 → 首次选会长 | 通过；门动画后进入会长选择，官方三会长；选「加洛」完成 onboarding | `android-masters-first.png`、`android-onboarded.png` |
+| 16:01 | 设置 → 模型与渠道 → 自定义 API | 通过；地址 `http://10.0.2.2:8787/v1`、模型 `stub-model` 保存成功 | `ui-model8.xml` |
+| 16:01 | 测试连接 | 通过；「通了。模型 stub-model 应答正常，耗时 117ms」 | stub 日志 |
+| 16:02 | 任务模式发送 `help` | 通过；流式返回「坐吧，茶刚沏上。今天想聊点什么？」 | `ui-chat2.xml` |
+| 16:03 | 发送 `create running quest` | 通过；`create_quest` 工具调用 → 会长回复「先挂一张草稿」 | `ui-chat3.xml` |
+| 16:03 | 委托告示板 | 通过；待接受 1 件「每天跑步 20 分钟」，日常/体魄×0.8/意志×0.2/难度 1.0 | `android-quest-proposed.png` |
+| 16:04 | 发送 `accept` | 通过；`respond_to_quest` → 「好，挂上了」 | `ui-chat4.xml` |
+| 16:04 | 发送 `done ran 30 minutes` | 通过；`settle_completion` → 结算卡 +12 XP / +5 金币 / 体魄+10 / 意志+2（含每日首笔 +20% XP） | `android-chat-settled.png` |
+| 16:04 | 角色面板 | 通过；Lv.1 / F 评级 / 金币 5 / 本周悬赏 0/3 / 六维属性 / 称号 / 图鉴 0/14 / 技能 0/4 / 月账单 +12 XP +5 金币 1 笔 | `android-panel-after-settle.png` |
+| 16:05 | 月账单「导出 CSV」 | 通过；系统分享面板出现 `ngplus-settlements-2026-10-25.csv` | `android-csv-share.png` |
+| 16:05 | 聊天记录 | 通过；按月/日分组，含消息与结算卡，空态文案「到这里就是协会最早的记录了」 | `android-records.png` |
+| 16:06 | `force-stop` 后重启 | 通过；会长、消息、任务、结算卡、金币全部保留，无 FATAL | `android-after-restart.png` |
+
+本轮**未跑**：聊天（酒馆）模式、多会话/开场白/背景、分页/消息删除、在途恢复、场景配图与 `images/generations`、世界书、记忆书、商店、技能树、档案室、导入/翻译/锻造、复核/争议、跨天补算、`screenrecord`、`gfxinfo`、main 回归。
