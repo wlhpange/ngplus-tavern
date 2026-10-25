@@ -34,7 +34,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastCtx.Provider value={value}>
       {children}
-      <View pointerEvents="none" style={[styles.wrap, { top: insets.top + 10 }]}>
+      <View pointerEvents="none" style={[styles.wrap, { top: insets.top + 64 }]}>
         {items.map((t) => (
           <Animated.View
             key={t.id}

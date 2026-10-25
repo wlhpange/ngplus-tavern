@@ -136,7 +136,7 @@ export default function SettingsScreen() {
   }
 
   return (
-    <Screen title="设置" subtitle="协会章程 · 会长与酒馆的规矩都在这">
+    <Screen title="设置" subtitle="协会章程 · 会长与酒馆的规矩都在这" onHeaderPress={secretTap}>
       <Pressable onPress={secretTap} style={{ gap: 2 }}>
         <Text style={styles.tapHint}>（设置 · 协会章程）</Text>
       </Pressable>
