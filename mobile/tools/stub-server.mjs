@@ -43,6 +43,17 @@ function findQuestId(messages) {
   }
   return null;
 }
+function findLatestSettlement(messages) {
+  for (const m of [...messages].reverse()) {
+    if (m.role !== "tool") continue;
+    const s = textOf(m);
+    if (!s.includes('"settlement_id"')) continue;
+    const sid = s.match(/"settlement_id"\s*:\s*"([^"]+)"/)?.[1];
+    const qid = s.match(/"quest_id"\s*:\s*"([^"]+)"/)?.[1];
+    if (sid && qid) return { sid, qid };
+  }
+  return null;
+}
 function findActiveQuestId(messages) {
   for (const m of [...messages].reverse()) {
     if (m.role !== "tool") continue;
@@ -152,6 +163,26 @@ function decide(body) {
         `wantsQuest=${/委托|任务|跑步|读书|早起|健身|挂个|帮我记|quest|task|run|jog|read|gym/i.test(user)} ` +
         `accepts=${/接受|接下|开始|accept|start/i.test(user)} reports=${/完成|跑了|做完|搞定|汇报|读完了|done|finished|ran|report/i.test(user)}`,
     );
+
+    const userDisputes = /异议|dispute/i.test(user);
+    if (userDisputes) {
+      const latest = findLatestSettlement(messages);
+      const idInUser = user.match(
+        /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i,
+      )?.[0];
+      const questIdForDispute = latest?.qid || idInUser;
+      if (!questIdForDispute) {
+        return { kind: "text", text: "这笔还没结算，暂时没法复核。" };
+      }
+      const already = toolMsgs.some((m) => textOf(m).includes('"dispute_id"'));
+      if (!already) {
+        return {
+          kind: "tool",
+          tool: tool("file_dispute", { quest_id: questIdForDispute, claim: user }),
+        };
+      }
+      return { kind: "text", text: "复核过了：这笔结算没问题，维持原判。" };
+    }
 
     if (userRemembers && !toolMsgs.some((m) => textOf(m).includes('"memory_id"'))) {
       return {

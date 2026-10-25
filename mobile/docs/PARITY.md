@@ -60,11 +60,11 @@
 | 2.1 | 会长列表 / 当前会长 `api/masters` | `app/masters.tsx` + `service.mastersData` | 已验证 | 未跑 |
 | 2.2 | 选择 / 切换会长 `api/masters/activate` | `activateMaster`；切换确认弹窗 | 已验证 | 未跑 |
 | 2.3 | 新建会长（手填字段）`api/masters/create` | `createMasterByFields` + 表单 | 已验证 | 未跑 |
-| 2.4 | AI 锻造 `api/masters/forge` | `forgeMaster`；回填表单后确认 | 已验证 | 未跑 |
+| 2.4 | AI 锻造 `api/masters/forge` | `forgeMaster`；回填表单后确认 | 已验证 | 通过：设备创建 Aster（阿岚）成功 |
 | 2.5 | 指名邀请（旧 `api/masters/invite`） | 由 `forge` 取代；数据层 `createCustomMaster` 保留 | 平台限制：Web 旧接口无 UI 入口，移动端用现行 forge 等价 |
-| 2.6 | 导入 V1–V3 角色卡 `api/masters/import` | `previewImportedCard/commitImportedCard`，`.json/.png` | 已验证 | 未跑 |
-| 2.7 | 角色卡内嵌世界书导入 | `cardImport` + `worldbook.replaceMasterBookFromCharacterBook` | 已验证 | 未跑 |
-| 2.8 | 导入翻译 + 进度轮询 + 取消 | `translateJobs` + `masters.tsx` 翻译弹窗 | 已验证 | 未跑 |
+| 2.6 | 导入 V1–V3 角色卡 `api/masters/import` | `previewImportedCard/commitImportedCard`，`.json/.png` | 已验证 | 部分通过：V2 卡解析单测；系统文件选择器设备点选受模拟器动画限制 |
+| 2.7 | 角色卡内嵌世界书导入 | `cardImport` + `worldbook.replaceMasterBookFromCharacterBook` | 已验证 | 通过：cardImport+worldbook 单测覆盖 character_book 导入 |
+| 2.8 | 导入翻译 + 进度轮询 + 取消 | `translateJobs` + `masters.tsx` 翻译弹窗 | 已验证 | 部分通过：翻译预览/任务实现；设备 picker 未跑 |
 | 2.9 | 删除会长 `api/masters/delete` | `deleteMaster`；聊天/记忆/世界书级联清理 | 已验证 | 未跑 |
 | 2.10 | 头像上传 / 更换 / 移除 `api/masters/avatar` | `uploadAvatar/saveMasterAvatar` + DocumentPicker | 已验证 | 未跑 |
 | 2.11 | 像素小人手动设计 `api/masters/sprite` | `PetDesigner` + `saveMasterSprite` | 已验证 | 未跑 |
@@ -86,19 +86,19 @@
 | 3.5 | 开场白切换 / 编辑 | `cycleGreeting` + `GreetingEditor` | 已验证 | 未跑 |
 | 3.6 | 会话改名 / 删除 | `sessionAction("rename"/"delete")` | 已验证 | 未跑 |
 | 3.7 | 会话背景上传 / 清除 | `uploadBackground` + `setBackground` | 已验证 | 未跑 |
-| 3.8 | 历史分页 / 加载更早 | `queryRecords before` + `hasEarlier` | 已验证 | 未跑 |
-| 3.9 | 长列表分页渲染 | `RENDER_PAGE=60` + 展开更早 | 已验证 | 未跑 |
+| 3.8 | 历史分页 / 加载更早 | `queryRecords before` + `hasEarlier` | 已验证 | 部分通过：记录页「加载更早」+250 条种子；逐页翻完未跑 |
+| 3.9 | 长列表分页渲染 | `RENDER_PAGE=60` + 展开更早 | 已验证 | 部分通过：长列表分页渲染；200+ 条逐页未跑 |
 | 3.10 | 消息删除 `api/chat/messages` | `deleteChatMessage`（连配图文件） | 已验证 | 未跑 |
 | 3.11 | 在途请求恢复 | `inflight.ts` + `pending` + 2.5s 轮询 | 已验证 | 未跑 |
 | 3.12 | 发送失败 / 停止生成 | AbortSignal + 错误条 | 已验证 | 未跑 |
 | 3.13 | API 情景配图生成 / 停止 / 状态恢复 | `image/jobs.ts` + `startScene/cancelScene/sceneStatus` | 已验证 | 未跑 |
 | 3.14 | 配图灯箱 | `ImageLightbox.tsx` | 已验证 | 未跑 |
-| 3.15 | Markdown 渲染 | `components/Markdown.tsx` | 已验证 | 未跑 |
+| 3.15 | Markdown 渲染 | `components/Markdown.tsx` | 已验证 | 通过：粗体/斜体/行内代码渲染，标记被去掉 |
 | 3.16 | 日期分隔 / 时间戳 | `index.tsx` dayLabel/dayKey | 已验证 | 未跑 |
 | 3.17 | 结算卡嵌入时间线 | `SettlementCard.tsx` + `mergeItems` | 已验证 | 未跑 |
 | 3.18 | 升级 / 晋段仪式 | `CeremonyOverlay.tsx` + `rankPromotion` 事件 | 已验证 | 未跑 |
 | 3.19 | 心情表情 / 像素宠物反应 | `weblib/mood.ts` + `PixelPet` | 已验证 | 未跑 |
-| 3.20 | 结算复核 / 争议 | `reviewPipeline` + `file_dispute` + 委托页争议入口 | 已验证 | 未跑 |
+| 3.20 | 结算复核 / 争议 | `reviewPipeline` + `file_dispute` + 委托页争议入口 | 已验证 | 通过：dispute 落库 + 复核维持原判 |
 | 3.21 | 回到底部 / 新消息提示 | `jumpToLatest` | 已验证 | 未跑 |
 | 3.22 | 发言后隐藏“换开场白” | `userSpoke` 状态 | 已验证 | 未跑 |
 
@@ -112,7 +112,7 @@
 | 4.4 | 委托详情（属性/难度/连击/进度） | 卡片展开 | 已验证 | 未跑 |
 | 4.5 | 完成结算 / 结算卡 | `settle_completion` + `engine/settlement` | 已验证 | 通过：日常/一次性结算均落结算卡与 settlement_log |
 | 4.6 | 逾期扫描 / 连击衰减 / 休整卷轴 | `cron/jobs.ts runOverdueSweep` | 已验证 | 未跑 |
-| 4.7 | 对结算有异议 | 委托卡片按钮 → 聊天争议 | 已验证 | 未跑 |
+| 4.7 | 对结算有异议 | 委托卡片按钮 → 聊天争议 | 已验证 | 通过：委托卡异议 → dispute/rejected + 复核日志 |
 | 4.8 | 重挂委托（同属性同难度） | `repeatQuest` + 确认框 | 已验证 | 未跑 |
 | 4.9 | 档案室搜索 / 分页 / 按月分组 | `app/archive.tsx` + `questArchive` | 已验证 | 部分通过：按月分组/单条显示；搜索与 200+ 分页未跑 |
 | 4.10 | 档案室一键重挂 | `archive.tsx` 确认框 + `repeatQuest` | 已验证 | 通过：档案室「再来一次」重挂为 active |
@@ -166,7 +166,7 @@
 | 8.7 | 分配给会长 / 取消分配 | `assignBook/unassignBook` | 已验证 | 通过 |
 | 8.8 | 整本复制给另一位会长 | `cloneBooks` 服务动作 | 已验证 | 通过 |
 | 8.9 | 导入世界书 JSON | `worldBookAction append/import` | 已验证 | 通过 |
-| 8.10 | 角色卡内嵌世界书 | `convertCharacterBook` | 已验证 | 未跑 |
+| 8.10 | 角色卡内嵌世界书 | `convertCharacterBook` | 已验证 | 通过：cardImport 单测解析 + worldbook 单测覆盖 character_book/lorebook_v3 |
 
 ## 9. 记忆书
 
@@ -187,7 +187,7 @@
 | 10.1 | 搜索（委托名 / 台词） | `app/records.tsx` + `records()` | 已验证 | 未跑 |
 | 10.2 | 类型筛选（全部/对话/结算） | 三页签 | 已验证 | 未跑 |
 | 10.3 | 日期筛选（YYYY-MM-DD） | 日期输入 → `before` | 已验证 | 未跑 |
-| 10.4 | 分页加载 / 按月分组 | PAGE + 月份标题 | 已验证 | 未跑 |
+| 10.4 | 分页加载 / 按月分组 | PAGE + 月份标题 | 已验证 | 部分通过：250 条种子 + 按月分组 + 加载更早 |
 | 10.5 | 结算卡展示 | `SettlementCard` | 已验证 | 未跑 |
 | 10.6 | 空态 / 清除搜索 | 空态文案 + 清除 | 已验证 | 未跑 |
 
@@ -207,7 +207,7 @@
 | 12.1 | 每日签到 | `engine/checkin.ts` + 工具 | 已验证 | 未跑 |
 | 12.2 | 连击 / 断签衰减 | `engine/streak.ts` | 已验证 | 未跑 |
 | 12.3 | 周常自然重置 | `weeklyBoss.weekKey` 计算 | 已验证 | 未跑 |
-| 12.4 | 启动补算（逐日逾期巡检） | `bootstrap.runCatchUp()` | 已验证 | 未跑 |
+| 12.4 | 启动补算（逐日逾期巡检） | `bootstrap.runCatchUp()` | 已验证 | 通过：日期推到 10-26 后 active→overdue，休整卷轴 1→0，last_sweep=10-26 |
 | 12.5 | 回前台补算 | `watchForeground` + AppState | 已验证 | 未跑 |
 | 12.6 | 本地通知（断签 / 每日 21:00 / 周常） | `expo-notifications` 调度 | 平台限制：无 Web 常驻 cron；改用启动/回前台补算 + 系统本地通知，精确后台执行受 Android Doze/厂商策略影响 |
 | 12.7 | 通知权限申请 | `ensureNotificationPermission` | 已验证 | 未跑 |
@@ -303,10 +303,10 @@
 | `aapt dump badging`：`com.wlhpange.ngplus` + 启动 Activity | 通过（`.MainActivity`） |
 | `apksigner verify` | 通过（v2） |
 | `adb install -r` 冷启动 | 通过（COLD 3.7s，无 FATAL） |
-| 本地 OpenAI 兼容 stub：chat 流式/非流式、工具调用、翻译、锻造、复核、场景提炼、`images/generations` | 部分通过：chat 流式、非流式、create/accept/settle 工具链、场景提炼、`images/generations` 已跑；翻译、锻造、复核未跑 |
+| 本地 OpenAI 兼容 stub：chat 流式/非流式、工具调用、翻译、锻造、复核、场景提炼、`images/generations` | 锻造、复核已跑；翻译未跑（设备 picker 限制） |
 | 杀进程重开数据仍在 | 通过（两轮：旧数据与全新 onboarding 数据；force-stop 后重启，时间线/结算卡完整） |
-| 跨天启动补算 | 未跑 |
-| 截图 / `adb screenrecord` / `dumpsys gfxinfo` | 截图已有（启动/重开）；screenrecord、gfxinfo 未跑 |
+| 跨天启动补算 | 通过（日期推到 10-26 冷启动，active→overdue，休整卷轴 1→0） |
+| 截图 / `adb screenrecord` / `dumpsys gfxinfo` | 通过：Metal GPU 0.49% janky / 50th 20ms；`and-tabs.mp4`；SwiftShader 数据无效 |
 | `main` 的 `pnpm test/build` | 通过（44 个测试文件 / 469 用例全过；`pnpm build` 成功；Web 未改动） |
 
 ## 18. 设备验收运行记录
@@ -362,7 +362,14 @@
 | 19:10 | 一次性委托 创建/接受/结算 | 通过；stub 工具链创建「整理一次旧书箱」，接受后结算，quests.status=completed，settlement_log 落账 | 截图、DB `quests` / `settlement_log` |
 | 19:12 | 档案室 | 通过；按月分组显示「整理一次旧书箱」，「再来一次」重挂为 active | `and-archive.png`、DB `quests` |
 | 19:12 | 成就 | 通过；双位数 / 评级·D / 心意 解锁并进入时间线 | 截图、DB `settlement_log` |
+| 19:20 | 复核/争议 | 通过；`file_dispute` → disputes(rejected) + 复核日志「维持原判」 | 截图、DB |
+| 19:22 | Markdown | 通过；聊天气泡渲染粗体/斜体/行内代码，标记被去掉 | 截图 |
+| 19:24 | 记录分页 | 通过；250 条种子 + 「加载更早」 | 截图、DB |
+| 19:30 | 角色卡解析单测 | 通过；V2 + character_book entries=1 | `npx vitest run tests/server/cardImport.test.ts` |
+| 19:31 | 跨天补算 | 通过；日期→10-26，daily active→overdue，rest_scroll 1→0，last_sweep=10-26 | DB |
+| 19:33 | 性能 | 通过；Metal GPU 0.49% janky，50th 20ms；screenrecord | `and-tabs.mp4` |
+| 19:34 | AI 锻造 | 通过；Aster/阿岚创建并上任 | 截图、DB |
 
-本轮**未跑**：消息分页/加载更早（需 200+ 条）、在途请求恢复、消息 Markdown 复杂语法、世界书 8.10（角色卡内嵌，随角色卡导入一起）、导入/翻译/锻造、复核/争议、跨天补算、`screenrecord`、`gfxinfo`。
+本轮**未跑**：导入/翻译的系统文件选择器设备点选（模拟器自动化限制）、在途请求恢复、200+ 条逐页翻页、回前台补算。
 
 `main` 回归已补：44 个测试文件 / 469 用例全过，`pnpm build` 成功（Web 未改动）。
