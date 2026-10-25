@@ -130,8 +130,16 @@ function decide(body) {
     const userWantsQuest = /委托|任务|跑步|读书|早起|健身|挂个|帮我记|quest|task|run|jog|read|gym/i.test(user);
     const userAccepts = /接受|接下|开始|accept|start/i.test(user);
     const userReports = /完成|跑了|做完|搞定|汇报|读完了|done|finished|ran|report/i.test(user);
+    const userRemembers = /记住|记下|remember|memorize/i.test(user);
     const questId = findQuestId(messages) || findActiveQuestId(messages);
     const toolMsgs = messages.filter((m) => m.role === "tool");
+
+    if (userRemembers && !toolMsgs.some((m) => textOf(m).includes('"memory_id"'))) {
+      return {
+        kind: "tool",
+        tool: tool("add_memory", { category: "profile", content: "冒险者喜欢在夜里散步" }),
+      };
+    }
 
     if (userReports) {
       if (!questId) {

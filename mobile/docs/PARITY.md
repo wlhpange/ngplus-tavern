@@ -172,13 +172,13 @@
 
 | # | Web 基准 | Android 实现 | 状态 | 设备验收 |
 | --- | --- | --- | --- | --- |
-| 9.1 | 永久记忆 / 会话记忆切换 | `app/memory.tsx` + `memoryData` | 已验证 | 未跑 |
-| 9.2 | 自动提取记忆 | `llm/tools add_memory` + 会话结束提取 | 已验证 | 未跑 |
-| 9.3 | 启用 / 停用 | `memoryAction toggle` | 已验证 | 未跑 |
-| 9.4 | 编辑 / 手动新增 | `memoryAction edit/add` | 已验证 | 未跑 |
-| 9.5 | 单条删除 / 批量删除 | `memoryAction delete` + 多选 | 已验证 | 未跑 |
-| 9.6 | 删除会话连带删除会话记忆 | `chatSessions.delete` 级联 | 已验证 | 未跑 |
-| 9.7 | 记忆注入对话提示词 | `llm/prompts.ts` + `memory.ts` | 已验证 | 未跑 |
+| 9.1 | 永久记忆 / 会话记忆切换 | `app/memory.tsx` + `memoryData` | 已验证 | 通过 |
+| 9.2 | 自动提取记忆 | `llm/tools add_memory` + 会话结束提取 | 已验证 | 通过 |
+| 9.3 | 启用 / 停用 | `memoryAction toggle` | 已验证 | 通过 |
+| 9.4 | 编辑 / 手动新增 | `memoryAction edit/add` | 已验证 | 通过 |
+| 9.5 | 单条删除 / 批量删除 | `memoryAction delete` + 多选 | 已验证 | 通过 |
+| 9.6 | 删除会话连带删除会话记忆 | `chatSessions.delete` 级联 | 已验证 | 通过 |
+| 9.7 | 记忆注入对话提示词 | `llm/prompts.ts` + `memory.ts` | 已验证 | 通过（提示词单测） |
 
 ## 10. 记录归档
 
@@ -350,5 +350,12 @@
 | 17:20 | 改名 / 删除整本 | 通过；「Lore Test」→「LoreRenamed」；删除副本后仅余一本 | 页面 chip、DB |
 | 17:26 | 世界书引擎单测 | 通过；新增 `tests/server/worldbook.test.ts` 13 条，覆盖关键词/selective/位置分组/token 预算/递归/概率/装饰器/角色卡 `character_book` 与 `lorebook_v3` 导入 | `npx vitest run tests/server/worldbook.test.ts` |
 | 17:30 | `force-stop` 后重开 → 世界书 | 通过；「LoreRenamed」1 条、挂载「加洛」、条目正文与 15 tokens 统计均保留 | `/tmp/wb-restart.png`、DB |
+| 17:35 | 记忆书 · 手动新增永久记忆 | 通过；空态文案「加洛 的永久记忆还是空的」；偏好类「Prefers night walks and warm tea」入册，1 条 | 截图、DB `memory(session_id=NULL)` |
+| 17:38 | 记忆书 · 编辑 / 停用 / 启用 | 通过；改为「Edited memory: likes rain」；停用后显示「已停用」、按钮变「启用」，再启用 | DB `content`、`enabled` |
+| 17:41 | 酒馆模式发送 `hello there` | 通过；回复「收到。今天也慢慢来，我在。」；后台自动抽取会话记忆「冒险者完成了第一次委托」，永久记忆不受影响 | DB `memory(session_id=1402cb0e)` |
+| 17:45 | 任务模式发送 `remember I prefer green tea` | 通过；`add_memory` 工具调用 →「嗯，我记下了。」，永久记忆 2 条 | DB `memory(profile, 冒险者喜欢在夜里散步)` |
+| 17:50 | 会话记忆 · 手动新增 / 单删 / 批量删 | 通过；新增 A、B 后 3 条；删 B 余 2 条；全选「删除选中 2 条」确认后 0 条 | 截图、DB |
+| 17:54 | 新增会话 → 删除含记忆旧会话 | 通过；会话 2 段；确认框「聊天记录和它的对话记忆会一起消失」；删除后 DB 中该会话与两条会话记忆一并消失，永久记忆保留 | 截图、DB `chat_sessions` / `memory` |
+| 18:06 | 记忆注入提示词单测 | 通过；新增 `tests/server/memory.test.ts` 5 条，覆盖空记忆、类别聚合、优先级排序、未知类别与六类常量 | `npx vitest run tests/server/memory.test.ts` |
 
-本轮**未跑**：消息分页/加载更早（需 200+ 条）、在途请求恢复、消息 Markdown 复杂语法、世界书 8.10（角色卡内嵌，随角色卡导入一起）、记忆书、商店、技能树、档案室、导入/翻译/锻造、复核/争议、跨天补算、`screenrecord`、`gfxinfo`、main 回归。
+本轮**未跑**：消息分页/加载更早（需 200+ 条）、在途请求恢复、消息 Markdown 复杂语法、世界书 8.10（角色卡内嵌，随角色卡导入一起）、商店、技能树、档案室、导入/翻译/锻造、复核/争议、跨天补算、`screenrecord`、`gfxinfo`、main 回归。
