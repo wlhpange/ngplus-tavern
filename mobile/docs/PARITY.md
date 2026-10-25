@@ -157,15 +157,15 @@
 
 | # | Web 基准 | Android 实现 | 状态 | 设备验收 |
 | --- | --- | --- | --- | --- |
-| 8.1 | 世界书列表 / 新建 / 改名 / 删除 | `app/worldbook.tsx` + `worldbook.ts` | 已验证 | 未跑 |
-| 8.2 | 条目增删改 | `upsertBookEntry/deleteBookEntry` | 已验证 | 未跑 |
-| 8.3 | 常驻 / 关键词 / 次级关键词 / selective | 表单项 + `activateWorldBook` | 已验证 | 未跑 |
-| 8.4 | 插入顺序 / before/after/depth / role | 表单项 + 引擎 | 已验证 | 未跑 |
-| 8.5 | 概率触发 | `extensions.probability` | 已验证 | 未跑 |
-| 8.6 | token 预算 / 截断 / 递归扫描 | `estimateTokens` + `MAX_RECURSION_STEPS` | 已验证 | 未跑 |
-| 8.7 | 分配给会长 / 取消分配 | `assignBook/unassignBook` | 已验证 | 未跑 |
-| 8.8 | 整本复制给另一位会长 | `cloneBooks` 服务动作 | 已验证 | 未跑 |
-| 8.9 | 导入世界书 JSON | `worldBookAction append/import` | 已验证 | 未跑 |
+| 8.1 | 世界书列表 / 新建 / 改名 / 删除 | `app/worldbook.tsx` + `worldbook.ts` | 已验证 | 通过 |
+| 8.2 | 条目增删改 | `upsertBookEntry/deleteBookEntry` | 已验证 | 通过 |
+| 8.3 | 常驻 / 关键词 / 次级关键词 / selective | 表单项 + `activateWorldBook` | 已验证 | 通过 |
+| 8.4 | 插入顺序 / before/after/depth / role | 表单项 + 引擎 | 已验证 | 通过 |
+| 8.5 | 概率触发 | `extensions.probability` | 已验证 | 通过 |
+| 8.6 | token 预算 / 截断 / 递归扫描 | `estimateTokens` + `MAX_RECURSION_STEPS` | 已验证 | 通过（引擎单测） |
+| 8.7 | 分配给会长 / 取消分配 | `assignBook/unassignBook` | 已验证 | 通过 |
+| 8.8 | 整本复制给另一位会长 | `cloneBooks` 服务动作 | 已验证 | 通过 |
+| 8.9 | 导入世界书 JSON | `worldBookAction append/import` | 已验证 | 通过 |
 | 8.10 | 角色卡内嵌世界书 | `convertCharacterBook` | 已验证 | 未跑 |
 
 ## 9. 记忆书
@@ -340,5 +340,15 @@
 | 16:09 | 配图灯箱 | 通过；全屏预览 + 关闭按钮 | `android-lightbox.png` |
 | 16:10 | 删除消息 | 通过；确认框提示配图一并删除，删除后消息与配图消失 | `ui-delmsg2.xml` |
 | 16:10 | 删除会话 | 通过；确认框提示聊天记录与会话记忆一并删除，会话数 2 → 1 | `ui-delsess2.xml` |
+| 17:05 | 设置 → 世界书 | 通过；空态显示「这本还是空的」，新建「Lore Test」成功 | 截图、DB `world_books` |
+| 17:08 | 世界书「挂给会长」 | 通过；勾选「加洛」后头部显示「加洛」，取消后回「未挂载」，再挂回 | DB `master_world_books` |
+| 17:10 | 新增条目 | 通过；关键词 `clocktower,lore`、常驻、按深度、深度 4、顺序 100、概率 0.8；统计「共 1 条 · 常驻约 33 tokens」 | DB `world_book_entries`（keys/secondary/constant/selective/position/depth/role/extensions） |
+| 17:10 | 复制世界书 | 通过；来源「加洛」→ 目标「薇拉」生成「Lore Test（副本）」1 条，原书不动 | 页面 chip、DB |
+| 17:14 | 编辑条目 + 需两把钥匙 | 通过；改次级关键词 `second` 后保存，编辑表单回填一致 | DB `selective=1, secondary_keys=["second"]` |
+| 17:15 | 删除条目 | 通过；确认后回到空态「这本还是空的」 | 截图、DB 条目数 0 |
+| 17:18 | 追加导入世界书 JSON | 通过；粘贴 `{"entries":[...]}` 追加成功，常驻条目入册，统计 15 tokens | 截图、DB `extensions.cc_index=0` |
+| 17:20 | 改名 / 删除整本 | 通过；「Lore Test」→「LoreRenamed」；删除副本后仅余一本 | 页面 chip、DB |
+| 17:26 | 世界书引擎单测 | 通过；新增 `tests/server/worldbook.test.ts` 13 条，覆盖关键词/selective/位置分组/token 预算/递归/概率/装饰器/角色卡 `character_book` 与 `lorebook_v3` 导入 | `npx vitest run tests/server/worldbook.test.ts` |
+| 17:30 | `force-stop` 后重开 → 世界书 | 通过；「LoreRenamed」1 条、挂载「加洛」、条目正文与 15 tokens 统计均保留 | `/tmp/wb-restart.png`、DB |
 
-本轮**未跑**：消息分页/加载更早（需 200+ 条）、在途请求恢复、消息 Markdown 复杂语法、世界书、记忆书、商店、技能树、档案室、导入/翻译/锻造、复核/争议、跨天补算、`screenrecord`、`gfxinfo`、main 回归。
+本轮**未跑**：消息分页/加载更早（需 200+ 条）、在途请求恢复、消息 Markdown 复杂语法、世界书 8.10（角色卡内嵌，随角色卡导入一起）、记忆书、商店、技能树、档案室、导入/翻译/锻造、复核/争议、跨天补算、`screenrecord`、`gfxinfo`、main 回归。
