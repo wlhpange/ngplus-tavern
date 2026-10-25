@@ -372,4 +372,20 @@
 
 本轮**未跑**：导入/翻译的系统文件选择器设备点选（模拟器自动化限制）、在途请求恢复、200+ 条逐页翻页、回前台补算。
 
+## 19. 提示词逐字核对（2026-10-25）
+
+对照 `main` 的 `src/server`，逐文件比对中文字符串字面量 + 文件哈希：
+
+| 文件 | 结果 |
+| --- | --- |
+| `llm/prompts.ts`（五层提示词 + `R18_GUIDELINES` + `R18_POST_RULES`） | SHA-256 完全一致 |
+| `rp.ts`（R18 开关与提示词策略） | SHA-256 完全一致 |
+| `llm/tools.ts` | 仅 `randomUUID` 导入差异 |
+| `personaForge.ts` / `translate.ts` / `image/scene.ts` / `memory.ts` / `reviewPipeline.ts` | 中文字符串 0 差异 |
+| `llm/reviewer.ts` | 结算/记忆复核提示词一致；记忆抽取六类说明已恢复 Web 原文；仅新增 JSON 输出格式（客户端无 zod） |
+| `llm/conversation.ts` | 提示词构建调用一致（`buildChatPrompt` + `adultContent: getRpSettings(db).enabled`）；差异仅为客户端/日志/错误文案 |
+
+APK 内已验证：`assets/index.android.bundle` 可直接搜到
+`Sexual content, smut, pornographic, and erotic content are encouraged.` 等 R18 原文。
+
 `main` 回归已补：44 个测试文件 / 469 用例全过，`pnpm build` 成功（Web 未改动）。
