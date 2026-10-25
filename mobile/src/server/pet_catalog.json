@@ -1,0 +1,8156 @@
+{
+  "$comment": "Universal LPC Spritesheet Character Generator 子集（CC-BY-SA/OGA-BY，见 docs/CREDITS-lpc.md）。64×64 帧，正面=第 3 行。",
+  "frame": 64,
+  "frontRow": 2,
+  "base": "/sprites/lpc/",
+  "animations": {
+    "idle": {
+      "frames": 2,
+      "fps": 4
+    },
+    "walk": {
+      "frames": 9,
+      "fps": 10
+    },
+    "emote": {
+      "frames": 3,
+      "fps": 5
+    }
+  },
+  "bodyTypes": [
+    "female",
+    "male"
+  ],
+  "slots": [
+    {
+      "key": "body",
+      "label": "身体"
+    },
+    {
+      "key": "head",
+      "label": "头型"
+    },
+    {
+      "key": "face",
+      "label": "表情"
+    },
+    {
+      "key": "hair",
+      "label": "发型"
+    },
+    {
+      "key": "top",
+      "label": "上衣"
+    },
+    {
+      "key": "bottom",
+      "label": "下装"
+    },
+    {
+      "key": "shoes",
+      "label": "鞋"
+    }
+  ],
+  "items": {
+    "body": {
+      "label": "Body Color",
+      "slot": "body",
+      "category": "其他",
+      "layout": "single",
+      "materials": [
+        "body"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 10,
+          "materials": [
+            "body"
+          ],
+          "paths": {
+            "female": "body/bodies/female/",
+            "male": "body/bodies/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_afro": {
+      "label": "Afro",
+      "slot": "hair",
+      "category": "afro",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/afro/adult/",
+            "male": "hair/afro/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_cornrows": {
+      "label": "Cornrows",
+      "slot": "hair",
+      "category": "afro",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/cornrows/adult/",
+            "male": "hair/cornrows/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_dreadlocks_long": {
+      "label": "Dreadlocks long",
+      "slot": "hair",
+      "category": "afro",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/dreadlocks_long/adult/",
+            "male": "hair/dreadlocks_long/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_dreadlocks_short": {
+      "label": "Dreadlocks short",
+      "slot": "hair",
+      "category": "afro",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/dreadlocks_short/adult/",
+            "male": "hair/dreadlocks_short/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_flat_top_fade": {
+      "label": "Flat top fade",
+      "slot": "hair",
+      "category": "afro",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/flat_top_fade/adult/",
+            "male": "hair/flat_top_fade/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_flat_top_straight": {
+      "label": "Flat top straight",
+      "slot": "hair",
+      "category": "afro",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/flat_top_straight/adult/",
+            "male": "hair/flat_top_straight/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_natural": {
+      "label": "Natural",
+      "slot": "hair",
+      "category": "afro",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/natural/adult/",
+            "male": "hair/natural/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_twists_fade": {
+      "label": "Twists fade",
+      "slot": "hair",
+      "category": "afro",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/twists_fade/adult/",
+            "male": "hair/twists_fade/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_twists_straight": {
+      "label": "Twists straight",
+      "slot": "hair",
+      "category": "afro",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/twists_straight/adult/",
+            "male": "hair/twists_straight/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_balding": {
+      "label": "Balding",
+      "slot": "hair",
+      "category": "bald",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/balding/adult/",
+            "male": "hair/balding/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_buzzcut": {
+      "label": "Buzzcut",
+      "slot": "hair",
+      "category": "bald",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/buzzcut/adult/",
+            "male": "hair/buzzcut/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_high_and_tight": {
+      "label": "High and tight",
+      "slot": "hair",
+      "category": "bald",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/high_and_tight/adult/",
+            "male": "hair/high_and_tight/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_longhawk": {
+      "label": "Longhawk",
+      "slot": "hair",
+      "category": "bald",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/longhawk/adult/",
+            "male": "hair/longhawk/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_shorthawk": {
+      "label": "Shorthawk",
+      "slot": "hair",
+      "category": "bald",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/shorthawk/adult/",
+            "male": "hair/shorthawk/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_bob": {
+      "label": "Bob",
+      "slot": "hair",
+      "category": "bob",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/bob/adult/",
+            "male": "hair/bob/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_bob_side_part": {
+      "label": "Bob side part",
+      "slot": "hair",
+      "category": "bob",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/bob_side_part/adult/",
+            "male": "hair/bob_side_part/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_lob": {
+      "label": "Lob",
+      "slot": "hair",
+      "category": "bob",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/lob/adult/",
+            "male": "hair/lob/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_relm_short": {
+      "label": "Relm Short",
+      "slot": "hair",
+      "category": "bob",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/relm_short/adult/",
+            "male": "hair/relm_short/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_bangs_bun": {
+      "label": "Bangs bun",
+      "slot": "hair",
+      "category": "braids",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/bangs_bun/adult/",
+            "male": "hair/bangs_bun/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_braid": {
+      "label": "Braid",
+      "slot": "hair",
+      "category": "braids",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/braid/adult/fg/",
+            "male": "hair/braid/adult/fg/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/braid/adult/bg/",
+            "male": "hair/braid/adult/bg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_braid2": {
+      "label": "Braid2",
+      "slot": "hair",
+      "category": "braids",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/braid2/adult/fg/",
+            "male": "hair/braid2/adult/fg/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/braid2/adult/bg/",
+            "male": "hair/braid2/adult/bg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_half_up": {
+      "label": "Half up",
+      "slot": "hair",
+      "category": "braids",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/half_up/adult/",
+            "male": "hair/half_up/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_high_ponytail": {
+      "label": "High ponytail",
+      "slot": "hair",
+      "category": "braids",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/high_ponytail/adult/fg/",
+            "male": "hair/high_ponytail/adult/fg/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/high_ponytail/adult/bg/",
+            "male": "hair/high_ponytail/adult/bg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_long_tied": {
+      "label": "Long tied",
+      "slot": "hair",
+      "category": "braids",
+      "layout": "single",
+      "materials": [
+        "hair",
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair",
+            "cloth"
+          ],
+          "paths": {
+            "female": "hair/long_tied/adult/fg/",
+            "male": "hair/long_tied/adult/fg/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair",
+            "cloth"
+          ],
+          "paths": {
+            "female": "hair/long_tied/adult/bg/",
+            "male": "hair/long_tied/adult/bg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_ponytail": {
+      "label": "Ponytail",
+      "slot": "hair",
+      "category": "braids",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/ponytail/adult/fg/",
+            "male": "hair/ponytail/adult/fg/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/ponytail/adult/bg/",
+            "male": "hair/ponytail/adult/bg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_ponytail2": {
+      "label": "Ponytail2",
+      "slot": "hair",
+      "category": "braids",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/ponytail2/adult/fg/",
+            "male": "hair/ponytail2/adult/fg/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/ponytail2/adult/bg/",
+            "male": "hair/ponytail2/adult/bg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_relm_ponytail": {
+      "label": "Relm w/Ponytail",
+      "slot": "hair",
+      "category": "braids",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/relm_ponytail/adult/mg/",
+            "male": "hair/relm_ponytail/adult/mg/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/relm_ponytail/adult/bg/",
+            "male": "hair/relm_ponytail/adult/bg/"
+          }
+        },
+        {
+          "z": 145,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/relm_ponytail/adult/fg/",
+            "male": "hair/relm_ponytail/adult/fg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_relm_xlong": {
+      "label": "Relm XLong",
+      "slot": "hair",
+      "category": "braids",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/relm_xlong/adult/fg/",
+            "male": "hair/relm_xlong/adult/fg/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/relm_xlong/adult/bg/",
+            "male": "hair/relm_xlong/adult/bg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_shoulderl": {
+      "label": "Shoulderl",
+      "slot": "hair",
+      "category": "braids",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/shoulderl/adult/fg/",
+            "male": "hair/shoulderl/adult/fg/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/shoulderl/adult/bg/",
+            "male": "hair/shoulderl/adult/bg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_shoulderr": {
+      "label": "Shoulderr",
+      "slot": "hair",
+      "category": "braids",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/shoulderr/adult/fg/",
+            "male": "hair/shoulderr/adult/fg/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/shoulderr/adult/bg/",
+            "male": "hair/shoulderr/adult/bg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_topknot_long": {
+      "label": "Long Topknot",
+      "slot": "hair",
+      "category": "braids",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/parted_side_bangs/adult/",
+            "male": "hair/parted_side_bangs/adult/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/extensions/ponytails/topknot_long/adult/bg/",
+            "male": "hair/extensions/ponytails/topknot_long/adult/bg/"
+          }
+        },
+        {
+          "z": 145,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/extensions/ponytails/topknot_long/adult/fg/",
+            "male": "hair/extensions/ponytails/topknot_long/adult/fg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_topknot_long2": {
+      "label": "Long Topknot 2",
+      "slot": "hair",
+      "category": "braids",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/parted_side_bangs2/adult/",
+            "male": "hair/parted_side_bangs2/adult/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/extensions/ponytails/topknot_long/adult/bg/",
+            "male": "hair/extensions/ponytails/topknot_long/adult/bg/"
+          }
+        },
+        {
+          "z": 145,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/extensions/ponytails/topknot_long/adult/fg/",
+            "male": "hair/extensions/ponytails/topknot_long/adult/fg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_topknot_short": {
+      "label": "Short Topknot",
+      "slot": "hair",
+      "category": "braids",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/parted_side_bangs/adult/",
+            "male": "hair/parted_side_bangs/adult/"
+          }
+        },
+        {
+          "z": 145,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/extensions/ponytails/topknot_short/adult/",
+            "male": "hair/extensions/ponytails/topknot_short/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_topknot_short2": {
+      "label": "Short Topknot 2",
+      "slot": "hair",
+      "category": "braids",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/parted_side_bangs2/adult/",
+            "male": "hair/parted_side_bangs2/adult/"
+          }
+        },
+        {
+          "z": 145,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/extensions/ponytails/topknot_short/adult/",
+            "male": "hair/extensions/ponytails/topknot_short/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_curls_large": {
+      "label": "Large Curls",
+      "slot": "hair",
+      "category": "curly",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/curls_large/adult/fg/",
+            "male": "hair/curls_large/adult/fg/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/curls_large/adult/bg/",
+            "male": "hair/curls_large/adult/bg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_curls_large_xlong": {
+      "label": "Large Curls XLong",
+      "slot": "hair",
+      "category": "curly",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/curls_large_xlong/adult/fg/",
+            "male": "hair/curls_large_xlong/adult/fg/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/curls_large_xlong/adult/bg/",
+            "male": "hair/curls_large_xlong/adult/bg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_curly_long": {
+      "label": "Curly long",
+      "slot": "hair",
+      "category": "curly",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/curly_long/adult/",
+            "male": "hair/curly_long/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_curly_short": {
+      "label": "Curly short",
+      "slot": "hair",
+      "category": "curly",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/curly_short/adult/",
+            "male": "hair/curly_short/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_curly_short2": {
+      "label": "Curly short 2",
+      "slot": "hair",
+      "category": "curly",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/curly_short2/adult/",
+            "male": "hair/curly_short2/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_jewfro": {
+      "label": "Jewfro",
+      "slot": "hair",
+      "category": "curly",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/jewfro/adult/",
+            "male": "hair/jewfro/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hairext_braidl": {
+      "label": "Left Braid",
+      "slot": "hair",
+      "category": "extensions/bangs",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 128,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/extensions/bangs/braidl/adult/",
+            "male": "hair/extensions/bangs/braidl/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hairext_braidr": {
+      "label": "Right Braid",
+      "slot": "hair",
+      "category": "extensions/bangs",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 128,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/extensions/bangs/braidr/adult/",
+            "male": "hair/extensions/bangs/braidr/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hairext_long_straightl": {
+      "label": "Left Long Straight",
+      "slot": "hair",
+      "category": "extensions/bangs",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 128,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/extensions/bangs/long_straightl/adult/",
+            "male": "hair/extensions/bangs/long_straightl/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hairext_long_straightr": {
+      "label": "Right Long Straight",
+      "slot": "hair",
+      "category": "extensions/bangs",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 128,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/extensions/bangs/long_straightr/adult/",
+            "male": "hair/extensions/bangs/long_straightr/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hairext_long_wavyl": {
+      "label": "Left Long Wavy",
+      "slot": "hair",
+      "category": "extensions/bangs",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 128,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/extensions/bangs/long_wavyl/adult/",
+            "male": "hair/extensions/bangs/long_wavyl/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hairext_long_wavyr": {
+      "label": "Right Long Wavy",
+      "slot": "hair",
+      "category": "extensions/bangs",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 128,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/extensions/bangs/long_wavyr/adult/",
+            "male": "hair/extensions/bangs/long_wavyr/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hairext_xlong_bangl": {
+      "label": "Left XLong Bang",
+      "slot": "hair",
+      "category": "extensions/bangs",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 128,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/extensions/bangs/xlong_bangl/adult/",
+            "male": "hair/extensions/bangs/xlong_bangl/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hairext_xlong_bangr": {
+      "label": "Right XLong Bang",
+      "slot": "hair",
+      "category": "extensions/bangs",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 128,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/extensions/bangs/xlong_bangr/adult/",
+            "male": "hair/extensions/bangs/xlong_bangr/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hairext_xlong_curlyl": {
+      "label": "Left XLong Curly",
+      "slot": "hair",
+      "category": "extensions/bangs",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 128,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/extensions/bangs/xlong_curlyl/adult/",
+            "male": "hair/extensions/bangs/xlong_curlyl/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hairext_xlong_curlyr": {
+      "label": "Right XLong Curly",
+      "slot": "hair",
+      "category": "extensions/bangs",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 128,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/extensions/bangs/xlong_curlyr/adult/",
+            "male": "hair/extensions/bangs/xlong_curlyr/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hairext_xlong_wavyl": {
+      "label": "Left XLong Wavy",
+      "slot": "hair",
+      "category": "extensions/bangs",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 128,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/extensions/bangs/xlong_wavyl/adult/",
+            "male": "hair/extensions/bangs/xlong_wavyl/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hairext_xlong_wavyr": {
+      "label": "Right XLong Wavy",
+      "slot": "hair",
+      "category": "extensions/bangs",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 128,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/extensions/bangs/xlong_wavyr/adult/",
+            "male": "hair/extensions/bangs/xlong_wavyr/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hairext_topknot_long": {
+      "label": "Long Topknot",
+      "slot": "hair",
+      "category": "extensions/ponytails",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 128,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/extensions/ponytails/topknot_long/adult/fg/",
+            "male": "hair/extensions/ponytails/topknot_long/adult/fg/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/extensions/ponytails/topknot_long/adult/bg/",
+            "male": "hair/extensions/ponytails/topknot_long/adult/bg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hairext_topknot_relm": {
+      "label": "Relm Topknot",
+      "slot": "hair",
+      "category": "extensions/ponytails",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 128,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/extensions/ponytails/relm_ponytail/adult/fg/",
+            "male": "hair/extensions/ponytails/relm_ponytail/adult/fg/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/extensions/ponytails/relm_ponytail/adult/bg/",
+            "male": "hair/extensions/ponytails/relm_ponytail/adult/bg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hairext_topknot_short": {
+      "label": "Short Topknot",
+      "slot": "hair",
+      "category": "extensions/ponytails",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 128,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/extensions/ponytails/topknot_short/adult/",
+            "male": "hair/extensions/ponytails/topknot_short/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hairext_high_bun": {
+      "label": "High Bun",
+      "slot": "hair",
+      "category": "extensions/ties",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 128,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/extensions/ties/high_bun/adult/",
+            "male": "hair/extensions/ties/high_bun/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_bangslong": {
+      "label": "Bangslong",
+      "slot": "hair",
+      "category": "long",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/bangslong/adult/",
+            "male": "hair/bangslong/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_bangslong2": {
+      "label": "Bangslong2",
+      "slot": "hair",
+      "category": "long",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/bangslong2/adult/fg/",
+            "male": "hair/bangslong2/adult/fg/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/bangslong2/adult/bg/",
+            "male": "hair/bangslong2/adult/bg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_curtains_long": {
+      "label": "Curtains long",
+      "slot": "hair",
+      "category": "long",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/curtains_long/adult/",
+            "male": "hair/curtains_long/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_long": {
+      "label": "Long",
+      "slot": "hair",
+      "category": "long",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/long/adult/",
+            "male": "hair/long/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_long_center_part": {
+      "label": "Long center part",
+      "slot": "hair",
+      "category": "long",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/long_center_part/adult/fg/",
+            "male": "hair/long_center_part/adult/fg/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/long_center_part/adult/bg/",
+            "male": "hair/long_center_part/adult/bg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_long_messy": {
+      "label": "Long messy",
+      "slot": "hair",
+      "category": "long",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/long_messy/adult/",
+            "male": "hair/long_messy/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_long_messy2": {
+      "label": "Long messy2",
+      "slot": "hair",
+      "category": "long",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/long_messy2/adult/",
+            "male": "hair/long_messy2/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_long_straight": {
+      "label": "Long straight",
+      "slot": "hair",
+      "category": "long",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/long_straight/adult/",
+            "male": "hair/long_straight/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_loose": {
+      "label": "Loose",
+      "slot": "hair",
+      "category": "long",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/loose/adult/",
+            "male": "hair/loose/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_wavy": {
+      "label": "Wavy",
+      "slot": "hair",
+      "category": "long",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/wavy/adult/fg/",
+            "male": "hair/wavy/adult/fg/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/wavy/adult/bg/",
+            "male": "hair/wavy/adult/bg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_bunches": {
+      "label": "Bunches",
+      "slot": "hair",
+      "category": "pigtails",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/bunches/adult/fg/",
+            "male": "hair/bunches/adult/fg/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/bunches/adult/bg/",
+            "male": "hair/bunches/adult/bg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_pigtails": {
+      "label": "Pigtails",
+      "slot": "hair",
+      "category": "pigtails",
+      "layout": "single",
+      "materials": [
+        "hair",
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair",
+            "cloth"
+          ],
+          "paths": {
+            "female": "hair/pigtails/adult/",
+            "male": "hair/pigtails/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_pigtails_bangs": {
+      "label": "Pigtails bangs",
+      "slot": "hair",
+      "category": "pigtails",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/pigtails_bangs/adult/",
+            "male": "hair/pigtails_bangs/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_bangs": {
+      "label": "Bangs",
+      "slot": "hair",
+      "category": "short",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/bangs/adult/",
+            "male": "hair/bangs/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_bangsshort": {
+      "label": "Bangsshort",
+      "slot": "hair",
+      "category": "short",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/bangsshort/adult/",
+            "male": "hair/bangsshort/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_bedhead": {
+      "label": "Bedhead",
+      "slot": "hair",
+      "category": "short",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/bedhead/adult/",
+            "male": "hair/bedhead/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_cowlick": {
+      "label": "Cowlick",
+      "slot": "hair",
+      "category": "short",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/cowlick/adult/",
+            "male": "hair/cowlick/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_cowlick_tall": {
+      "label": "Cowlick tall",
+      "slot": "hair",
+      "category": "short",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/cowlick_tall/adult/",
+            "male": "hair/cowlick_tall/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_curtains": {
+      "label": "Curtains",
+      "slot": "hair",
+      "category": "short",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/curtains/adult/",
+            "male": "hair/curtains/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_idol": {
+      "label": "Idol",
+      "slot": "hair",
+      "category": "short",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/idol/adult/",
+            "male": "hair/idol/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_messy1": {
+      "label": "Messy1",
+      "slot": "hair",
+      "category": "short",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/messy1/adult/",
+            "male": "hair/messy1/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_messy2": {
+      "label": "Messy2",
+      "slot": "hair",
+      "category": "short",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/messy2/adult/",
+            "male": "hair/messy2/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_messy3": {
+      "label": "Messy3",
+      "slot": "hair",
+      "category": "short",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/messy3/adult/",
+            "male": "hair/messy3/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_mop": {
+      "label": "Mop",
+      "slot": "hair",
+      "category": "short",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/mop/adult/",
+            "male": "hair/mop/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_page": {
+      "label": "Page",
+      "slot": "hair",
+      "category": "short",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/page/adult/",
+            "male": "hair/page/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_page2": {
+      "label": "Page2",
+      "slot": "hair",
+      "category": "short",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/page2/adult/",
+            "male": "hair/page2/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_parted": {
+      "label": "Parted",
+      "slot": "hair",
+      "category": "short",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/parted/adult/",
+            "male": "hair/parted/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_parted2": {
+      "label": "Parted 2",
+      "slot": "hair",
+      "category": "short",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/parted2/adult/",
+            "male": "hair/parted2/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_parted3": {
+      "label": "Parted 3",
+      "slot": "hair",
+      "category": "short",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/parted3/adult/",
+            "male": "hair/parted3/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_parted_side_bangs": {
+      "label": "Side Parted w/Bangs",
+      "slot": "hair",
+      "category": "short",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/parted_side_bangs/adult/",
+            "male": "hair/parted_side_bangs/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_parted_side_bangs2": {
+      "label": "Side Parted w/Bangs 2",
+      "slot": "hair",
+      "category": "short",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/parted_side_bangs2/adult/",
+            "male": "hair/parted_side_bangs2/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_pixie": {
+      "label": "Pixie",
+      "slot": "hair",
+      "category": "short",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/pixie/adult/",
+            "male": "hair/pixie/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_plain": {
+      "label": "Plain",
+      "slot": "hair",
+      "category": "short",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/plain/adult/",
+            "male": "hair/plain/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_single": {
+      "label": "Single",
+      "slot": "hair",
+      "category": "short",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/single/adult/fg/",
+            "male": "hair/single/adult/fg/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/single/adult/bg/",
+            "male": "hair/single/adult/bg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_swoop": {
+      "label": "Swoop",
+      "slot": "hair",
+      "category": "short",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/swoop/adult/",
+            "male": "hair/swoop/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_swoop_side": {
+      "label": "Side Swoop",
+      "slot": "hair",
+      "category": "short",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/swoop_side/adult/",
+            "male": "hair/swoop_side/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_unkempt": {
+      "label": "Unkempt",
+      "slot": "hair",
+      "category": "short",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/unkempt/adult/",
+            "male": "hair/unkempt/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_halfmessy": {
+      "label": "Halfmessy",
+      "slot": "hair",
+      "category": "spiky",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/halfmessy/adult/",
+            "male": "hair/halfmessy/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_spiked": {
+      "label": "Spiked",
+      "slot": "hair",
+      "category": "spiky",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/spiked/adult/",
+            "male": "hair/spiked/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_spiked2": {
+      "label": "Spiked2",
+      "slot": "hair",
+      "category": "spiky",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/spiked2/adult/",
+            "male": "hair/spiked2/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_spiked_beehive": {
+      "label": "Spiked beehive",
+      "slot": "hair",
+      "category": "spiky",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/spiked_beehive/adult/",
+            "male": "hair/spiked_beehive/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_spiked_liberty": {
+      "label": "Spiked liberty",
+      "slot": "hair",
+      "category": "spiky",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/spiked_liberty/adult/",
+            "male": "hair/spiked_liberty/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_spiked_liberty2": {
+      "label": "Spiked liberty2",
+      "slot": "hair",
+      "category": "spiky",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/spiked_liberty2/adult/",
+            "male": "hair/spiked_liberty2/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_spiked_porcupine": {
+      "label": "Spiked porcupine",
+      "slot": "hair",
+      "category": "spiky",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/spiked_porcupine/adult/",
+            "male": "hair/spiked_porcupine/adult/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_long_band": {
+      "label": "Long band",
+      "slot": "hair",
+      "category": "xlong",
+      "layout": "single",
+      "materials": [
+        "hair",
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair",
+            "cloth"
+          ],
+          "paths": {
+            "female": "hair/long_band/adult/fg/",
+            "male": "hair/long_band/adult/fg/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair",
+            "cloth"
+          ],
+          "paths": {
+            "female": "hair/long_band/adult/bg/",
+            "male": "hair/long_band/adult/bg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_princess": {
+      "label": "Princess",
+      "slot": "hair",
+      "category": "xlong",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/princess/adult/fg/",
+            "male": "hair/princess/adult/fg/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/princess/adult/bg/",
+            "male": "hair/princess/adult/bg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_sara": {
+      "label": "Sara",
+      "slot": "hair",
+      "category": "xlong",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/sara/adult/fg/",
+            "male": "hair/sara/adult/fg/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/sara/adult/bg/",
+            "male": "hair/sara/adult/bg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_xlong": {
+      "label": "Xlong",
+      "slot": "hair",
+      "category": "xlong",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/xlong/adult/fg/",
+            "male": "hair/xlong/adult/fg/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/xlong/adult/bg/",
+            "male": "hair/xlong/adult/bg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "hair_xlong_wavy": {
+      "label": "XLong Wavy",
+      "slot": "hair",
+      "category": "xlong",
+      "layout": "single",
+      "materials": [
+        "hair"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 120,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/xlong_wavy/adult/fg/",
+            "male": "hair/xlong_wavy/adult/fg/"
+          }
+        },
+        {
+          "z": 9,
+          "materials": [
+            "hair"
+          ],
+          "paths": {
+            "female": "hair/xlong_wavy/adult/bg/",
+            "male": "hair/xlong_wavy/adult/bg/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "face_angry": {
+      "label": "Angry",
+      "slot": "face",
+      "category": "其他",
+      "layout": "single",
+      "materials": [
+        "body",
+        "eye"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 101,
+          "materials": [
+            "body",
+            "eye"
+          ],
+          "paths": {
+            "female": "head/faces/female/anger/",
+            "male": "head/faces/male/anger/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "face_angry2": {
+      "label": "Angry Alt",
+      "slot": "face",
+      "category": "其他",
+      "layout": "single",
+      "materials": [
+        "body"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 106,
+          "materials": [
+            "body"
+          ],
+          "paths": {
+            "female": "head/faces/global/angry2/",
+            "male": "head/faces/global/angry2/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "face_blush": {
+      "label": "Blush",
+      "slot": "face",
+      "category": "其他",
+      "layout": "single",
+      "materials": [
+        "body"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 101,
+          "materials": [
+            "body"
+          ],
+          "paths": {
+            "female": "head/faces/female/blush/",
+            "male": "head/faces/male/blush/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "face_closed": {
+      "label": "Closed Eyes",
+      "slot": "face",
+      "category": "其他",
+      "layout": "single",
+      "materials": [
+        "body"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 101,
+          "materials": [
+            "body"
+          ],
+          "paths": {
+            "female": "head/faces/female/closed/",
+            "male": "head/faces/male/closed/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "face_closing": {
+      "label": "Closing Eyes",
+      "slot": "face",
+      "category": "其他",
+      "layout": "single",
+      "materials": [
+        "body",
+        "eye"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 101,
+          "materials": [
+            "body",
+            "eye"
+          ],
+          "paths": {
+            "female": "head/faces/female/closing/",
+            "male": "head/faces/male/closing/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "face_eyeroll": {
+      "label": "Rolling Eyes",
+      "slot": "face",
+      "category": "其他",
+      "layout": "single",
+      "materials": [
+        "body",
+        "eye"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 101,
+          "materials": [
+            "body",
+            "eye"
+          ],
+          "paths": {
+            "female": "head/faces/female/eyeroll/",
+            "male": "head/faces/male/eyeroll/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "face_happy": {
+      "label": "Happy",
+      "slot": "face",
+      "category": "其他",
+      "layout": "single",
+      "materials": [
+        "body"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 101,
+          "materials": [
+            "body"
+          ],
+          "paths": {
+            "female": "head/faces/female/happy/",
+            "male": "head/faces/male/happy/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "face_happy2": {
+      "label": "Happy Alt",
+      "slot": "face",
+      "category": "其他",
+      "layout": "single",
+      "materials": [
+        "body"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 106,
+          "materials": [
+            "body"
+          ],
+          "paths": {
+            "female": "head/faces/global/happy2/",
+            "male": "head/faces/global/happy2/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "face_look_l": {
+      "label": "Looking Left",
+      "slot": "face",
+      "category": "其他",
+      "layout": "single",
+      "materials": [
+        "body",
+        "eye"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 101,
+          "materials": [
+            "body",
+            "eye"
+          ],
+          "paths": {
+            "female": "head/faces/female/look_l/",
+            "male": "head/faces/male/look_l/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "face_look_r": {
+      "label": "Looking Right",
+      "slot": "face",
+      "category": "其他",
+      "layout": "single",
+      "materials": [
+        "body",
+        "eye"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 101,
+          "materials": [
+            "body",
+            "eye"
+          ],
+          "paths": {
+            "female": "head/faces/female/look_r/",
+            "male": "head/faces/male/look_r/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "face_neutral": {
+      "label": "Neutral",
+      "slot": "face",
+      "category": "其他",
+      "layout": "single",
+      "materials": [
+        "body",
+        "eye"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 101,
+          "materials": [
+            "body",
+            "eye"
+          ],
+          "paths": {
+            "female": "head/faces/female/neutral/",
+            "male": "head/faces/male/neutral/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "face_sad": {
+      "label": "Sad",
+      "slot": "face",
+      "category": "其他",
+      "layout": "single",
+      "materials": [
+        "body",
+        "eye"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 101,
+          "materials": [
+            "body",
+            "eye"
+          ],
+          "paths": {
+            "female": "head/faces/female/sad/",
+            "male": "head/faces/male/sad/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "face_sad2": {
+      "label": "Sad Alt",
+      "slot": "face",
+      "category": "其他",
+      "layout": "single",
+      "materials": [
+        "body"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 101,
+          "materials": [
+            "body"
+          ],
+          "paths": {
+            "female": "head/faces/global/sad2/",
+            "male": "head/faces/global/sad2/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "face_shame": {
+      "label": "Shame",
+      "slot": "face",
+      "category": "其他",
+      "layout": "single",
+      "materials": [
+        "body",
+        "eye"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 101,
+          "materials": [
+            "body",
+            "eye"
+          ],
+          "paths": {
+            "female": "head/faces/female/shame/",
+            "male": "head/faces/male/shame/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "face_shock": {
+      "label": "Shock",
+      "slot": "face",
+      "category": "其他",
+      "layout": "single",
+      "materials": [
+        "body",
+        "eye"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 101,
+          "materials": [
+            "body",
+            "eye"
+          ],
+          "paths": {
+            "female": "head/faces/female/shock/",
+            "male": "head/faces/male/shock/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "face_tears": {
+      "label": "Tears",
+      "slot": "face",
+      "category": "其他",
+      "layout": "single",
+      "materials": [],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 107,
+          "materials": [],
+          "paths": {
+            "female": "head/faces/global/tears/",
+            "male": "head/faces/global/tears/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "heads_human_elderly_small": {
+      "label": "Human Elderly Small",
+      "slot": "head",
+      "category": "human",
+      "layout": "single",
+      "materials": [
+        "body",
+        "eye"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 100,
+          "materials": [
+            "body",
+            "eye"
+          ],
+          "paths": {
+            "female": "head/heads/human/elderly_small/",
+            "male": "head/heads/human/elderly_small/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "heads_human_female": {
+      "label": "Human Female",
+      "slot": "head",
+      "category": "human",
+      "layout": "single",
+      "materials": [
+        "body",
+        "eye"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 100,
+          "materials": [
+            "body",
+            "eye"
+          ],
+          "paths": {
+            "female": "head/heads/human/female/",
+            "male": "head/heads/human/female/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "heads_human_female_elderly": {
+      "label": "Human Female Elderly",
+      "slot": "head",
+      "category": "human",
+      "layout": "single",
+      "materials": [
+        "body",
+        "eye"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 100,
+          "materials": [
+            "body",
+            "eye"
+          ],
+          "paths": {
+            "female": "head/heads/human/female_elderly/",
+            "male": "head/heads/human/female_elderly/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "heads_human_female_small": {
+      "label": "Human Female Small",
+      "slot": "head",
+      "category": "human",
+      "layout": "single",
+      "materials": [
+        "body",
+        "eye"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 100,
+          "materials": [
+            "body",
+            "eye"
+          ],
+          "paths": {
+            "female": "head/heads/human/female_small/",
+            "male": "head/heads/human/female_small/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "heads_human_male": {
+      "label": "Human Male",
+      "slot": "head",
+      "category": "human",
+      "layout": "single",
+      "materials": [
+        "body",
+        "eye"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 100,
+          "materials": [
+            "body",
+            "eye"
+          ],
+          "paths": {
+            "female": "head/heads/human/male/",
+            "male": "head/heads/human/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "heads_human_male_elderly": {
+      "label": "Human Male Elderly",
+      "slot": "head",
+      "category": "human",
+      "layout": "single",
+      "materials": [
+        "body",
+        "eye"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 100,
+          "materials": [
+            "body",
+            "eye"
+          ],
+          "paths": {
+            "female": "head/heads/human/male_elderly/",
+            "male": "head/heads/human/male_elderly/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "heads_human_male_gaunt": {
+      "label": "Human Male Gaunt",
+      "slot": "head",
+      "category": "human",
+      "layout": "single",
+      "materials": [
+        "body",
+        "eye"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 100,
+          "materials": [
+            "body",
+            "eye"
+          ],
+          "paths": {
+            "female": "head/heads/human/male_gaunt/",
+            "male": "head/heads/human/male_gaunt/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "heads_human_male_plump": {
+      "label": "Human Male Plump",
+      "slot": "head",
+      "category": "human",
+      "layout": "single",
+      "materials": [
+        "body",
+        "eye"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 100,
+          "materials": [
+            "body",
+            "eye"
+          ],
+          "paths": {
+            "female": "head/heads/human/male_plump/",
+            "male": "head/heads/human/male_plump/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "heads_human_male_small": {
+      "label": "Human Male Small",
+      "slot": "head",
+      "category": "human",
+      "layout": "single",
+      "materials": [
+        "body",
+        "eye"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 100,
+          "materials": [
+            "body",
+            "eye"
+          ],
+          "paths": {
+            "female": "head/heads/human/male_small/",
+            "male": "head/heads/human/male_small/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_aprons_overalls": {
+      "label": "Overalls",
+      "slot": "top",
+      "category": "aprons",
+      "layout": "single",
+      "materials": [],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 38,
+          "materials": [],
+          "paths": {
+            "female": "torso/aprons/overalls/female/",
+            "male": "torso/aprons/overalls/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_aprons_suspenders": {
+      "label": "Suspenders",
+      "slot": "top",
+      "category": "aprons",
+      "layout": "single",
+      "materials": [],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 38,
+          "materials": [],
+          "paths": {
+            "female": "torso/aprons/suspenders/female/",
+            "male": "torso/aprons/suspenders/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_armour_leather": {
+      "label": "Leather",
+      "slot": "top",
+      "category": "armour",
+      "layout": "single",
+      "materials": [
+        "cloth",
+        "metal"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 60,
+          "materials": [
+            "cloth",
+            "metal"
+          ],
+          "paths": {
+            "female": "torso/armour/leather/female/",
+            "male": "torso/armour/leather/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_armour_legion": {
+      "label": "Legion",
+      "slot": "top",
+      "category": "armour",
+      "layout": "single",
+      "materials": [
+        "metal"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 60,
+          "materials": [
+            "metal"
+          ],
+          "paths": {
+            "female": "torso/armour/legion/female/",
+            "male": "torso/armour/legion/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_armour_plate": {
+      "label": "Plate",
+      "slot": "top",
+      "category": "armour",
+      "layout": "single",
+      "materials": [
+        "metal"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 60,
+          "materials": [
+            "metal"
+          ],
+          "paths": {
+            "female": "torso/armour/plate/female/",
+            "male": "torso/armour/plate/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "dress_bodice": {
+      "label": "Bodice",
+      "slot": "top",
+      "category": "dresses",
+      "layout": "variant",
+      "variants": [
+        "black",
+        "blue",
+        "brown",
+        "green",
+        "navy",
+        "purple",
+        "red",
+        "white"
+      ],
+      "materials": [],
+      "bodyTypes": [
+        "female"
+      ],
+      "layers": [
+        {
+          "z": 45,
+          "materials": [],
+          "paths": {
+            "female": "dress/bodice/female/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk"
+        ]
+      }
+    },
+    "dress_sash": {
+      "label": "Sash dress",
+      "slot": "top",
+      "category": "dresses",
+      "layout": "variant",
+      "variants": [
+        "black",
+        "blue",
+        "brown",
+        "green",
+        "navy",
+        "purple",
+        "red",
+        "white"
+      ],
+      "materials": [],
+      "bodyTypes": [
+        "female"
+      ],
+      "layers": [
+        {
+          "z": 30,
+          "materials": [],
+          "paths": {
+            "female": "dress/sash/female/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk"
+        ]
+      }
+    },
+    "dress_slit": {
+      "label": "Slit dress",
+      "slot": "top",
+      "category": "dresses",
+      "layout": "variant",
+      "variants": [
+        "black",
+        "blue",
+        "brown",
+        "green",
+        "navy",
+        "purple",
+        "red",
+        "white"
+      ],
+      "materials": [],
+      "bodyTypes": [
+        "female"
+      ],
+      "layers": [
+        {
+          "z": 30,
+          "materials": [],
+          "paths": {
+            "female": "dress/slit/female/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk"
+        ]
+      }
+    },
+    "dress_kimono": {
+      "label": "Kimono",
+      "slot": "top",
+      "category": "dresses/kimono",
+      "layout": "variant",
+      "variants": [
+        "black",
+        "blue",
+        "brown",
+        "green",
+        "navy",
+        "purple",
+        "red",
+        "white"
+      ],
+      "materials": [],
+      "bodyTypes": [
+        "female"
+      ],
+      "layers": [
+        {
+          "z": 30,
+          "materials": [],
+          "paths": {
+            "female": "dress/kimono/normal/universal/female/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk"
+        ]
+      }
+    },
+    "dress_kimono_split": {
+      "label": "Split Kimono",
+      "slot": "top",
+      "category": "dresses/kimono",
+      "layout": "variant",
+      "variants": [
+        "black",
+        "blue",
+        "brown",
+        "green",
+        "navy",
+        "purple",
+        "red",
+        "white"
+      ],
+      "materials": [],
+      "bodyTypes": [
+        "female"
+      ],
+      "layers": [
+        {
+          "z": 30,
+          "materials": [],
+          "paths": {
+            "female": "dress/kimono/split/universal/female/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk"
+        ]
+      }
+    },
+    "dress_kimono_split_trim": {
+      "label": "Split Kimono Trim",
+      "slot": "top",
+      "category": "dresses/kimono",
+      "layout": "variant",
+      "variants": [
+        "black",
+        "blue",
+        "brown",
+        "green",
+        "navy",
+        "purple",
+        "red",
+        "white"
+      ],
+      "materials": [],
+      "bodyTypes": [
+        "female"
+      ],
+      "layers": [
+        {
+          "z": 31,
+          "materials": [],
+          "paths": {
+            "female": "dress/kimono/split/trim/universal/female/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk"
+        ]
+      }
+    },
+    "dress_kimono_trim": {
+      "label": "Kimono Trim",
+      "slot": "top",
+      "category": "dresses/kimono",
+      "layout": "variant",
+      "variants": [
+        "black",
+        "blue",
+        "brown",
+        "green",
+        "navy",
+        "purple",
+        "red",
+        "white"
+      ],
+      "materials": [],
+      "bodyTypes": [
+        "female"
+      ],
+      "layers": [
+        {
+          "z": 31,
+          "materials": [],
+          "paths": {
+            "female": "dress/kimono/normal/trim/universal/female/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk"
+        ]
+      }
+    },
+    "torso_clothes_longsleeve": {
+      "label": "Longsleeve",
+      "slot": "top",
+      "category": "shirts/longsleeve",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 35,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/longsleeve/longsleeve/female/",
+            "male": "torso/clothes/longsleeve/longsleeve/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_longsleeve2": {
+      "label": "Longsleeve 2",
+      "slot": "top",
+      "category": "shirts/longsleeve",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 35,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/longsleeve/longsleeve2/female/",
+            "male": "torso/clothes/longsleeve/longsleeve2/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_longsleeve2_buttoned": {
+      "label": "Longsleeve 2 Buttoned",
+      "slot": "top",
+      "category": "shirts/longsleeve",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 35,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/longsleeve/longsleeve2_buttoned/female/",
+            "male": "torso/clothes/longsleeve/longsleeve2_buttoned/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_longsleeve2_cardigan": {
+      "label": "Cardigan",
+      "slot": "top",
+      "category": "shirts/longsleeve",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 35,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/longsleeve/longsleeve2_cardigan/female/",
+            "male": "torso/clothes/longsleeve/longsleeve2_cardigan/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_longsleeve2_polo": {
+      "label": "Longsleeve Polo",
+      "slot": "top",
+      "category": "shirts/longsleeve",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 35,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/longsleeve/longsleeve2_polo/female/",
+            "male": "torso/clothes/longsleeve/longsleeve2_polo/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_longsleeve2_scoop": {
+      "label": "Longsleeve 2 Scoop",
+      "slot": "top",
+      "category": "shirts/longsleeve",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 35,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/longsleeve/longsleeve2_scoop/female/",
+            "male": "torso/clothes/longsleeve/longsleeve2_scoop/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_longsleeve2_vneck": {
+      "label": "Longsleeve 2 VNeck",
+      "slot": "top",
+      "category": "shirts/longsleeve",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 35,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/longsleeve/longsleeve2_vneck/female/",
+            "male": "torso/clothes/longsleeve/longsleeve2_vneck/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_longsleeve_scoop": {
+      "label": "Scoop",
+      "slot": "top",
+      "category": "shirts/longsleeve",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 35,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/longsleeve/scoop/female/",
+            "male": "torso/clothes/longsleeve/scoop/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_longsleeves_cuffed": {
+      "label": "Cuffed Longsleeves Overlay",
+      "slot": "top",
+      "category": "shirts/longsleeve",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 36,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/longsleeve/longsleeves_cuffed/female/",
+            "male": "torso/clothes/longsleeve/longsleeves_cuffed/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_shortsleeve": {
+      "label": "Shortsleeve",
+      "slot": "top",
+      "category": "shirts/shortsleeve",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 35,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/shortsleeve/shortsleeve/female/",
+            "male": "torso/clothes/shortsleeve/shortsleeve/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_shortsleeve_cardigan": {
+      "label": "Shortsleeve Cardigan",
+      "slot": "top",
+      "category": "shirts/shortsleeve",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 35,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/shortsleeve/shortsleeve_cardigan/female/",
+            "male": "torso/clothes/shortsleeve/shortsleeve_cardigan/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_shortsleeve_polo": {
+      "label": "Shortsleeve Polo",
+      "slot": "top",
+      "category": "shirts/shortsleeve",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 35,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/shortsleeve/shortsleeve_polo/female/",
+            "male": "torso/clothes/shortsleeve/shortsleeve_polo/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_tshirt": {
+      "label": "TShirt",
+      "slot": "top",
+      "category": "shirts/shortsleeve",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 35,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/shortsleeve/tshirt/female/",
+            "male": "torso/clothes/shortsleeve/tshirt/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_tshirt_buttoned": {
+      "label": "TShirt Buttoned",
+      "slot": "top",
+      "category": "shirts/shortsleeve",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 35,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/shortsleeve/tshirt_buttoned/female/",
+            "male": "torso/clothes/shortsleeve/tshirt_buttoned/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_tshirt_scoop": {
+      "label": "TShirt Scoop",
+      "slot": "top",
+      "category": "shirts/shortsleeve",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 35,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/shortsleeve/tshirt_scoop/female/",
+            "male": "torso/clothes/shortsleeve/tshirt_scoop/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_tshirt_vneck": {
+      "label": "TShirt VNeck",
+      "slot": "top",
+      "category": "shirts/shortsleeve",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 35,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/shortsleeve/tshirt_vneck/female/",
+            "male": "torso/clothes/shortsleeve/tshirt_vneck/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_sleeveless1": {
+      "label": "Original Sleeveless",
+      "slot": "top",
+      "category": "shirts/sleeveless",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 35,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/sleeveless/sleeveless1/female/",
+            "male": "torso/clothes/sleeveless/sleeveless1/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_sleeveless2": {
+      "label": "Sleeveless 2",
+      "slot": "top",
+      "category": "shirts/sleeveless",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 35,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/sleeveless/sleeveless2/female/",
+            "male": "torso/clothes/sleeveless/sleeveless2/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_sleeveless2_buttoned": {
+      "label": "Sleeveless 2 Buttoned",
+      "slot": "top",
+      "category": "shirts/sleeveless",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 35,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/sleeveless/sleeveless2_buttoned/female/",
+            "male": "torso/clothes/sleeveless/sleeveless2_buttoned/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_sleeveless2_cardigan": {
+      "label": "Sleeveless 2 Cardigan",
+      "slot": "top",
+      "category": "shirts/sleeveless",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 35,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/sleeveless/sleeveless2_cardigan/female/",
+            "male": "torso/clothes/sleeveless/sleeveless2_cardigan/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_sleeveless2_polo": {
+      "label": "Sleeveless 2 Polo",
+      "slot": "top",
+      "category": "shirts/sleeveless",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 35,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/sleeveless/sleeveless2_polo/female/",
+            "male": "torso/clothes/sleeveless/sleeveless2_polo/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_sleeveless2_scoop": {
+      "label": "Sleeveless 2 Scoop",
+      "slot": "top",
+      "category": "shirts/sleeveless",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 35,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/sleeveless/sleeveless2_scoop/female/",
+            "male": "torso/clothes/sleeveless/sleeveless2_scoop/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_sleeveless2_vneck": {
+      "label": "Sleeveless 2 VNeck",
+      "slot": "top",
+      "category": "shirts/sleeveless",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 35,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/sleeveless/sleeveless2_vneck/female/",
+            "male": "torso/clothes/sleeveless/sleeveless2_vneck/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_longsleeves": {
+      "label": "Original Longsleeves Overlay",
+      "slot": "top",
+      "category": "shirts/sleeves",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 35,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/longsleeve/longsleeves/female/",
+            "male": "torso/clothes/longsleeve/longsleeves/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_longsleeves2": {
+      "label": "Longsleeves 2 Overlay",
+      "slot": "top",
+      "category": "shirts/sleeves",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 36,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/longsleeve/longsleeves2/female/",
+            "male": "torso/clothes/longsleeve/longsleeves2/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_shortsleeves": {
+      "label": "Original Shortsleeves Overlay",
+      "slot": "top",
+      "category": "shirts/sleeves",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 36,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/shortsleeve/shortsleeves/female/",
+            "male": "torso/clothes/shortsleeve/shortsleeves/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_shortsleeves2": {
+      "label": "Shortsleeves 2 Overlay",
+      "slot": "top",
+      "category": "shirts/sleeves",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 36,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "torso/clothes/shortsleeve/shortsleeves2/female/",
+            "male": "torso/clothes/shortsleeve/shortsleeves2/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_chainmail": {
+      "label": "Chainmail",
+      "slot": "top",
+      "category": "其他",
+      "layout": "single",
+      "materials": [
+        "metal"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 50,
+          "materials": [
+            "metal"
+          ],
+          "paths": {
+            "female": "torso/chainmail/female/",
+            "male": "torso/chainmail/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "torso_clothes_vest": {
+      "label": "Vest",
+      "slot": "top",
+      "category": "vest",
+      "layout": "variant",
+      "variants": [
+        "black",
+        "blue",
+        "brown",
+        "green",
+        "navy",
+        "purple",
+        "red",
+        "white"
+      ],
+      "materials": [],
+      "bodyTypes": [
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 45,
+          "materials": [],
+          "paths": {
+            "male": "torso/clothes/vest/male/"
+          }
+        }
+      ],
+      "animations": {
+        "male": [
+          "idle",
+          "walk"
+        ]
+      }
+    },
+    "torso_clothes_vest_open": {
+      "label": "Vest open",
+      "slot": "top",
+      "category": "vest",
+      "layout": "variant",
+      "variants": [
+        "black",
+        "blue",
+        "brown",
+        "green",
+        "navy",
+        "purple",
+        "red",
+        "white"
+      ],
+      "materials": [],
+      "bodyTypes": [
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 45,
+          "materials": [],
+          "paths": {
+            "male": "torso/clothes/vest_open/male/"
+          }
+        }
+      ],
+      "animations": {
+        "male": [
+          "idle",
+          "walk"
+        ]
+      }
+    },
+    "belt_obi": {
+      "label": "Obi",
+      "slot": "top",
+      "category": "waist/obi",
+      "layout": "single",
+      "materials": [],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 65,
+          "materials": [],
+          "paths": {
+            "female": "torso/waist/obi/thin/",
+            "male": "torso/waist/obi/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "belt_obi_knot_left": {
+      "label": "Obi Knot Left",
+      "slot": "top",
+      "category": "waist/obi",
+      "layout": "single",
+      "materials": [],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 66,
+          "materials": [],
+          "paths": {
+            "female": "torso/waist/obi/knot/left/thin/",
+            "male": "torso/waist/obi/knot/left/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "belt_obi_knot_right": {
+      "label": "Obi Knot Right",
+      "slot": "top",
+      "category": "waist/obi",
+      "layout": "single",
+      "materials": [],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 66,
+          "materials": [],
+          "paths": {
+            "female": "torso/waist/obi/knot/right/thin/",
+            "male": "torso/waist/obi/knot/right/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "legs_hose": {
+      "label": "Hose",
+      "slot": "bottom",
+      "category": "leggings",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 20,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "legs/hose/thin/",
+            "male": "legs/hose/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "legs_leggings": {
+      "label": "Leggings",
+      "slot": "bottom",
+      "category": "leggings",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 20,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "legs/leggings/thin/",
+            "male": "legs/leggings/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "legs_leggings2": {
+      "label": "Leggings 2",
+      "slot": "bottom",
+      "category": "leggings",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 20,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "legs/leggings2/thin/",
+            "male": "legs/leggings2/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "legs_armour": {
+      "label": "Armour",
+      "slot": "bottom",
+      "category": "其他",
+      "layout": "single",
+      "materials": [
+        "metal"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 20,
+          "materials": [
+            "metal"
+          ],
+          "paths": {
+            "female": "legs/armour/plate/thin/",
+            "male": "legs/armour/plate/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "legs_cuffed": {
+      "label": "Cuffed Pants",
+      "slot": "bottom",
+      "category": "pants",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 20,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "legs/cuffed/thin/",
+            "male": "legs/cuffed/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "legs_formal": {
+      "label": "Formal Pants",
+      "slot": "bottom",
+      "category": "pants",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 20,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "legs/formal/thin/",
+            "male": "legs/formal/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "legs_formal_striped": {
+      "label": "Striped Formal Pants",
+      "slot": "bottom",
+      "category": "pants",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 20,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "legs/formal_striped/thin/",
+            "male": "legs/formal_striped/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "legs_pantaloons": {
+      "label": "Pantaloons",
+      "slot": "bottom",
+      "category": "pants",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 20,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "legs/pantaloons/thin/",
+            "male": "legs/pantaloons/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "legs_pants": {
+      "label": "Pants",
+      "slot": "bottom",
+      "category": "pants",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 20,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "legs/pants/thin/",
+            "male": "legs/pants/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "legs_pants2": {
+      "label": "Long Pants",
+      "slot": "bottom",
+      "category": "pants",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 20,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "legs/pants2/thin/",
+            "male": "legs/pants2/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "legs_shorts": {
+      "label": "Shorts",
+      "slot": "bottom",
+      "category": "shorts",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 20,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "legs/shorts/shorts/thin/",
+            "male": "legs/shorts/shorts/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "legs_shorts_short": {
+      "label": "Short Shorts",
+      "slot": "bottom",
+      "category": "shorts",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 20,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "legs/shorts/short_shorts/thin/",
+            "male": "legs/shorts/short_shorts/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "legs_skirt_belle": {
+      "label": "Belle skirt",
+      "slot": "bottom",
+      "category": "skirts",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female"
+      ],
+      "layers": [
+        {
+          "z": 20,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "legs/skirts/belle/thin/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "legs_skirt_overskirt": {
+      "label": "Overskirt",
+      "slot": "bottom",
+      "category": "skirts",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female"
+      ],
+      "layers": [
+        {
+          "z": 35,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "legs/skirts/overskirt/thin/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "legs_skirt_straight": {
+      "label": "Straight skirt",
+      "slot": "bottom",
+      "category": "skirts",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female"
+      ],
+      "layers": [
+        {
+          "z": 20,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "legs/skirts/straight/thin/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "legs_skirts_legion": {
+      "label": "Legion skirt",
+      "slot": "bottom",
+      "category": "skirts",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 20,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "legs/skirts/legion/thin/",
+            "male": "legs/skirts/legion/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "legs_skirts_plain": {
+      "label": "Plain skirt",
+      "slot": "bottom",
+      "category": "skirts",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 20,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "legs/skirts/plain/thin/",
+            "male": "legs/skirts/plain/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "legs_skirts_slit": {
+      "label": "Slit skirt",
+      "slot": "bottom",
+      "category": "skirts",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 20,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "legs/skirts/slit/thin/",
+            "male": "legs/skirts/slit/thin/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "feet_plate_toe": {
+      "label": "Plated Toe",
+      "slot": "shoes",
+      "category": "accessory",
+      "layout": "single",
+      "materials": [
+        "metal"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 27,
+          "materials": [
+            "metal"
+          ],
+          "paths": {
+            "female": "feet/accessory/plate_toe/thin/",
+            "male": "feet/accessory/plate_toe/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "feet_plate_toe_thick": {
+      "label": "Thick Plated Toe",
+      "slot": "shoes",
+      "category": "accessory",
+      "layout": "single",
+      "materials": [
+        "metal"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 27,
+          "materials": [
+            "metal"
+          ],
+          "paths": {
+            "female": "feet/accessory/plate_toe_thick/thin/",
+            "male": "feet/accessory/plate_toe_thick/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "feet_boots_basic": {
+      "label": "Basic Boots",
+      "slot": "shoes",
+      "category": "boots",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 25,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "feet/boots/basic/thin/",
+            "male": "feet/boots/basic/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "feet_boots_fold": {
+      "label": "Folded Rim Boots",
+      "slot": "shoes",
+      "category": "boots",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 25,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "feet/boots/fold/thin/",
+            "male": "feet/boots/fold/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "feet_boots_revised": {
+      "label": "Revised Boots",
+      "slot": "shoes",
+      "category": "boots",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 25,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "feet/boots/revised/thin/",
+            "male": "feet/boots/revised/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "feet_boots_rim": {
+      "label": "Rimmed Boots",
+      "slot": "shoes",
+      "category": "boots",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 25,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "feet/boots/rimmed/thin/",
+            "male": "feet/boots/rimmed/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "feet_armour": {
+      "label": "Armour",
+      "slot": "shoes",
+      "category": "其他",
+      "layout": "single",
+      "materials": [
+        "metal"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 15,
+          "materials": [
+            "metal"
+          ],
+          "paths": {
+            "female": "feet/armour/plate/thin/",
+            "male": "feet/armour/plate/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "feet_hoofs": {
+      "label": "Hoofs",
+      "slot": "shoes",
+      "category": "其他",
+      "layout": "single",
+      "materials": [
+        "body"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 15,
+          "materials": [
+            "body"
+          ],
+          "paths": {
+            "female": "feet/hoofs/thin/",
+            "male": "feet/hoofs/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "feet_sandals": {
+      "label": "Sandals",
+      "slot": "shoes",
+      "category": "其他",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 15,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "feet/sandals/thin/",
+            "male": "feet/sandals/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "feet_slippers": {
+      "label": "Slippers",
+      "slot": "shoes",
+      "category": "其他",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 15,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "feet/slippers/thin/",
+            "male": "feet/slippers/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "feet_shoes_basic": {
+      "label": "Basic Shoes",
+      "slot": "shoes",
+      "category": "shoes",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 15,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "feet/shoes/basic/thin/",
+            "male": "feet/shoes/basic/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "feet_shoes_ghillies": {
+      "label": "Ghillies",
+      "slot": "shoes",
+      "category": "shoes",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 15,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "feet/shoes/ghillies/thin/",
+            "male": "feet/shoes/ghillies/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "feet_shoes_revised": {
+      "label": "Revised Shoes",
+      "slot": "shoes",
+      "category": "shoes",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 15,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "feet/shoes/revised/thin/",
+            "male": "feet/shoes/revised/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "feet_shoes_sara": {
+      "label": "Sara Shoes",
+      "slot": "shoes",
+      "category": "shoes",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 15,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "feet/shoes/sara/thin/",
+            "male": "feet/shoes/sara/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "feet_socks_ankle": {
+      "label": "Ankle Socks",
+      "slot": "shoes",
+      "category": "socks",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 14,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "feet/socks/ankle/thin/",
+            "male": "feet/socks/ankle/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "feet_socks_high": {
+      "label": "High Socks",
+      "slot": "shoes",
+      "category": "socks",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 14,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "feet/socks/high/thin/",
+            "male": "feet/socks/high/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    },
+    "feet_socks_tabi": {
+      "label": "Tabi Socks",
+      "slot": "shoes",
+      "category": "socks",
+      "layout": "single",
+      "materials": [
+        "cloth"
+      ],
+      "bodyTypes": [
+        "female",
+        "male"
+      ],
+      "layers": [
+        {
+          "z": 14,
+          "materials": [
+            "cloth"
+          ],
+          "paths": {
+            "female": "feet/socks/tabi/thin/",
+            "male": "feet/socks/tabi/male/"
+          }
+        }
+      ],
+      "animations": {
+        "female": [
+          "idle",
+          "walk",
+          "emote"
+        ],
+        "male": [
+          "idle",
+          "walk",
+          "emote"
+        ]
+      }
+    }
+  }
+}

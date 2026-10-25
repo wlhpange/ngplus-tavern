@@ -1,0 +1,285 @@
+{
+  "quest_base": {
+    "daily": {
+      "xp": 10,
+      "gold": 5
+    },
+    "once": {
+      "xp": 25,
+      "gold": 10
+    },
+    "weekly": {
+      "xp": 30,
+      "gold": 15
+    },
+    "mainline_milestone": {
+      "xp": 120,
+      "gold": 60
+    }
+  },
+  "difficulty": {
+    "min": 0.5,
+    "max": 3,
+    "default": 1,
+    "calibration_compensation_multiplier": 10
+  },
+  "streak": {
+    "bonus_per_day": 0.05,
+    "bonus_cap": 1.5,
+    "break_decay_multiplier": 0.5,
+    "consecutive_breaks_to_reset": 2
+  },
+  "over_completion": {
+    "threshold": 1,
+    "total_multiplier_cap": 1.5
+  },
+  "daily_soft_cap": {
+    "xp_full_amount": 150,
+    "excess_ratio": 0.3
+  },
+  "leveling": {
+    "base_xp": 150,
+    "increment_per_level": 100
+  },
+  "attr_split": {
+    "primary_weight_range": [
+      0.6,
+      1
+    ],
+    "secondary_weight_range": [
+      0.2,
+      0.4
+    ]
+  },
+  "ranks": [
+    {
+      "rank": "F",
+      "min_level": 1,
+      "max_level": 4
+    },
+    {
+      "rank": "E",
+      "min_level": 5,
+      "max_level": 9
+    },
+    {
+      "rank": "D",
+      "min_level": 10,
+      "max_level": 14
+    },
+    {
+      "rank": "C",
+      "min_level": 15,
+      "max_level": 21
+    },
+    {
+      "rank": "B",
+      "min_level": 22,
+      "max_level": 30
+    },
+    {
+      "rank": "A",
+      "min_level": 31,
+      "max_level": 40
+    },
+    {
+      "rank": "S",
+      "min_level": 41,
+      "max_level": null
+    }
+  ],
+  "rank_reward": {
+    "gold_per_rank_index": 200,
+    "rest_scroll": 1
+  },
+  "attr_whitelist": {
+    "独自运动": [
+      "vitality",
+      "willpower"
+    ],
+    "收入记账": [
+      "wealth"
+    ],
+    "课程学习": [
+      "mind",
+      "willpower"
+    ],
+    "创作交付": [
+      "creativity",
+      "mind"
+    ],
+    "社交活动": [
+      "social",
+      "creativity"
+    ],
+    "戒断早起": [
+      "willpower",
+      "vitality"
+    ]
+  },
+  "review": {
+    "enabled": true,
+    "bonus_cap_ratio": 0.5,
+    "min_confidence": 0.6
+  },
+  "achievements": [
+    { "key": "first_quest", "name": "第一份战果", "desc": "完成第一件委托", "condition": { "type": "quests_completed", "value": 1 } },
+    { "key": "ten_quests", "name": "十件委托", "desc": "累计完成 10 件委托", "condition": { "type": "quests_completed", "value": 10 } },
+    { "key": "fifty_quests", "name": "半百之功", "desc": "累计完成 50 件委托", "condition": { "type": "quests_completed", "value": 50 } },
+    { "key": "streak_7", "name": "七日不熄", "desc": "单件委托连击达到 7 天", "condition": { "type": "streak_max", "value": 7 } },
+    { "key": "streak_21", "name": "二十一天", "desc": "单件委托连击达到 21 天", "condition": { "type": "streak_max", "value": 21 } },
+    { "key": "first_gold", "name": "第一桶金", "desc": "累计赚到 1000 金币", "condition": { "type": "gold_earned", "value": 1000 } },
+    { "key": "saver", "name": "存钱罐", "desc": "金币余额达到 1000", "condition": { "type": "gold_balance", "value": 1000 } },
+    { "key": "level_10", "name": "双位数", "desc": "总等级达到 Lv.10", "condition": { "type": "level", "value": 10 } },
+    { "key": "rank_d", "name": "评级 · D", "desc": "评级突破到 D", "condition": { "type": "rank", "value": 3 } },
+    { "key": "first_gift", "name": "心意", "desc": "第一次给会长送礼物", "condition": { "type": "gifts_sent", "value": 1 } },
+    { "key": "ten_gifts", "name": "常客", "desc": "累计送出 10 份礼物", "condition": { "type": "gifts_sent", "value": 10 } },
+    { "key": "mainline_1", "name": "第一章", "desc": "完成一条主线", "condition": { "type": "mainlines_completed", "value": 1 } },
+    { "key": "night_owl", "name": "夜航", "desc": "在凌晨 0–4 点完成过一次结算", "hidden": true, "condition": { "type": "late_night_settlements", "value": 1 } },
+    { "key": "comeback", "name": "接回来了", "desc": "逾期断签后补上过一次结算", "hidden": true, "condition": { "type": "overdue_recoveries", "value": 1 } }
+  ],
+  "skills": [
+    {
+      "key": "early_bird",
+      "name": "晨型人",
+      "desc": "早上（05:00–11:00）结算的金币 +15%",
+      "cost_gold": 300,
+      "min_level": 3,
+      "effect": { "type": "morning_gold_ratio", "value": 0.15 }
+    },
+    {
+      "key": "checkin_boon",
+      "name": "签到酬勤",
+      "desc": "每日签到的 XP 与金币 +50%",
+      "cost_gold": 400,
+      "min_level": 4,
+      "effect": { "type": "checkin_bonus_ratio", "value": 0.5 }
+    },
+    {
+      "key": "iron_streak",
+      "name": "连击铁律",
+      "desc": "连击加成上限 +0.15（1.5 → 1.65）",
+      "cost_gold": 500,
+      "min_level": 5,
+      "effect": { "type": "streak_bonus_cap_add", "value": 0.15 }
+    },
+    {
+      "key": "golden_touch",
+      "name": "点金手",
+      "desc": "超额完成的总加成上限 +0.25（1.5 → 1.75）",
+      "cost_gold": 800,
+      "min_level": 8,
+      "effect": { "type": "over_bonus_cap_add", "value": 0.25 }
+    }
+  ],
+  "shop": {
+    "items": [
+      {
+        "key": "rest_scroll",
+        "name": "休整卷轴",
+        "type": "consumable",
+        "price": 100,
+        "desc": "保一次断签：断签当晚自动生效，连击不受损。应急用。"
+      },
+      {
+        "key": "gift_tea",
+        "name": "一盏热茶",
+        "type": "gift",
+        "price": 50,
+        "desc": "给会长递一盏热茶。"
+      },
+      {
+        "key": "gift_book",
+        "name": "一本旧书",
+        "type": "gift",
+        "price": 120,
+        "desc": "旧书摊上淘到的绝版诗集。",
+        "unlock": { "min_level": 3 }
+      },
+      {
+        "key": "gift_sweet",
+        "name": "一盒点心",
+        "type": "gift",
+        "price": 260,
+        "desc": "城里最好的铺子做的，甜而不腻。",
+        "unlock": { "min_level": 6 }
+      },
+      {
+        "key": "gift_pocket_watch",
+        "name": "一块旧怀表",
+        "type": "gift",
+        "price": 500,
+        "desc": "上了年头，走时却极准。",
+        "unlock": { "min_level": 10 }
+      },
+      {
+        "key": "gift_music_box",
+        "name": "一只八音盒",
+        "type": "gift",
+        "price": 800,
+        "desc": "上了发条会转，曲子很旧，但没走调。",
+        "unlock": { "min_level": 8 }
+      },
+      {
+        "key": "gift_star_chart",
+        "name": "一张手绘星图",
+        "type": "gift",
+        "price": 1200,
+        "desc": "据说是按某年的真实夜空画的，边角有别人的字迹。",
+        "unlock": { "min_rank": "C" }
+      }
+    ]
+  },
+  "memory_review": {
+    "enabled": true
+  },
+  "intimacy": {
+    "gift_points": {
+      "gift_tea": 1,
+      "gift_book": 3,
+      "gift_sweet": 6,
+      "gift_pocket_watch": 12,
+      "gift_music_box": 18,
+      "gift_star_chart": 30
+    },
+    "stages": [
+      { "stage": 1, "min_points": 0 },
+      { "stage": 2, "min_points": 8 },
+      { "stage": 3, "min_points": 24 },
+      { "stage": 4, "min_points": 60 }
+    ],
+    "chat": {
+      "points_per_turn": 1,
+      "daily_cap": 5
+    }
+  },
+  "mainline": {
+    "milestone_cap": 6,
+    "completion_bonus": { "xp": 60, "gold": 40 }
+  },
+  "weekly_boss": {
+    "pool": [
+      { "key": "hunt_quests_5", "name": "本周讨伐：五件委托", "desc": "本周完成 5 件委托", "metric": "quests", "target": 5, "reward": { "gold": 150, "item": "rest_scroll", "item_count": 1 } },
+      { "key": "hunt_xp_300", "name": "本周讨伐：经验猎场", "desc": "本周累计获得 300 XP", "metric": "xp", "target": 300, "reward": { "gold": 120, "item": "rest_scroll", "item_count": 1 } },
+      { "key": "hunt_checkin_3", "name": "本周讨伐：勤勉之证", "desc": "本周完成 3 次签到", "metric": "checkins", "target": 3, "reward": { "gold": 100, "item": "gift_tea", "item_count": 2 } }
+    ]
+  },
+  "daily_event": {
+    "chance": 0.4,
+    "events": [
+      { "key": "traveling_merchant", "name": "旅商过境", "desc": "今天有一件礼物在打折", "effect": { "type": "shop_discount", "ratio": 0.2 } },
+      { "key": "masters_mood", "name": "会长心情不错", "desc": "今天的结算金币 +15%", "effect": { "type": "settlement_gold_ratio", "value": 0.15 } },
+      { "key": "starry_night", "name": "星夜", "desc": "今天第一笔结算的 XP +20%", "effect": { "type": "first_settlement_xp_ratio", "value": 0.2 } }
+    ]
+  },
+  "checkin_base": {
+    "xp": 4,
+    "gold": 2
+  },
+  "once_bonus": {
+    "chance_rare": 0.25,
+    "chance_legendary": 0.05,
+    "multiplier_rare": 1.5,
+    "multiplier_legendary": 3
+  }
+}

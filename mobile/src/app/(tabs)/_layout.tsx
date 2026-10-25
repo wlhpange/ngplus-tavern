@@ -6,10 +6,7 @@ import { C } from "@/constants/theme";
 export default function TabsLayout() {
   return (
     <Tabs
-      screenOptions={{
-        headerShown: false,
-        sceneStyle: { backgroundColor: C.bg },
-      }}
+      screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: C.bg } }}
       tabBar={(props) => <GoldTabBar {...props} />}
     >
       <Tabs.Screen name="quests" options={{ title: "委托" }} />

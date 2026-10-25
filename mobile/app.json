@@ -14,14 +14,16 @@
     },
     "android": {
       "package": "com.wlhpange.ngplus",
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": true,
       "adaptiveIcon": {
         "backgroundColor": "#0B0810",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
-      }
+      },
+      "permissions": [
+        "POST_NOTIFICATIONS"
+      ]
     },
     "web": {
       "output": "server",
@@ -37,6 +39,23 @@
           "backgroundColor": "#0B0810",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
+        }
+      ],
+      "expo-sharing",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true,
+            "compileSdkVersion": 37,
+            "targetSdkVersion": 36
+          }
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#D9B061"
         }
       ]
     ],
