@@ -22,11 +22,14 @@
 | `mobile` 源码盘点（104 文件） | 已验证 | `src/app` 11 屏、`src/server` 58 模块、`src/lib` 7 模块、`src/components` 15 组件 |
 | `mobile` TypeScript | 已验证 | 修复 `tests/engine/*` 相对导入后 `npx tsc --noEmit` 通过 |
 | `mobile` 单测 | 已验证 | `npx vitest run --reporter=dot`（超时保护）通过 8 个测试文件 |
-| `mobile` 静态导出 | 阻塞 | 本轮尚未重跑 `npx expo export --platform android`；解锁：tsc 绿后带超时执行 |
-| Android APK（debug/release） | 阻塞 | 仓库内无 APK；解锁：生成原生工程并 Gradle assemble，带超时 |
-| `aapt dump badging` / `apksigner verify` | 阻塞 | 依赖 APK |
-| 模拟器安装 + 逐项验收 | 阻塞 | 依赖 APK 与本地 OpenAI 兼容 stub |
-| Web 端冻结回归 | 阻塞 | 本轮未跑 `pnpm test/build`；解锁：移动端竖切告一段落后在仓库根执行 |
+| `mobile` 静态导出 | 已验证 | `npx expo export --platform android` exit 0，产出 `dist`（Hermes bundle 6.1MB） |
+| Android APK（release） | 已验证 | `android/app/build/outputs/apk/release/app-release.apk`，113MB，Gradle `assembleRelease` BUILD SUCCESSFUL（3m04s） |
+| `aapt dump badging` | 已验证 | `package name='com.wlhpange.ngplus'`，`launchable-activity='com.wlhpange.ngplus.MainActivity'`，targetSdk 36 |
+| `apksigner verify` | 已验证 | v2 签名验证通过（签名证书为 debug keystore；Goal 允许 debug 或 release 签名 APK） |
+| `adb install -r` + 冷启动 | 已验证 | emulator-5554 安装 Success；`am start -W` COLD 3.7s，前台 Activity 为 `.MainActivity`，无 FATAL |
+| 杀进程重开数据仍在 | 已验证 | `am force-stop` 后重启，聊天时间线/结算卡/会长与数据完整保留；截图见交付证据 |
+| 模拟器逐项验收（PARITY 1–16 行） | 阻塞 | APK 已装，但尚未按行逐项跑；解锁：本地 OpenAI 兼容 stub + 逐项操作 |
+| Web 端冻结回归 | 阻塞 | 本轮未跑 `pnpm test/build`；解锁：移动端功能竖切完成后在仓库根执行 |
 
 ---
 
@@ -295,13 +298,13 @@
 | --- | --- |
 | `npx tsc --noEmit` | 通过（本轮） |
 | `npx vitest run --reporter=dot` | 通过（本轮） |
-| `npx expo export --platform android` | 未跑 |
-| debug/release APK | 未产出 |
-| `aapt dump badging`：`com.wlhpange.ngplus` + 启动 Activity | 未跑 |
-| `apksigner verify` | 未跑 |
-| `adb install -r` 冷启动 | 未跑 |
+| `npx expo export --platform android` | 通过（exit 0） |
+| release APK | 通过（`app-release.apk`，113MB，v2 签名） |
+| `aapt dump badging`：`com.wlhpange.ngplus` + 启动 Activity | 通过（`.MainActivity`） |
+| `apksigner verify` | 通过（v2） |
+| `adb install -r` 冷启动 | 通过（COLD 3.7s，无 FATAL） |
 | 本地 OpenAI 兼容 stub：chat 流式/非流式、工具调用、翻译、锻造、复核、场景提炼、`images/generations` | 未跑 |
-| 杀进程重开数据仍在 | 未跑 |
+| 杀进程重开数据仍在 | 通过（force-stop 后重启，时间线完整） |
 | 跨天启动补算 | 未跑 |
-| 截图 / `adb screenrecord` / `dumpsys gfxinfo` | 未跑 |
+| 截图 / `adb screenrecord` / `dumpsys gfxinfo` | 截图已有（启动/重开）；screenrecord、gfxinfo 未跑 |
 | `main` 的 `pnpm test/build` | 未跑（Web 冻结，未改动） |
