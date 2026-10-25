@@ -5,6 +5,7 @@
   "dependencies": {
     "@expo/ui": "~58.0.23",
     "@expo/vector-icons": "^15.0.2",
+    "base64-js": "^1.5.1",
     "drizzle-orm": "^0.45.4",
     "expo": "~58.0.19",
     "expo-blur": "~58.0.5",
@@ -28,6 +29,7 @@
     "expo-symbols": "~58.0.4",
     "expo-system-ui": "~58.0.6",
     "expo-web-browser": "~58.0.6",
+    "fast-png": "^8.0.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-native": "0.88.0",

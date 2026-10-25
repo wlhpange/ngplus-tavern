@@ -67,8 +67,8 @@
 | 2.8 | 导入翻译 + 进度轮询 + 取消 | `translateJobs` + `masters.tsx` 翻译弹窗 | 已验证 | 部分通过：翻译预览/任务实现；设备 picker 未跑 |
 | 2.9 | 删除会长 `api/masters/delete` | `deleteMaster`；聊天/记忆/世界书级联清理 | 已验证 | 未跑 |
 | 2.10 | 头像上传 / 更换 / 移除 `api/masters/avatar` | `uploadAvatar/saveMasterAvatar` + DocumentPicker | 已验证 | 未跑 |
-| 2.11 | 像素小人手动设计 `api/masters/sprite` | `PetDesigner` + `saveMasterSprite` | 已验证 | 未跑 |
-| 2.12 | 像素小人自动生成 `api/masters/sprite/auto` | `autoSprite` | 已验证 | 未跑 |
+| 2.11 | 像素小人手动设计 `api/masters/sprite` | LPC `PetDesigner` + `saveMasterSprite` | 已验证 | 通过：7 槽位/5 材质/变体/“无”；发色改 green 保存进 DB |
+| 2.12 | 像素小人自动生成 `api/masters/sprite/auto` | `autoSprite`（catalog 映射） | 已验证 | 部分通过：映射与兜底已对齐；AI 自动生成未单跑 |
 | 2.13 | 会长立绘（Avatar 大图） | `components/Avatar.tsx` | 已验证 | 未跑 |
 | 2.14 | 好感 / 交情阶段 | `masters.intimacyLabel` + 商店赠礼推进 | 已验证 | 未跑 |
 | 2.15 | 任期 / 历任记录 | `master_history`；`masters.ts` 切换写任期 | 已验证 | 未跑 |
@@ -97,7 +97,7 @@
 | 3.16 | 日期分隔 / 时间戳 | `index.tsx` dayLabel/dayKey | 已验证 | 未跑 |
 | 3.17 | 结算卡嵌入时间线 | `SettlementCard.tsx` + `mergeItems` | 已验证 | 未跑 |
 | 3.18 | 升级 / 晋段仪式 | `CeremonyOverlay.tsx` + `rankPromotion` 事件 | 已验证 | 未跑 |
-| 3.19 | 心情表情 / 像素宠物反应 | `weblib/mood.ts` + `PixelPet` | 已验证 | 未跑 |
+| 3.19 | 心情表情 / 像素宠物反应 | `weblib/mood.ts` + LPC `PixelPet` 表情层 | 已验证 | 通过：表情层由 descriptor.face 覆盖 |
 | 3.20 | 结算复核 / 争议 | `reviewPipeline` + `file_dispute` + 委托页争议入口 | 已验证 | 通过：dispute 落库 + 复核维持原判 |
 | 3.21 | 回到底部 / 新消息提示 | `jumpToLatest` | 已验证 | 未跑 |
 | 3.22 | 发言后隐藏“换开场白” | `userSpoke` 状态 | 已验证 | 未跑 |
@@ -387,5 +387,14 @@
 
 APK 内已验证：`assets/index.android.bundle` 可直接搜到
 `Sexual content, smut, pornographic, and erotic content are encouraged.` 等 R18 原文。
+
+## 20. LPC 像素小人（2026-10-25 补齐）
+
+- `catalog.json` / `palettes.json` 与 Web SHA-256 一致（1053 张 PNG、211 个部件）。
+- 素材以 **base64 打进 JS bundle**（`src/weblib/lpcData.json`），规避 Expo release 把 PNG 打成 Android resource 后 `Asset.localUri` 无协议的问题。
+- 运行时 `fast-png` 解码 + 调色板 RGB 替换 + 64×64 sprite sheet 裁剪；支持 idle / walk / emote。
+- 设计器：7 槽位（body / head / face / hair / top / bottom / shoes）、5 材质（body / hair / cloth / eye / metal）、可选「无」、`layout=variant` 部件的颜色选择。
+- 设备验收：Aster 的 LPC 宠物正常显示；发色改 `green` 并「保存形象」后写入 `masters.sprite.colors.hair`。
+- 已知素材事实：`torso_clothes_tshirt` 与 `legs_pants` 的正面行（row 2）在 catalog 素材里为空（Web 同素材一致）；默认形象与自动兜底已改用 `torso_clothes_longsleeve2` / `legs_pants2`，设计器仍可选全部部件。
 
 `main` 回归已补：44 个测试文件 / 469 用例全过，`pnpm build` 成功（Web 未改动）。

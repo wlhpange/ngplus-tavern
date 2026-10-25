@@ -35,9 +35,9 @@ export function defaultSprite(): PetDescriptor {
       head: "heads_human_female",
       face: "face_neutral",
       hair: "hair_ponytail",
-      top: "torso_clothes_tshirt",
-      bottom: "legs_pants",
-      shoes: "feet_boots_basic",
+      top: "torso_clothes_longsleeve2",
+      bottom: "legs_pants2",
+      shoes: "feet_shoes_basic",
     },
     colors: { body: "light", hair: "blonde", cloth: "purple", eye: "green" },
   };
@@ -113,13 +113,13 @@ export function keywordSprite(text: string): PetDescriptor {
     [["盔甲", "铠甲", "皮甲", "护甲"], "torso_armour_leather"],
     [["长袖", "风衣", "大衣"], "torso_clothes_longsleeve2"],
     [["背心", "无袖", "吊带"], "torso_clothes_sleeveless2"],
-    [["衬衫", "衬衣"], "torso_clothes_shortsleeve"],
-  ], "torso_clothes_tshirt");
+    [["衬衫", "衬衣", "T恤", "T恤衫"], "torso_clothes_shortsleeve"],
+  ], "torso_clothes_longsleeve2");
   d.items.bottom = pickItem("bottom", [
     [["短裤"], "legs_shorts"],
     [["裙", "长裙"], "legs_skirts_plain"],
     [["长裤", "裤子", "西裤"], "legs_pants2"],
-  ], "legs_pants");
+  ], "legs_pants2");
   d.items.shoes = pickItem("shoes", [
     [["靴", "军靴"], "feet_boots_basic"],
     [["凉鞋", "拖鞋", "草鞋"], "feet_sandals"],
@@ -192,7 +192,7 @@ async function llmSprite(model: LlmConfig, text: string): Promise<PetDescriptor>
   const colorLines = Object.keys(palettes).map(
     (m) => `${m}(${palettes[m].label ?? m}): ${Object.keys(palettes[m].colors).join(", ")}`,
   );
-  const shape = `{"bodyType":"female","items":{"body":"body","head":"heads_human_female","face":"face_neutral","hair":"hair_ponytail","top":"torso_clothes_tshirt","bottom":"legs_pants","shoes":"feet_boots_basic"},"colors":{"body":"light","hair":"blonde","cloth":"purple","eye":"green"}}`;
+  const shape = `{"bodyType":"female","items":{"body":"body","head":"heads_human_female","face":"face_neutral","hair":"hair_ponytail","top":"torso_clothes_longsleeve2","bottom":"legs_pants2","shoes":"feet_shoes_basic"},"colors":{"body":"light","hair":"blonde","cloth":"purple","eye":"green"}}`;
 
   const prompt = [
     `【角色设定】\n${text.slice(0, 2000)}`,
