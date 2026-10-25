@@ -71,6 +71,19 @@ function hasAccept(messages) {
 function hasSettle(messages) {
   return toolTexts(messages).some((s) => s.includes('"settlement_id"'));
 }
+/** 只认当前 quest id 的接受/结算回执，避免多轮循环被旧回执误判 */
+function hasAcceptFor(messages, id) {
+  if (!id) return false;
+  return toolTexts(messages).some(
+    (s) => s.includes(id) && s.includes('"status":"active"'),
+  );
+}
+function hasSettleFor(messages, id) {
+  if (!id) return false;
+  return toolTexts(messages).some(
+    (s) => s.includes(id) && s.includes('"settlement_id"'),
+  );
+}
 
 function decide(body) {
   const messages = body.messages || [];
@@ -145,7 +158,7 @@ function decide(body) {
       if (!questId) {
         return { kind: "tool", tool: tool("lookup_quests", { status: "active" }) };
       }
-      if (!hasSettle(messages)) {
+      if (!hasSettleFor(messages, questId)) {
         return {
           kind: "tool",
           tool: tool("settle_completion", {
@@ -162,20 +175,23 @@ function decide(body) {
       if (!questId) {
         return { kind: "tool", tool: tool("lookup_quests", { status: "proposed" }) };
       }
-      if (!hasAccept(messages)) {
+      if (!hasAcceptFor(messages, questId)) {
         return { kind: "tool", tool: tool("respond_to_quest", { quest_id: questId, action: "accept" }) };
       }
       return { kind: "text", text: "好，挂上了。别拖，明天我等你的消息。" };
     }
     if (userWantsQuest) {
-      if (!hasCreate(messages)) {
+      const isWeekly = /weekly|每周/i.test(user);
+      const isOnce = /once|一次性/i.test(user);
+      const wantsNew = /new|another|weekly|once|每周|一次性/i.test(user);
+      if (!hasCreate(messages) || wantsNew) {
         return {
           kind: "tool",
           tool: tool("create_quest", {
-            title: "每天跑步 20 分钟",
-            description: "晚饭后绕协会跑一圈",
-            type: "daily",
-            category: "独自运动",
+            title: isWeekly ? "每周跑三次步" : isOnce ? "整理一次旧书箱" : "每天跑步 20 分钟",
+            description: isWeekly ? "一周挑三天，绕协会跑一圈" : isOnce ? "把床底的旧书箱清一遍" : "晚饭后绕协会跑一圈",
+            type: isWeekly ? "weekly" : isOnce ? "once" : "daily",
+            category: isWeekly ? "长期习惯" : isOnce ? "生活整理" : "独自运动",
             primary_attr: "vitality",
             primary_weight: 0.8,
             secondary_attr: "willpower",
