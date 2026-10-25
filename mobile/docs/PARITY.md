@@ -303,7 +303,7 @@
 | `aapt dump badging`：`com.wlhpange.ngplus` + 启动 Activity | 通过（`.MainActivity`） |
 | `apksigner verify` | 通过（v2） |
 | `adb install -r` 冷启动 | 通过（COLD 3.7s，无 FATAL） |
-| 本地 OpenAI 兼容 stub：chat 流式/非流式、工具调用、翻译、锻造、复核、场景提炼、`images/generations` | 部分通过：chat 流式、非流式、create/accept/settle 工具链已跑；翻译、锻造、复核、场景提炼、生图未跑 |
+| 本地 OpenAI 兼容 stub：chat 流式/非流式、工具调用、翻译、锻造、复核、场景提炼、`images/generations` | 部分通过：chat 流式、非流式、create/accept/settle 工具链、场景提炼、`images/generations` 已跑；翻译、锻造、复核未跑 |
 | 杀进程重开数据仍在 | 通过（两轮：旧数据与全新 onboarding 数据；force-stop 后重启，时间线/结算卡完整） |
 | 跨天启动补算 | 未跑 |
 | 截图 / `adb screenrecord` / `dumpsys gfxinfo` | 截图已有（启动/重开）；screenrecord、gfxinfo 未跑 |
@@ -329,5 +329,16 @@
 | 16:05 | 月账单「导出 CSV」 | 通过；系统分享面板出现 `ngplus-settlements-2026-10-25.csv` | `android-csv-share.png` |
 | 16:05 | 聊天记录 | 通过；按月/日分组，含消息与结算卡，空态文案「到这里就是协会最早的记录了」 | `android-records.png` |
 | 16:06 | `force-stop` 后重启 | 通过；会长、消息、任务、结算卡、金币全部保留，无 FATAL | `android-after-restart.png` |
+| 16:07 | 切到聊天（酒馆）模式 | 通过；显示会长、开场白与「换一条开场白」 | `ui-chatmode.xml` |
+| 16:07 | 换一条开场白 | 通过；开场白从「你来了……」变为「门没关……」 | `ui-greeting2.xml` |
+| 16:07 | 新建会话 | 通过；会话数 1 → 2，新会话有独立开场白 | `android-session2.png` |
+| 16:08 | 会话改名 | 通过；「新的对话」→「night chat」，会话栏即时更新 | `ui-rename3.xml` |
+| 16:08 | 上传会话背景 | 通过；DocumentPicker 选 `/sdcard/Download/bg.png`，聊天页显示模糊背景 | `android-bg-set.png` |
+| 16:08 | 生图设置 | 通过；开启、接口 `http://10.0.2.2:8787/v1`、模型 `stub-image` 保存 | `ui-image2.xml` |
+| 16:09 | 测试生图 | 通过；「生成成功，耗时 576ms」 | `android-image-test.png` |
+| 16:09 | 聊天消息「给这一幕配图」 | 通过；场景提炼 + `images/generations`，消息下出现配图 | `android-scene.png` |
+| 16:09 | 配图灯箱 | 通过；全屏预览 + 关闭按钮 | `android-lightbox.png` |
+| 16:10 | 删除消息 | 通过；确认框提示配图一并删除，删除后消息与配图消失 | `ui-delmsg2.xml` |
+| 16:10 | 删除会话 | 通过；确认框提示聊天记录与会话记忆一并删除，会话数 2 → 1 | `ui-delsess2.xml` |
 
-本轮**未跑**：聊天（酒馆）模式、多会话/开场白/背景、分页/消息删除、在途恢复、场景配图与 `images/generations`、世界书、记忆书、商店、技能树、档案室、导入/翻译/锻造、复核/争议、跨天补算、`screenrecord`、`gfxinfo`、main 回归。
+本轮**未跑**：消息分页/加载更早（需 200+ 条）、在途请求恢复、消息 Markdown 复杂语法、世界书、记忆书、商店、技能树、档案室、导入/翻译/锻造、复核/争议、跨天补算、`screenrecord`、`gfxinfo`、main 回归。
