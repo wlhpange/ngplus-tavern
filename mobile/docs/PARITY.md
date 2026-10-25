@@ -307,7 +307,7 @@
 | 杀进程重开数据仍在 | 通过（两轮：旧数据与全新 onboarding 数据；force-stop 后重启，时间线/结算卡完整） |
 | 跨天启动补算 | 未跑 |
 | 截图 / `adb screenrecord` / `dumpsys gfxinfo` | 截图已有（启动/重开）；screenrecord、gfxinfo 未跑 |
-| `main` 的 `pnpm test/build` | 未跑（Web 冻结，未改动） |
+| `main` 的 `pnpm test/build` | 通过（44 个测试文件 / 469 用例全过；`pnpm build` 成功；Web 未改动） |
 
 ## 18. 设备验收运行记录
 
@@ -358,4 +358,6 @@
 | 17:54 | 新增会话 → 删除含记忆旧会话 | 通过；会话 2 段；确认框「聊天记录和它的对话记忆会一起消失」；删除后 DB 中该会话与两条会话记忆一并消失，永久记忆保留 | 截图、DB `chat_sessions` / `memory` |
 | 18:06 | 记忆注入提示词单测 | 通过；新增 `tests/server/memory.test.ts` 5 条，覆盖空记忆、类别聚合、优先级排序、未知类别与六类常量 | `npx vitest run tests/server/memory.test.ts` |
 
-本轮**未跑**：消息分页/加载更早（需 200+ 条）、在途请求恢复、消息 Markdown 复杂语法、世界书 8.10（角色卡内嵌，随角色卡导入一起）、商店、技能树、档案室、导入/翻译/锻造、复核/争议、跨天补算、`screenrecord`、`gfxinfo`、main 回归。
+本轮**未跑**：消息分页/加载更早（需 200+ 条）、在途请求恢复、消息 Markdown 复杂语法、世界书 8.10（角色卡内嵌，随角色卡导入一起）、商店、技能树、档案室、导入/翻译/锻造、复核/争议、跨天补算、`screenrecord`、`gfxinfo`。
+
+`main` 回归已补：44 个测试文件 / 469 用例全过，`pnpm build` 成功（Web 未改动）。
