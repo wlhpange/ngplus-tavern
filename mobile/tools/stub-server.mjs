@@ -35,10 +35,11 @@ function findQuestId(messages) {
   for (const m of [...messages].reverse()) {
     if (m.role !== "tool") continue;
     const s = textOf(m);
-    const m1 = s.match(/"quest_id"\s*:\s*"([^"]+)"/);
-    if (m1) return m1[1];
-    const m2 = s.match(/"id"\s*:\s*"([^"]+)"/);
-    if (m2) return m2[1];
+    // 列表结果里可能有多件任务：取最后一条（最新创建/刚接受的那件）
+    const m1 = [...s.matchAll(/"quest_id"\s*:\s*"([^"]+)"/g)];
+    if (m1.length) return m1[m1.length - 1][1];
+    const m2 = [...s.matchAll(/"id"\s*:\s*"([^"]+)"/g)];
+    if (m2.length) return m2[m2.length - 1][1];
   }
   return null;
 }
@@ -46,12 +47,12 @@ function findActiveQuestId(messages) {
   for (const m of [...messages].reverse()) {
     if (m.role !== "tool") continue;
     const s = textOf(m);
-    const active = s.match(/"id"\s*:\s*"([^"]+)"[^}]*?"status"\s*:\s*"active"/);
-    if (active) return active[1];
-    const any = s.match(/"quest_id"\s*:\s*"([^"]+)"/);
-    if (any) return any[1];
+    if (!s.includes('"quests"')) continue;
+    const re = /"quest_id"\s*:\s*"([^"]+)"[^}]*?"status"\s*:\s*"(active|proposed)"/g;
+    const all = [...s.matchAll(re)];
+    if (all.length) return all[all.length - 1][1];
   }
-  return findQuestId(messages);
+  return null;
 }
 function lastUser(messages) {
   return [...messages].reverse().find((m) => m.role === "user")?.content?.toString() || "";
@@ -144,8 +145,13 @@ function decide(body) {
     const userAccepts = /接受|接下|开始|accept|start/i.test(user);
     const userReports = /完成|跑了|做完|搞定|汇报|读完了|done|finished|ran|report/i.test(user);
     const userRemembers = /记住|记下|remember|memorize/i.test(user);
-    const questId = findQuestId(messages) || findActiveQuestId(messages);
+    const questId = findActiveQuestId(messages) || findQuestId(messages);
     const toolMsgs = messages.filter((m) => m.role === "tool");
+    console.log(
+      `[stub] user=${JSON.stringify(user)} questId=${findActiveQuestId(messages) || findQuestId(messages)} tools=${tools.length} toolMsgs=${toolMsgs.length} ` +
+        `wantsQuest=${/委托|任务|跑步|读书|早起|健身|挂个|帮我记|quest|task|run|jog|read|gym/i.test(user)} ` +
+        `accepts=${/接受|接下|开始|accept|start/i.test(user)} reports=${/完成|跑了|做完|搞定|汇报|读完了|done|finished|ran|report/i.test(user)}`,
+    );
 
     if (userRemembers && !toolMsgs.some((m) => textOf(m).includes('"memory_id"'))) {
       return {
@@ -183,7 +189,7 @@ function decide(body) {
     if (userWantsQuest) {
       const isWeekly = /weekly|每周/i.test(user);
       const isOnce = /once|一次性/i.test(user);
-      const wantsNew = /new|another|weekly|once|每周|一次性/i.test(user);
+      const wantsNew = hasCreate(messages) && /new|another|再来一件|再挂/i.test(user);
       if (!hasCreate(messages) || wantsNew) {
         return {
           kind: "tool",
@@ -191,7 +197,7 @@ function decide(body) {
             title: isWeekly ? "每周跑三次步" : isOnce ? "整理一次旧书箱" : "每天跑步 20 分钟",
             description: isWeekly ? "一周挑三天，绕协会跑一圈" : isOnce ? "把床底的旧书箱清一遍" : "晚饭后绕协会跑一圈",
             type: isWeekly ? "weekly" : isOnce ? "once" : "daily",
-            category: isWeekly ? "长期习惯" : isOnce ? "生活整理" : "独自运动",
+            category: "独自运动",
             primary_attr: "vitality",
             primary_weight: 0.8,
             secondary_attr: "willpower",
