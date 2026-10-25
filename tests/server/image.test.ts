@@ -6,15 +6,7 @@ import {
   getImageConfig,
   setImageSettings,
 } from "../../src/server/image/config";
-import {
-  buildScenePrompt,
-  buildMfluxArgs,
-  applyLoraTrigger,
-  generateImage,
-  resolveMfluxBin,
-  classifyMfluxError,
-  ImageBackendError,
-} from "../../src/server/image/mflux";
+import { buildScenePrompt, generateImage, ImageBackendError } from "../../src/server/image/generate";
 import { buildExtractionPrompt, extractScene, MAX_SCENE_CHARS } from "../../src/server/image/scene";
 
 let db: Db;
@@ -23,87 +15,61 @@ beforeEach(() => {
   ({ db } = createTestDb());
 });
 
-describe("本地生图设置（mflux）", () => {
-  it("默认关闭，默认 FLUX.2 klein 4B + q4 + 国内镜像", () => {
+describe("生图设置（API）", () => {
+  it("默认关闭、1024×1024、无接口", () => {
     const cfg = getImageConfig(db);
     expect(cfg.enabled).toBe(false);
-    expect(cfg.model).toBe("flux2-klein-4b");
-    expect(cfg.quantize).toBe(4);
-    expect(cfg.hfEndpoint).toBe(DEFAULT_IMAGE_CONFIG.hfEndpoint);
-    expect(cfg.hfEndpoint).toContain("hf-mirror");
+    expect(cfg.width).toBe(DEFAULT_IMAGE_CONFIG.width);
+    expect(cfg.height).toBe(DEFAULT_IMAGE_CONFIG.height);
+    expect(cfg.apiBaseUrl).toBe("");
+    expect(cfg.apiModel).toBe("");
   });
 
   it("保存后可读回，幂等写入", () => {
     setImageSettings(db, {
       enabled: true,
-      model: "flux2-klein-4b",
-      quantize: 8,
-      mfluxBin: "/opt/homebrew/bin/mflux-generate-flux2",
-      hfEndpoint: "https://hf-mirror.net",
-      steps: 4,
-      width: 768,
-      height: 1024,
+      apiBaseUrl: "https://api.example.com/v1",
+      apiKey: "k",
+      apiModel: "gpt-image-1",
+      width: 832,
+      height: 1216,
       style: "anime, soft light",
     });
     const cfg = getImageConfig(db);
     expect(cfg.enabled).toBe(true);
-    expect(cfg.quantize).toBe(8);
-    expect(cfg.mfluxBin).toContain("mflux-generate-flux2");
-    expect(cfg.hfEndpoint).toBe("https://hf-mirror.net");
+    expect(cfg.apiBaseUrl).toBe("https://api.example.com/v1");
+    expect(cfg.apiKey).toBe("k");
+    expect(cfg.apiModel).toBe("gpt-image-1");
+    expect(cfg.width).toBe(832);
+    expect(cfg.height).toBe(1216);
     expect(cfg.style).toBe("anime, soft light");
 
-    setImageSettings(db, { steps: 6 });
-    expect(getImageConfig(db).steps).toBe(6);
-    expect(getImageConfig(db).style).toBe("anime, soft light");
+    setImageSettings(db, { width: 1024 });
+    expect(getImageConfig(db).width).toBe(1024);
+    expect(getImageConfig(db).apiModel).toBe("gpt-image-1");
   });
 
-  it("量化值只接受 4 / 8 / 0，其余回落到 4", () => {
-    setImageSettings(db, { quantize: 0 });
-    expect(getImageConfig(db).quantize).toBe(0);
-    // 非法值经 setImageSettings 存成字符串，读回时回落 4
-    setImageSettings(db, { quantize: 5 as unknown as 4 });
-    expect(getImageConfig(db).quantize).toBe(4);
+  it("尺寸越界会被夹到 256–2048", () => {
+    setImageSettings(db, { width: 10, height: 99999 });
+    expect(getImageConfig(db).width).toBe(256);
+    expect(getImageConfig(db).height).toBe(2048);
   });
 
-  it("生图开关/模型支持环境变量兜底（启动器预设），面板保存过则以面板为准", () => {
+  it("环境变量兜底：面板没设时生效；面板设过则以面板为准", () => {
     process.env.IMAGE_ENABLED = "1";
-    process.env.IMAGE_MODEL = "z-image-turbo";
+    process.env.IMAGE_API_MODEL = "env-model";
     try {
       const cfg = getImageConfig(db);
       expect(cfg.enabled).toBe(true);
-      expect(cfg.model).toBe("z-image-turbo");
-      setImageSettings(db, { enabled: false, model: "flux2-klein-4b" });
+      expect(cfg.apiModel).toBe("env-model");
+
+      setImageSettings(db, { enabled: false, apiModel: "db-model" });
       const cfg2 = getImageConfig(db);
       expect(cfg2.enabled).toBe(false);
-      expect(cfg2.model).toBe("flux2-klein-4b");
+      expect(cfg2.apiModel).toBe("db-model");
     } finally {
       delete process.env.IMAGE_ENABLED;
-      delete process.env.IMAGE_MODEL;
-    }
-  });
-
-  it("LoRA 环境变量兜底：面板没设时生效；面板设过则以面板为准", () => {
-    process.env.IMAGE_LORA_PATH = "/tmp/env-lora.safetensors";
-    process.env.IMAGE_LORA_MODEL = "z-image-turbo";
-    process.env.IMAGE_LORA_TRIGGER = "envtrigger";
-    process.env.IMAGE_LORA_SCALE = "1.1";
-    try {
-      let cfg = getImageConfig(db);
-      expect(cfg.loraPath).toBe("/tmp/env-lora.safetensors");
-      expect(cfg.loraModel).toBe("z-image-turbo");
-      expect(cfg.loraTrigger).toBe("envtrigger");
-      expect(cfg.loraScale).toBeCloseTo(1.1);
-
-      // 面板设过（即使存空串）→ 环境变量不再覆盖
-      setImageSettings(db, { loraPath: "/db/lora.safetensors" });
-      expect(getImageConfig(db).loraPath).toBe("/db/lora.safetensors");
-      setImageSettings(db, { loraPath: "" });
-      expect(getImageConfig(db).loraPath).toBe("");
-    } finally {
-      delete process.env.IMAGE_LORA_PATH;
-      delete process.env.IMAGE_LORA_MODEL;
-      delete process.env.IMAGE_LORA_TRIGGER;
-      delete process.env.IMAGE_LORA_SCALE;
+      delete process.env.IMAGE_API_MODEL;
     }
   });
 });
@@ -117,109 +83,6 @@ describe("情景图提示词", () => {
 
   it("空风格时只留场景", () => {
     expect(buildScenePrompt("", "sunset")).toBe("sunset");
-  });
-});
-
-describe("mflux 命令行拼装", () => {
-  const cfg = { model: "flux2-klein-4b", steps: 4, width: 832, height: 1216, quantize: 4 as const };
-
-  it("包含模型/提示词/尺寸/步数/种子/输出与量化，且不带负面词", () => {
-    const args = buildMfluxArgs(cfg, "cinematic, room", "/tmp/out.png", 12345);
-    const val = (flag: string) => args[args.indexOf(flag) + 1];
-    expect(val("--model")).toBe("flux2-klein-4b");
-    expect(val("--prompt")).toBe("cinematic, room");
-    expect(val("--width")).toBe("832");
-    expect(val("--height")).toBe("1216");
-    expect(val("--steps")).toBe("4");
-    expect(val("--seed")).toBe("12345");
-    expect(val("--output")).toBe("/tmp/out.png");
-    expect(val("-q")).toBe("4");
-    expect(args).not.toContain("--negative-prompt");
-  });
-
-  it("quantize=0 时不传 -q", () => {
-    const args = buildMfluxArgs({ ...cfg, quantize: 0 }, "x", "/tmp/o.png", 1);
-    expect(args).not.toContain("-q");
-  });
-
-  it("带参考图时追加 --image-paths", () => {
-    const args = buildMfluxArgs(cfg, "x", "/tmp/o.png", 1, ["/data/backgrounds/bg.png"]);
-    expect(args).toContain("--image-paths");
-    expect(args[args.indexOf("--image-paths") + 1]).toBe("/data/backgrounds/bg.png");
-  });
-
-  it("无参考图时不带 --image-paths", () => {
-    const args = buildMfluxArgs(cfg, "x", "/tmp/o.png", 1);
-    expect(args).not.toContain("--image-paths");
-  });
-});
-
-describe("LoRA 触发词", () => {
-  it("挂了 LoRA 且有触发词时追加在最前", () => {
-    expect(applyLoraTrigger("a cat", "/x/y.safetensors", "mystyle")).toBe("mystyle, a cat");
-  });
-  it("没有 LoRA 或没有触发词时原样返回", () => {
-    expect(applyLoraTrigger("a cat", "", "mystyle")).toBe("a cat");
-    expect(applyLoraTrigger("a cat", "/x/y.safetensors", "  ")).toBe("a cat");
-  });
-});
-
-describe("mflux 可执行文件定位", () => {
-  it("配置了完整路径就用它", () => {
-    expect(resolveMfluxBin("/custom/mflux-generate-flux2", "mflux-generate-flux2")).toBe(
-      "/custom/mflux-generate-flux2",
-    );
-  });
-
-  it("没配置时自动探测或回落到命令名（都应以命令名结尾）", () => {
-    const saved = process.env.MFLUX_BIN;
-    delete process.env.MFLUX_BIN;
-    try {
-      expect(resolveMfluxBin("", "mflux-generate-flux2")).toMatch(/mflux-generate-flux2$/);
-    } finally {
-      if (saved !== undefined) process.env.MFLUX_BIN = saved;
-    }
-  });
-});
-
-describe("失败归类（classifyMfluxError）", () => {
-  it("ENOENT → 提示安装", () => {
-    const e = classifyMfluxError({ code: "ENOENT" }, "mflux-generate-flux2");
-    expect(e).toBeInstanceOf(ImageBackendError);
-    expect(e.message).toContain("没找到 mflux");
-    expect(e.message).toContain("uv tool install mflux");
-  });
-
-  it("killed → 提示超时", () => {
-    const e = classifyMfluxError({ killed: true }, "mflux-generate-flux2");
-    expect(e.message).toContain("超时");
-  });
-
-  it("Metal OOM → 提示内存不足与量化", () => {
-    const e = classifyMfluxError(
-      { stderr: "RuntimeError: [metal::malloc] Resource limit exceeded" },
-      "mflux-generate-flux2",
-    );
-    expect(e.message).toContain("内存不足");
-    expect(e.message).toContain("4-bit");
-  });
-
-  it("SSL/handshake → 提示镜像/网络", () => {
-    const e = classifyMfluxError(
-      { stderr: "SSL: handshake operation timed out while downloading" },
-      "mflux-generate-flux2",
-    );
-    expect(e.message).toContain("网络");
-    expect(e.message).toContain("hf-mirror.com");
-  });
-
-  it("其它 → 带 stderr 尾部", () => {
-    const e = classifyMfluxError(
-      { stderr: "line1\nline2\nsomething broke" },
-      "mflux-generate-flux2",
-    );
-    expect(e.message).toContain("mflux 执行失败");
-    expect(e.message).toContain("something broke");
   });
 });
 
@@ -316,46 +179,28 @@ describe("场景提炼（extractScene）", () => {
   });
 });
 
-describe("generateImage", () => {
-  it("找不到 mflux 时抛可读的 ImageBackendError", async () => {
+describe("generateImage（API）", () => {
+  it("没填接口地址时抛可读的 ImageBackendError", async () => {
     await expect(
       generateImage(
-        {
-          backend: "mflux",
-          model: "flux2-klein-4b",
-          steps: 4,
-          width: 832,
-          height: 1216,
-          quantize: 4,
-          mfluxBin: "/nonexistent/definitely-not-mflux-xyz-12345",
-          hfEndpoint: "https://hf-mirror.com",
-          apiBaseUrl: "",
-          apiKey: "",
-          apiModel: "",
-        },
+        { width: 1024, height: 1024, apiBaseUrl: "", apiKey: "", apiModel: "gpt-image-1" },
         { prompt: "x" },
       ),
     ).rejects.toBeInstanceOf(ImageBackendError);
   });
 
-  it("backend=api：没填地址直接报错（走自定义接口分支）", async () => {
+  it("没填模型名时抛可读错误", async () => {
     await expect(
       generateImage(
         {
-          backend: "api",
-          model: "flux2-klein-4b",
-          steps: 4,
-          width: 512,
-          height: 768,
-          quantize: 4,
-          mfluxBin: "",
-          hfEndpoint: "",
-          apiBaseUrl: "",
+          width: 1024,
+          height: 1024,
+          apiBaseUrl: "https://api.example.com/v1",
           apiKey: "",
-          apiModel: "gpt-image-1",
+          apiModel: "",
         },
         { prompt: "x" },
       ),
-    ).rejects.toThrow(/生图接口地址/);
+    ).rejects.toThrow(/模型名/);
   });
 });

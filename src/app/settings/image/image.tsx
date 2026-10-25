@@ -9,19 +9,9 @@ import { toast } from "@/components/Toast";
 
 interface ImageState {
   enabled: boolean;
-  backend: "mflux" | "api";
-  model: string;
-  quantize: number;
-  mfluxBin: string;
-  hfEndpoint: string;
-  steps: number;
   width: number;
   height: number;
   style: string;
-  loraPath: string;
-  loraScale: number;
-  loraModel: string;
-  loraTrigger: string;
   apiBaseUrl: string;
   apiKey: string;
   apiModel: string;
@@ -29,19 +19,9 @@ interface ImageState {
 
 const DEFAULT_IMAGE: ImageState = {
   enabled: false,
-  backend: "mflux",
-  model: "flux2-klein-4b",
-  quantize: 4,
-  mfluxBin: "",
-  hfEndpoint: "https://hf-mirror.com",
-  steps: 4,
-  width: 832,
-  height: 1216,
+  width: 1024,
+  height: 1024,
   style: "cinematic lighting, detailed background, illustration, high quality",
-  loraPath: "",
-  loraScale: 0.8,
-  loraModel: "",
-  loraTrigger: "",
   apiBaseUrl: "",
   apiKey: "",
   apiModel: "",
@@ -49,18 +29,17 @@ const DEFAULT_IMAGE: ImageState = {
 
 interface ConfigState {
   image?: ImageState;
-  imageModels?: { id: string; label: string }[];
 }
 
 /**
- * 本地生图设置（二级页）：从设置首页拆出。配置 mflux 模型 / 分辨率 / 画风 / LoRA。
+ * 生图设置（二级页）：只接 API。
+ * 请求 {地址}/images/generations，兼容 b64_json / url 两种返回。
  */
 export default function ImageSettingsClient() {
   const [image, setImage] = useState<ImageState>(DEFAULT_IMAGE);
-  const [imageModels, setImageModels] = useState<{ id: string; label: string }[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
   const [testToken, setTestToken] = useState<string | null>(null);
-  /** 测试生图开始时间 + 已用秒数（mflux 首次加载模型较慢，给点进度感） */
+  /** 测试生图开始时间 + 已用秒数 */
   const [testStartedAt, setTestStartedAt] = useState<number | null>(null);
   const [testElapsed, setTestElapsed] = useState(0);
   const [imageTest, setImageTest] = useState<
@@ -86,7 +65,6 @@ export default function ImageSettingsClient() {
       .then((r) => r.json())
       .then((d: ConfigState) => {
         if (d.image) setImage(d.image);
-        if (d.imageModels) setImageModels(d.imageModels);
       })
       .catch(() => toast("没能读到生图设置。", "err"));
   }, []);
@@ -153,7 +131,7 @@ export default function ImageSettingsClient() {
         <div>
           <h1 className="font-display text-fs-h1 leading-tight">生图</h1>
           <p className="font-numeric text-fs-micro tracking-wide text-muted">
-            给聊天配图 · mflux 本地生成，不需要另开程序
+            给聊天配图 · 用你自己的 OpenAI 兼容接口
           </p>
         </div>
         <Link
@@ -180,68 +158,36 @@ export default function ImageSettingsClient() {
             </button>
           </div>
           <p className="mt-1 text-fs-micro leading-relaxed text-muted">
-            给聊天模式的会长消息配「此刻」的情景图。可用本地 mflux，或你自己的 OpenAI 兼容生图接口。
+            给聊天模式的会长消息配「此刻」的情景图。请求你填的 OpenAI 兼容生图接口。
           </p>
 
           <div className="mt-3 space-y-3">
-            <LetterField label="生图后端" hint="本地 mflux，或你自己的 OpenAI 兼容生图接口">
-              <select
+            <LetterField label="接口地址" hint="到 /v1 为止；会请求 {地址}/images/generations">
+              <input
                 className={LETTER_INPUT}
-                value={image.backend}
-                onChange={(e) =>
-                  setImage({ ...image, backend: e.target.value as "mflux" | "api" })
-                }
-              >
-                <option value="mflux">本地 mflux（Apple Silicon）</option>
-                <option value="api">自定义 API（OpenAI 兼容）</option>
-              </select>
+                value={image.apiBaseUrl}
+                onChange={(e) => setImage({ ...image, apiBaseUrl: e.target.value })}
+                placeholder="https://api.example.com/v1"
+              />
             </LetterField>
-            {image.backend === "api" ? (
-              <>
-                <LetterField label="接口地址" hint="到 /v1 为止；会请求 {地址}/images/generations">
-                  <input
-                    className={LETTER_INPUT}
-                    value={image.apiBaseUrl}
-                    onChange={(e) => setImage({ ...image, apiBaseUrl: e.target.value })}
-                    placeholder="https://api.example.com/v1"
-                  />
-                </LetterField>
-                <LetterField label="模型名">
-                  <input
-                    className={LETTER_INPUT}
-                    value={image.apiModel}
-                    onChange={(e) => setImage({ ...image, apiModel: e.target.value })}
-                    placeholder="例如 gpt-image-1 / flux"
-                  />
-                </LetterField>
-                <LetterField label="API Key（可选）">
-                  <input
-                    className={LETTER_INPUT}
-                    type="password"
-                    value={image.apiKey}
-                    onChange={(e) => setImage({ ...image, apiKey: e.target.value })}
-                    placeholder="可留空"
-                  />
-                </LetterField>
-              </>
-            ) : (
-              <LetterField label="模型" hint="换模型会改变画风与速度">
-                <select
-                  className={LETTER_INPUT}
-                  value={image.model}
-                  onChange={(e) => setImage({ ...image, model: e.target.value })}
-                >
-                  {(imageModels.length ? imageModels : [{ id: image.model, label: image.model }]).map(
-                    (m) => (
-                      <option key={m.id} value={m.id}>
-                        {m.label}
-                      </option>
-                    ),
-                  )}
-                </select>
-              </LetterField>
-            )}
-            <LetterField label="分辨率" hint="越低越快、越省内存；模型加载时间固定">
+            <LetterField label="模型名">
+              <input
+                className={LETTER_INPUT}
+                value={image.apiModel}
+                onChange={(e) => setImage({ ...image, apiModel: e.target.value })}
+                placeholder="例如 gpt-image-1 / flux"
+              />
+            </LetterField>
+            <LetterField label="API Key（可选）">
+              <input
+                className={LETTER_INPUT}
+                type="password"
+                value={image.apiKey}
+                onChange={(e) => setImage({ ...image, apiKey: e.target.value })}
+                placeholder="可留空"
+              />
+            </LetterField>
+            <LetterField label="分辨率" hint="按接口支持的尺寸选；不支持时接口会报错">
               <select
                 className={LETTER_INPUT}
                 value={`${image.width}x${image.height}`}
@@ -250,9 +196,10 @@ export default function ImageSettingsClient() {
                   setImage({ ...image, width: w, height: h });
                 }}
               >
+                <option value="1024x1024">方形 1024×1024（默认）</option>
+                <option value="832x1216">竖版 832×1216</option>
+                <option value="1216x832">横版 1216×832</option>
                 <option value="512x768">快速 512×768</option>
-                <option value="832x1216">标准 832×1216（默认）</option>
-                <option value="1024x1536">高清 1024×1536</option>
               </select>
             </LetterField>
             <LetterField label="画风前缀（可选）" hint="每张图都会加在描述前面，用来统一画风">
@@ -262,67 +209,6 @@ export default function ImageSettingsClient() {
                 onChange={(e) => setImage({ ...image, style: e.target.value })}
               />
             </LetterField>
-            {image.backend === "mflux" && (
-              <>
-            <LetterField
-              label="LoRA 路径（可选）"
-              hint="本地 .safetensors 路径或 HF 仓库 id；挂上后 mflux 会打印「Applied to N layers」"
-            >
-              <input
-                className={LETTER_INPUT}
-                placeholder="~/mflux-loras/xxx.safetensors"
-                value={image.loraPath}
-                onChange={(e) => setImage({ ...image, loraPath: e.target.value })}
-              />
-            </LetterField>
-            <div className="flex gap-3">
-              <LetterField label="LoRA 权重">
-                <input
-                  type="number"
-                  step={0.05}
-                  min={0}
-                  max={2}
-                  className={LETTER_INPUT}
-                  value={image.loraScale}
-                  onChange={(e) => setImage({ ...image, loraScale: Number(e.target.value) })}
-                />
-              </LetterField>
-              <LetterField label="只用于哪个模型" hint="切到别的模型时自动不挂">
-                <select
-                  className={`${LETTER_INPUT} bg-transparent`}
-                  value={image.loraModel}
-                  onChange={(e) => setImage({ ...image, loraModel: e.target.value })}
-                >
-                  <option value="" className="bg-surface text-fg">
-                    不限
-                  </option>
-                  {(imageModels.length ? imageModels : [{ id: image.model, label: image.model }]).map(
-                    (m) => (
-                      <option key={m.id} value={m.id} className="bg-surface text-fg">
-                        {m.label}
-                      </option>
-                    ),
-                  )}
-                </select>
-              </LetterField>
-            </div>
-            <LetterField
-              label="LoRA 触发词（可选，但强烈建议）"
-              hint="很多 LoRA 要专门的触发词才明显生效；挂 LoRA 时追加在提示词最前"
-            >
-              <input
-                className={LETTER_INPUT}
-                placeholder="例如 LoRA 作者给的触发词"
-                value={image.loraTrigger}
-                onChange={(e) => setImage({ ...image, loraTrigger: e.target.value })}
-              />
-            </LetterField>
-            <p className="text-fs-micro leading-relaxed text-faint">
-              提示：4-bit 量化底模上 LoRA 影响会被明显削弱（mflux 会把相关层提升到 q8 尽量保真）。
-              若作用太弱，可把权重调到 1.0+、补上触发词，或改用未量化的底模。
-            </p>
-              </>
-            )}
           </div>
 
           <div className="mt-4 flex flex-wrap gap-2">
@@ -360,7 +246,7 @@ export default function ImageSettingsClient() {
 
           {busy === "testImage" && (
             <p className="text-fs-micro text-faint mt-2 leading-relaxed">
-              mflux 正在本机跑（首次会加载模型，通常 1–3 分钟），生成好会在这里出图。等不及可点「停止」。
+              正在请求生图接口，通常几秒到一分钟。生成好会在这里出图，等不及可点「停止」。
             </p>
           )}
 
