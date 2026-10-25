@@ -58,6 +58,8 @@ export interface PetDescriptor {
 export interface ResolvedLayer {
   path: string;
   z: number;
+  /** 所属槽位（body/head/face/hair/top/bottom/shoes），用于逐层替换（眨眼） */
+  slot: string;
   materials: PetMaterial[];
   layout: "single" | "variant";
   /** variant 布局时选中的颜色文件名（不含 .png） */
@@ -87,6 +89,7 @@ export function resolveLayers(catalog: PetCatalog, d: PetDescriptor): ResolvedLa
       out.push({
         path,
         z: l.z,
+        slot,
         materials: l.materials.length ? l.materials : item.materials,
         layout,
         variant,

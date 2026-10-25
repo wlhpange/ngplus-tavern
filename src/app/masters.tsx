@@ -430,7 +430,7 @@ export default function MastersScreen() {
                 <Text style={styles.name}>{m.name}</Text>
                 <Text style={styles.intro}>{m.selfIntro}</Text>
               </View>
-              {m.sprite ? <PixelPet descriptor={m.sprite} display={52} /> : null}
+              {m.sprite ? <PixelPet descriptor={m.sprite} display={52} animated={false} /> : null}
             </View>
             {m.backstory ? <Text style={styles.backstory}>{m.backstory}</Text> : null}
             {m.tags?.length ? (

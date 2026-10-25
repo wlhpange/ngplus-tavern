@@ -1,5 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
-import { Image, StyleSheet, View } from "react-native";
+import { StyleSheet } from "react-native";
+import Animated, {
+  Easing,
+  cancelAnimation,
+  useAnimatedStyle,
+  useFrameCallback,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+  type SharedValue,
+} from "react-native-reanimated";
 import { fromByteArray, toByteArray } from "base64-js";
 import { decode, encode } from "fast-png";
 
@@ -18,7 +29,8 @@ import {
 /**
  * LPC 像素小人：与 Web 相同的 catalog / palettes / 分层 sprite sheet。
  * - 运行时用 fast-png 解 PNG，按调色板替换 RGB，再编码成 data URI；
- * - 用 64×64 的裁剪窗口播放正面行（frontRow）的动画帧；
+ * - 帧号由 Reanimated useFrameCallback 在 UI 线程推进，不再 setInterval + setState；
+ * - 待机时有呼吸起伏，每隔几秒眨一次眼（替换 face 图层）；
  * - 素材随 APK 打包，不需要网络。
  */
 export type PetAnim = "idle" | "walk" | "emote";
@@ -27,8 +39,9 @@ const catalog = catalogJson as unknown as PetCatalog;
 const palettes = palettesJson as unknown as PetPalettes;
 const LPC_DATA = lpcData as Record<string, { b64: string; w: number; h: number }>;
 const FRAME = 64;
+const BLINK_FACE = "face_closed";
 
-type LayerImage = { uri: string; width: number; height: number; z: number };
+type LayerImage = { uri: string; width: number; height: number; z: number; slot: string };
 
 const recolorCache = new Map<string, LayerImage>();
 
@@ -116,6 +129,7 @@ async function loadLayer(
       width: entry.w,
       height: entry.h,
       z: layer.z,
+      slot: layer.slot,
     };
   } else {
     const bytes = toByteArray(entry.b64);
@@ -144,6 +158,7 @@ async function loadLayer(
       width: png.width,
       height: png.height,
       z: layer.z,
+      slot: layer.slot,
     };
   }
 
@@ -151,16 +166,58 @@ async function loadLayer(
   return result;
 }
 
+/** 单层：帧位移在 UI 线程按共享帧号计算，不触发 React 重渲染 */
+function PetLayer({
+  layer,
+  frame,
+  scale,
+  row,
+  blinkUri,
+}: {
+  layer: LayerImage;
+  frame: SharedValue<number>;
+  scale: number;
+  row: number;
+  blinkUri: string | null;
+}) {
+  const style = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: -frame.value * FRAME * scale },
+      { translateY: -row * FRAME * scale },
+    ],
+  }));
+  const uri = layer.slot === "face" && blinkUri ? blinkUri : layer.uri;
+  return (
+    <Animated.Image
+      source={{ uri }}
+      resizeMode="stretch"
+      style={[
+        {
+          position: "absolute",
+          left: 0,
+          top: 0,
+          width: layer.width * scale,
+          height: layer.height * scale,
+        },
+        style,
+      ]}
+    />
+  );
+}
+
 export function PixelPet({
   descriptor,
   animation = "idle",
   display = 64,
   face,
+  animated = true,
 }: {
   descriptor: PetDescriptor;
   animation?: PetAnim;
   display?: number;
   face?: string | null;
+  /** 列表里展示时关掉呼吸/眨眼，只保留帧动画 */
+  animated?: boolean;
 }) {
   const desc = useMemo<PetDescriptor>(
     () => (face ? { ...descriptor, items: { ...descriptor.items, face } } : descriptor),
@@ -169,55 +226,116 @@ export function PixelPet({
   const descKey = JSON.stringify(desc);
   const anim = catalog.animations[animation] ?? { frames: 2, fps: 4 };
   const frames = Math.max(1, anim.frames);
+  const fps = Math.max(1, anim.fps);
   const [layers, setLayers] = useState<LayerImage[]>([]);
-  const [frame, setFrame] = useState(0);
+  const [blinkUri, setBlinkUri] = useState<string | null>(null);
+  const [blinking, setBlinking] = useState(false);
+
+  const frame = useSharedValue(0);
+  const carry = useSharedValue(0);
+  const breathe = useSharedValue(1);
 
   useEffect(() => {
     let cancelled = false;
     setLayers([]);
+    setBlinkUri(null);
     (async () => {
       const resolved = resolveLayers(catalog, desc);
-      const out = await Promise.all(
+      const loaded = await Promise.all(
         resolved.map((l) => loadLayer(l, animation, desc.colors ?? {}).catch(() => null)),
       );
-      if (!cancelled) setLayers(out.filter((x): x is LayerImage => Boolean(x)));
+      const blinkLayer = desc.items.face
+        ? resolveLayers(catalog, {
+            ...desc,
+            items: { ...desc.items, face: BLINK_FACE },
+          }).find((l) => l.slot === "face")
+        : undefined;
+      const blink = blinkLayer
+        ? await loadLayer(blinkLayer, animation, desc.colors ?? {}).catch(() => null)
+        : null;
+      if (cancelled) return;
+      setLayers(loaded.filter((x): x is LayerImage => Boolean(x)));
+      setBlinkUri(blink?.uri ?? null);
     })();
     return () => {
       cancelled = true;
     };
   }, [descKey, animation]);
 
-  useEffect(() => {
-    setFrame(0);
+  // 帧号推进：按累计时间步进，掉帧时也不会越走越慢
+  useFrameCallback((info) => {
     if (frames <= 1) return;
-    const timer = setInterval(() => setFrame((f) => (f + 1) % frames), Math.max(60, 1000 / anim.fps));
-    return () => clearInterval(timer);
-  }, [frames, anim.fps, animation]);
+    const dt = info.timeSincePreviousFrame ?? 0;
+    if (dt <= 0) return;
+    carry.value += dt;
+    const interval = 1000 / fps;
+    if (carry.value >= interval) {
+      const steps = Math.floor(carry.value / interval);
+      carry.value -= steps * interval;
+      frame.value = (frame.value + steps) % frames;
+    }
+  });
+
+  // 动画/形象切换后从头播
+  useEffect(() => {
+    frame.value = 0;
+    carry.value = 0;
+  }, [animation, descKey, frames, fps, frame, carry]);
+
+  useEffect(() => {
+    if (!animated) return;
+    breathe.value = withRepeat(
+      withSequence(
+        withTiming(1.012, { duration: 1900, easing: Easing.inOut(Easing.quad) }),
+        withTiming(0.994, { duration: 2100, easing: Easing.inOut(Easing.quad) }),
+      ),
+      -1,
+      false,
+    );
+    return () => {
+      cancelAnimation(breathe);
+      breathe.value = 1;
+    };
+  }, [animated, breathe]);
+
+  useEffect(() => {
+    if (!animated || !blinkUri) return;
+    let alive = true;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const loop = () => {
+      timer = setTimeout(() => {
+        if (!alive) return;
+        setBlinking(true);
+        timer = setTimeout(() => {
+          if (!alive) return;
+          setBlinking(false);
+          loop();
+        }, 130);
+      }, 2600 + Math.random() * 3600);
+    };
+    loop();
+    return () => {
+      alive = false;
+      if (timer) clearTimeout(timer);
+      setBlinking(false);
+    };
+  }, [animated, blinkUri]);
+
+  const breatheStyle = useAnimatedStyle(() => {
+    const v = breathe.value;
+    return { transform: [{ scaleY: v }, { scaleX: 2 - v }] };
+  });
 
   const scale = display / FRAME;
   const row = catalog.frontRow ?? 2;
+  const blink = blinking && animated ? blinkUri : null;
 
   return (
-    <View style={[styles.frame, { width: display, height: display }]}>
+    <Animated.View style={[styles.frame, { width: display, height: display }, animated ? breatheStyle : null]}>
       {layers.map((l, i) => (
-        <Image
-          key={i}
-          source={{ uri: l.uri }}
-          resizeMode="stretch"
-          style={{
-            position: "absolute",
-            left: 0,
-            top: 0,
-            width: l.width * scale,
-            height: l.height * scale,
-            transform: [
-              { translateX: -frame * FRAME * scale },
-              { translateY: -row * FRAME * scale },
-            ],
-          }}
-        />
+        <PetLayer key={`${l.slot}-${i}`} layer={l} frame={frame} scale={scale} row={row} blinkUri={blink} />
       ))}
-    </View>
+    </Animated.View>
   );
 }
 
@@ -240,5 +358,3 @@ export function defaultDescriptor(): PetDescriptor {
     colors: { body: "light", hair: "blonde", cloth: "purple", eye: "green" },
   };
 }
-
-
