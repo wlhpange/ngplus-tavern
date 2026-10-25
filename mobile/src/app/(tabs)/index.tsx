@@ -15,7 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import * as DocumentPicker from "expo-document-picker";
 import { File } from "expo-file-system";
-import Animated, { FadeIn } from "react-native-reanimated";
+import Animated, { FadeIn, useAnimatedKeyboard, useAnimatedStyle } from "react-native-reanimated";
 
 import { C, Fonts, R, S } from "@/constants/theme";
 import { Avatar } from "@/components/Avatar";
@@ -144,6 +144,13 @@ export default function ChatScreen() {
   const [petReact, setPetReact] = useState(false);
   const [moodFace, setMoodFace] = useState<FaceId | null>(null);
   const [chatLoadingEarlier, setChatLoadingEarlier] = useState(false);
+
+  // Android edge-to-edge 下 adjustResize 不会缩窗口：用键盘高度抬起输入栏
+  const keyboard = useAnimatedKeyboard();
+  const keyboardLift = useAnimatedStyle(() => ({
+    // 键盘高度包含底部 tab bar / 系统导航区，减掉这部分再留 8px 间距
+    paddingBottom: Platform.OS === "android" ? Math.max(8, keyboard.height.value - 64) : 8,
+  }));
 
   const listRef = useRef<FlatList<Row>>(null);
   const nearBottom = useRef(true);
@@ -773,7 +780,7 @@ export default function ChatScreen() {
         </View>
       ) : null}
 
-      <View style={styles.inputBar}>
+      <Animated.View style={[styles.inputBar, keyboardLift]}>
         <TextInput
           value={input}
           onChangeText={setInput}
@@ -804,7 +811,7 @@ export default function ChatScreen() {
             <Ionicons name="arrow-up" size={20} color={C.onGold} />
           </Pressable>
         )}
-      </View>
+      </Animated.View>
 
       {showJump ? (
         <Pressable onPress={jumpLatest} style={styles.jump}>
