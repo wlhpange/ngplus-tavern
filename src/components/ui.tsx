@@ -18,6 +18,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 
 import { A, C, Fonts, R, S, SHADOW } from "@/constants/theme";
+import { DustField } from "./DustField";
+import { SparkleLoop } from "./Sparkle";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -260,7 +262,7 @@ export function Divider() {
 export function Loading({ text = "正在翻开协会的登记簿……" }: { text?: string }) {
   return (
     <View style={styles.center}>
-      <ActivityIndicator color={C.gold} />
+      <SparkleLoop size={34} opacity={0.9} />
       <Text style={styles.mutedText}>{text}</Text>
     </View>
   );
@@ -293,6 +295,7 @@ export function Screen({
   scroll = true,
   contentStyle,
   onHeaderPress,
+  dust = false,
 }: {
   title: string;
   subtitle?: string;
@@ -304,9 +307,12 @@ export function Screen({
   contentStyle?: StyleProp<ViewStyle>;
   /** 点标题/副标题区（设置页的 R18 暗门用） */
   onHeaderPress?: () => void;
+  /** 背景淡金尘埃（对话页之外的页面按需开启） */
+  dust?: boolean;
 }) {
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
+      {dust ? <DustField /> : null}
       <View style={styles.header}>
         {back ? (
           <PressableScale onPress={onBack} style={styles.backBtn} accessibilityLabel="返回">

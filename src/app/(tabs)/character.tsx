@@ -163,7 +163,7 @@ export default function CharacterScreen() {
   const rankTitles = data.titles.filter((t) => !t.startsWith("ach_"));
 
   return (
-    <Screen title="角色面板" subtitle="协会卷宗室 · 与结算记录同源">
+    <Screen title="角色面板" subtitle="协会卷宗室 · 与结算记录同源" dust>
       <Card>
         <Text style={styles.kicker}>冒险者档案</Text>
         <View style={{ flexDirection: "row", alignItems: "center", gap: S.lg, marginTop: S.sm }}>

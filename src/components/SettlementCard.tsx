@@ -5,6 +5,7 @@ import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withRepeat, wit
 import { ATTR_LABEL, KIND_LABEL, itemDisplay } from "@/weblib/labels";
 import { A, C, Fonts, R, S } from "@/constants/theme";
 import { haptic } from "./ui";
+import { SparkleBurst } from "./Sparkle";
 
 export interface SettlementCardData {
   id: string;
@@ -59,6 +60,11 @@ export function SettlementCard({ s, fresh = false }: { s: SettlementCardData; fr
   return (
     <Animated.View entering={fresh ? FadeInDown.duration(260) : undefined} style={styles.card}>
       <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.sweep, glowStyle]} />
+      {fresh ? (
+        <View pointerEvents="none" style={styles.burst}>
+          <SparkleBurst size={200} opacity={0.8} />
+        </View>
+      ) : null}
       <View style={styles.top}>
         <Seal tone={partial ? "partial" : "normal"}>契</Seal>
         <View style={{ flex: 1, minWidth: 0 }}>
@@ -117,6 +123,15 @@ export function SettlementCard({ s, fresh = false }: { s: SettlementCardData; fr
 }
 
 const styles = StyleSheet.create({
+  burst: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   card: {
     borderRadius: R.card,
     borderWidth: 1,

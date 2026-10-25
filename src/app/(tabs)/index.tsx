@@ -22,6 +22,8 @@ import { Avatar } from "@/components/Avatar";
 import { Markdown } from "@/components/Markdown";
 import { SettlementCard, type SettlementCardData } from "@/components/SettlementCard";
 import { CeremonyOverlay, type CeremonyEvent } from "@/components/CeremonyOverlay";
+import { DustField } from "@/components/DustField";
+import { SparkleLoop } from "@/components/Sparkle";
 import { GreetingEditor } from "@/components/GreetingEditor";
 import { ImageLightbox } from "@/components/ImageLightbox";
 import { ConfirmDialog, PromptDialog } from "@/components/Dialogs";
@@ -513,6 +515,7 @@ export default function ChatScreen() {
     <SafeAreaView style={[styles.safe, bgVisible && { backgroundColor: C.bg }]} edges={["top"]}>
       {bgVisible ? <Animated.Image key={background!} entering={FadeIn} source={{ uri: background! }} style={styles.bgImage} blurRadius={2} /> : null}
       {bgVisible ? <View style={styles.bgShade} /> : null}
+      <DustField />
 
       <View style={styles.header}>
         <Avatar src={masterAvatar} name={masterName} size={40} active />
@@ -665,9 +668,12 @@ export default function ChatScreen() {
           }
           ListEmptyComponent={
             items !== null && !sendingHere && !serverPending ? (
-              <Text style={styles.centerHint}>
-                {mode === "chat" ? "屋子里只有你和会长两个人。说点什么吧。" : "协会的门虚掩着，灯火还亮着。说点什么吧。"}
-              </Text>
+              <View style={styles.emptyBox}>
+                <SparkleLoop size={44} opacity={0.75} />
+                <Text style={styles.centerHint}>
+                  {mode === "chat" ? "屋子里只有你和会长两个人。说点什么吧。" : "协会的门虚掩着，灯火还亮着。说点什么吧。"}
+                </Text>
+              </View>
             ) : undefined
           }
           renderItem={({ item }) => {
@@ -971,6 +977,7 @@ const styles = StyleSheet.create({
   msgActions: { flexDirection: "row", gap: 12, marginTop: 4 },
   msgAction: { fontFamily: Fonts.body, fontSize: 9, color: C.faint },
   centerHint: { fontFamily: Fonts.body, fontSize: 13, color: C.muted, textAlign: "center", paddingVertical: S.xxl },
+  emptyBox: { alignItems: "center", gap: S.xs, paddingTop: S.xl },
   noticeBar: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: C.border, backgroundColor: C.surface, paddingHorizontal: S.lg, paddingVertical: 5, gap: 2 },
   noticeText: { fontFamily: Fonts.mono, fontSize: 10, color: C.gold },
   inputBar: {
