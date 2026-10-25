@@ -41,7 +41,7 @@ export const A = {
 } as const;
 
 export const Fonts = {
-  display: Platform.select({ ios: "Songti SC", android: "serif", default: "serif" })!,
+  display: "LXGWWenKai",
   body: Platform.select({ ios: "PingFang SC", android: "sans-serif", default: "sans-serif" })!,
   mono: Platform.select({ ios: "Menlo", android: "monospace", default: "monospace" })!,
 } as const;

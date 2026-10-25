@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useFonts } from "expo-font";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StyleSheet, Text, View } from "react-native";
@@ -60,6 +61,10 @@ function Shell({ ready }: { ready: boolean }) {
 
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
+  // 标题用霞鹜文楷（子集化，见 assets/fonts/OFL-LXGWWenKai.txt）；正文仍走系统字体
+  const [fontsLoaded, fontError] = useFonts({
+    LXGWWenKai: require("../../assets/fonts/LXGWWenKai-Regular.ttf"),
+  });
   useEffect(() => {
     initApp();
     void (async () => {
@@ -74,7 +79,7 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <StatusBar style="light" />
         <ToastProvider>
-          <Shell ready={ready} />
+          <Shell ready={ready && (fontsLoaded || Boolean(fontError))} />
         </ToastProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
