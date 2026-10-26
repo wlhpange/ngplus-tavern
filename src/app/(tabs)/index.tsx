@@ -27,9 +27,6 @@ import { SparkleLoop } from "@/components/Sparkle";
 import { GreetingEditor } from "@/components/GreetingEditor";
 import { ImageLightbox } from "@/components/ImageLightbox";
 import { ConfirmDialog, PromptDialog } from "@/components/Dialogs";
-import { PixelPet } from "@/components/PixelPet";
-import type { PetDescriptor } from "@/weblib/petCatalog";
-import { detectFace, type FaceId } from "@/weblib/mood";
 import { Button, Chip, ErrorBar, haptic, PressableScale, Segmented } from "@/components/ui";
 import { useToast } from "@/components/Toast";
 import {
@@ -46,7 +43,6 @@ import {
   cancelScene,
   uploadBackground,
 } from "@/lib/service";
-import { useUiPrefOn } from "@/lib/uiPrefs";
 
 type Mode = "quest" | "chat";
 interface ApiMessage {
@@ -110,7 +106,6 @@ export default function ChatScreen() {
   const [items, setItems] = useState<TimelineItem[] | null>(null);
   const [masterName, setMasterName] = useState("会长");
   const [masterAvatar, setMasterAvatar] = useState<string | null>(null);
-  const [masterSprite, setMasterSprite] = useState<PetDescriptor | null>(null);
   const [background, setBackground] = useState<string | null>(null);
   const [imageEnabled, setImageEnabled] = useState(false);
   const [hasEarlier, setHasEarlier] = useState(false);
@@ -143,9 +138,6 @@ export default function ChatScreen() {
   const [sceneStartedAt, setSceneStartedAt] = useState<number | null>(null);
   const [sceneElapsed, setSceneElapsed] = useState(0);
   const [sceneError, setSceneError] = useState<string | null>(null);
-  const showPet = useUiPrefOn("pet");
-  const [petReact, setPetReact] = useState(false);
-  const [moodFace, setMoodFace] = useState<FaceId | null>(null);
   const [chatLoadingEarlier, setChatLoadingEarlier] = useState(false);
 
   // Android edge-to-edge 下 adjustResize 不会缩窗口：用键盘高度抬起输入栏
@@ -159,7 +151,6 @@ export default function ChatScreen() {
   const nearBottom = useRef(true);
   const initialPositioned = useRef(false);
   const abortRef = useRef<AbortController | null>(null);
-  const moodTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const modeRef = useRef<Mode>("quest");
   const sessionRef = useRef<string | null>(null);
   modeRef.current = mode;
@@ -178,7 +169,6 @@ export default function ChatScreen() {
       const d = chatScreenData(m, sessId);
       setMasterName(d.masterName);
       setMasterAvatar(d.masterAvatar);
-      setMasterSprite(d.masterSprite);
       setBackground(d.background);
       setImageEnabled(d.imageEnabled);
       setHasEarlier(d.hasEarlier);
@@ -320,12 +310,6 @@ export default function ChatScreen() {
     setMode(next);
   };
 
-  const flashMood = (face: FaceId) => {
-    setMoodFace(face);
-    if (moodTimer.current) clearTimeout(moodTimer.current);
-    moodTimer.current = setTimeout(() => setMoodFace(null), 9000);
-  };
-
   async function send() {
     const text = input.trim();
     if (!text || sending || serverPending) return;
@@ -375,7 +359,6 @@ export default function ChatScreen() {
             createdAt: now,
           },
         });
-        if (modeRef.current === mode && sessionRef.current === sessionId) flashMood(detectFace(result.reply));
       }
       if (modeRef.current === mode && sessionRef.current === sessionId) {
         setItems((prev) => {
@@ -496,21 +479,10 @@ export default function ChatScreen() {
     }
   }
 
-  function pokePet() {
-    setPetReact(true);
-    haptic("light");
-    setTimeout(() => setPetReact(false), 1600);
-  }
-
   if (onboarded === false) return <Redirect href="/gate" />;
   if (onboarded === null) return <View style={styles.safe} />;
 
   const bgVisible = mode === "chat" && Boolean(background);
-  const petDescriptor = masterSprite
-    ? { ...masterSprite, items: { ...masterSprite.items, face: moodFace ?? masterSprite.items.face } }
-    : null;
-  const petAnim = sendingHere || serverPending || petReact ? "emote" : "idle";
-
   return (
     <SafeAreaView style={[styles.safe, bgVisible && { backgroundColor: C.bg }]} edges={["top"]}>
       {bgVisible ? <Animated.Image key={background!} entering={FadeIn} source={{ uri: background! }} style={styles.bgImage} blurRadius={2} /> : null}
@@ -825,12 +797,6 @@ export default function ChatScreen() {
         </Pressable>
       ) : null}
 
-      {showPet && petDescriptor ? (
-        <Pressable onPress={pokePet} style={styles.petWrap} accessibilityLabel={`和${masterName}互动`}>
-          <PixelPet descriptor={petDescriptor} animation={petAnim} display={64} face={moodFace} />
-        </Pressable>
-      ) : null}
-
       {ceremony ? <CeremonyOverlay event={ceremony} onDone={() => setCeremony(null)} /> : null}
       <ImageLightbox src={lightbox} onClose={() => setLightbox(null)} />
       <GreetingEditor
@@ -1021,7 +987,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  petWrap: { position: "absolute", left: 12, bottom: 100 },
   sceneError: { borderWidth: 1, borderColor: C.danger, borderRadius: R.card, padding: S.md, backgroundColor: C.surface },
   sceneErrorTitle: { fontFamily: Fonts.display, fontSize: 15, color: C.dangerText },
   sceneErrorText: { fontFamily: Fonts.body, fontSize: 11, color: C.dangerText, lineHeight: 17, marginTop: 2 },

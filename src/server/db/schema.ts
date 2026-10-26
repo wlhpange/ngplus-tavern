@@ -13,8 +13,6 @@ export const masters = sqliteTable("masters", {
   name: text("name").notNull(),
   personaJson: text("persona_json").notNull(),
   avatar: text("avatar"),
-  /** 形象参数（像素小人 descriptor JSON 字符串）；NULL = 未设置 */
-  sprite: text("sprite"),
   isOfficial: integer("is_official").notNull().default(0),
   /** P1 软删除：非空即已归档，从候选人列表隐藏；历史/消息仍可解析其名 */
   archivedAt: integer("archived_at"),

@@ -17,13 +17,10 @@ import {
   markOnboarded,
   setChatMaster,
   setMasterAvatar,
-  setMasterSprite,
   switchMaster,
 } from "@/server/masters";
 import { parseCard } from "@/server/cards";
 import { cardIntroText } from "@/weblib/labels";
-import type { PetDescriptor } from "@/weblib/petCatalog";
-import { sanitizeSprite, autoMapSpriteForMaster } from "@/server/petSprite";
 import { parseCardBytes, toImportedCard, type ImportedCard } from "@/server/cardImport";
 import { translationPreview } from "@/server/translate";
 import { forgeCardFromFields } from "@/server/personaForge";
@@ -99,15 +96,6 @@ export function ctx() {
   return { db: getDb(), userId: LOCAL_USER_ID };
 }
 
-function parseSprite(s: string | null): PetDescriptor | null {
-  if (!s) return null;
-  try {
-    return JSON.parse(s) as PetDescriptor;
-  } catch {
-    return null;
-  }
-}
-
 // ============================================================ onboarding
 
 export function onboardingState() {
@@ -136,7 +124,6 @@ export interface MasterItem {
   id: string;
   name: string;
   avatar: string | null;
-  sprite: PetDescriptor | null;
   selfIntro: string;
   backstory: string;
   tags: string[];
@@ -163,7 +150,6 @@ export function mastersData() {
         id: m.id,
         name: m.name,
         avatar: assetUrl("avatar", m.avatar),
-        sprite: parseSprite(m.sprite),
         selfIntro,
         backstory: backstory === selfIntro ? "" : backstory,
         tags: m.persona.tags ?? [],
@@ -275,18 +261,6 @@ export function uploadBackground(bytes: Uint8Array, filename: string, mime?: str
   return saveAsset("background", bytes, filename, mime);
 }
 
-export function saveMasterSprite(masterId: string, sprite: Partial<PetDescriptor>) {
-  const { db, userId } = ctx();
-  const clean = sanitizeSprite(sprite);
-  setMasterSprite(db, userId, masterId, JSON.stringify(clean));
-  return clean;
-}
-
-export async function autoSprite(masterId: string) {
-  const { db, userId } = ctx();
-  return autoMapSpriteForMaster(db, userId, masterId);
-}
-
 export function masterCard(masterId: string) {
   const { db, userId } = ctx();
   const m = db.select().from(masters).where(and(eq(masters.id, masterId), or(eq(masters.ownerId, userId), isNull(masters.ownerId)))).get();
@@ -348,13 +322,11 @@ export function chatScreenData(mode: ChatMode, requestedSessionId?: string | nul
   const currentMasterId = mode === "chat" ? getChatMasterId(db, userId) : (save?.activeMasterId ?? null);
   let masterName = "会长";
   let masterAvatar: string | null = null;
-  let masterSprite: PetDescriptor | null = null;
   if (currentMasterId) {
     const m = db.select().from(masters).where(eq(masters.id, currentMasterId)).get();
     if (m) {
       masterName = m.name;
       masterAvatar = assetUrl("avatar", m.avatar);
-      masterSprite = parseSprite(m.sprite);
     }
   }
 
@@ -385,7 +357,6 @@ export function chatScreenData(mode: ChatMode, requestedSessionId?: string | nul
     masterName,
     imageEnabled: getImageConfig(db).enabled,
     masterAvatar,
-    masterSprite,
     background: assetUrl("background", session?.scene),
     activeMasterId: currentMasterId,
     windowStart,

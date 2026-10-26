@@ -39,14 +39,12 @@ cd android
 - 面板：等级、评级、六维、称号、图鉴、周常 Boss、月账单（CSV / Markdown 导出）
 - 商店（购买、库存、休整卷轴、礼物、亲密度）、技能树
 - 世界书、记忆书、聊天记录、冒险者卡、R18 开关、每日事件、签到/连击/跨天补算
-- LPC 像素小人：1053 张分层素材、7 槽位、5 材质色、变体颜色、待机/动作/走路
 - 模型渠道：DeepSeek / OpenCode / 自定义 API + 测试连接；API 生图
 
 ## 文档
 
 - `docs/PARITY.md`：Web → Android 功能逐项对照与验收记录
 - `docs/MANUAL-TEST.md`：真机手动验收清单
-- `docs/CREDITS-lpc.md`：LPC 像素素材署名
 
 ## 许可
 

@@ -7,7 +7,6 @@ import { C, Fonts, R, S } from "@/constants/theme";
 import { Button, Card, ErrorBar, Field, Input, Loading, MultiInput, PressableScale, Screen, haptic } from "@/components/ui";
 import { useToast } from "@/components/Toast";
 import { registerSecretTap } from "@/weblib/secret";
-import { useUiPrefOn } from "@/lib/uiPrefs";
 import {
   getUiPref,
   saveChatMaster,
@@ -39,7 +38,6 @@ export default function SettingsScreen() {
   const [state, setState] = useState<SettingsState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [sound, setSound] = useState(true);
-  const pet = useUiPrefOn("pet");
   const [rpEnabled, setRpEnabled] = useState(false);
   const [adultUnlocked, setAdultUnlocked] = useState(false);
   const [upName, setUpName] = useState("");
@@ -88,12 +86,6 @@ export default function SettingsScreen() {
     const next = !sound;
     setSound(next);
     setUiPref("sound", next ? "1" : "0");
-    haptic("select");
-  }
-
-  function togglePet() {
-    const next = !pet;
-    setUiPref("pet", next ? "1" : "0");
     haptic("select");
   }
 
@@ -178,12 +170,6 @@ export default function SettingsScreen() {
               <Text style={styles.rowTitle}>音效</Text>
               <View style={[styles.pill, sound ? styles.pillOn : null]}>
                 <Text style={[styles.pillText, { color: sound ? C.gold : C.faint }]}>{sound ? "开" : "关"}</Text>
-              </View>
-            </Pressable>
-            <Pressable style={styles.rowLine} onPress={togglePet}>
-              <Text style={styles.rowTitle}>对话页像素小人</Text>
-              <View style={[styles.pill, pet ? styles.pillOn : null]}>
-                <Text style={[styles.pillText, { color: pet ? C.gold : C.faint }]}>{pet ? "开" : "关"}</Text>
               </View>
             </Pressable>
 

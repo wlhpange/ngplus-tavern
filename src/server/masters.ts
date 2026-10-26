@@ -28,8 +28,6 @@ export interface MasterCard {
   persona: PersonaJson;
   /** 会长头像文件名（存于 data/avatars/）；null = 用名字首字兜底 */
   avatar: string | null;
-  /** 像素小人形象参数（descriptor JSON 字符串）；null = 未设置 */
-  sprite: string | null;
   isOfficial: boolean;
   /** P1：用户指名邀请的会长（owner_id = userId），可归档删除 */
   isCustom: boolean;
@@ -69,7 +67,6 @@ export function listSelectableMasters(db: Db, userId: string): MasterCard[] {
   name: m.name,
   persona: parseCard(m.personaJson),
   avatar: m.avatar ?? null,
-  sprite: m.sprite ?? null,
   isOfficial: m.isOfficial === 1,
   isCustom: m.ownerId != null,
   }));
@@ -506,27 +503,6 @@ export function setMasterAvatar(
   const res = db
     .update(masters)
     .set({ avatar: normalizeAvatarName(avatar) })
-    .where(eq(masters.id, masterId))
-    .run();
-  return res.changes > 0;
-}
-
-/** 设置 / 清除会长的像素小人形象参数（descriptor JSON 字符串） */
-export function setMasterSprite(
-  db: Db,
-  userId: string,
-  masterId: string,
-  sprite: string | null,
-): boolean {
-  const row = db
-    .select({ id: masters.id })
-    .from(masters)
-    .where(and(eq(masters.id, masterId), isNull(masters.archivedAt)))
-    .get();
-  if (!row) return false;
-  const res = db
-    .update(masters)
-    .set({ sprite })
     .where(eq(masters.id, masterId))
     .run();
   return res.changes > 0;

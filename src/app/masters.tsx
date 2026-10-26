@@ -7,17 +7,13 @@ import { File } from "expo-file-system";
 
 import { C, Fonts, R, S } from "@/constants/theme";
 import { Avatar } from "@/components/Avatar";
-import { PetDesigner } from "@/components/PetDesigner";
-import { PixelPet, defaultDescriptor } from "@/components/PixelPet";
 import { ConfirmDialog } from "@/components/Dialogs";
 import { Button, Card, Chip, ErrorBar, Field, Input, Loading, MultiInput, PressableScale, Screen, haptic } from "@/components/ui";
 import { useToast } from "@/components/Toast";
-import type { PetDescriptor } from "@/weblib/petCatalog";
 import type { ImportedCard } from "@/server/cardImport";
 import { getJob, startTranslateJob, cancelJob } from "@/server/translateJobs";
 import {
   activateMaster,
-  autoSprite,
   commitImportedCard,
   completeOnboarding,
   createMasterByFields,
@@ -26,7 +22,6 @@ import {
   mastersData,
   previewImportedCard,
   saveMasterAvatar,
-  saveMasterSprite,
   uploadAvatar,
   avatarUri,
   ctx,
@@ -65,10 +60,6 @@ export default function MastersScreen() {
   const [newAvatarFile, setNewAvatarFile] = useState<string | null>(null);
   const [newAvatarPreview, setNewAvatarPreview] = useState<string | null>(null);
   const [avatarBusy, setAvatarBusy] = useState(false);
-  const [spriteFor, setSpriteFor] = useState<string | null>(null);
-  const [spriteDraft, setSpriteDraft] = useState<PetDescriptor | null>(null);
-  const [spriteSaving, setSpriteSaving] = useState(false);
-  const [spriteBusy, setSpriteBusy] = useState<string | null>(null);
   const [removeTarget, setRemoveTarget] = useState<MasterItem | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [pendingImport, setPendingImport] = useState<PendingImport | null>(null);
@@ -157,37 +148,6 @@ export default function MastersScreen() {
     }
   }
 
-  /**
-   * 按角色卡生成形象。
-   * 旧版「生成形象」按钮只是把 defaultDescriptor() 塞进设计器——卡里的长相根本没参与，
-   * 所以每位会长看起来都一样。现在按钮真的会跑一次映射（LLM 优先，失败退关键词）。
-   */
-  async function generateSprite(masterId: string, openEditor: boolean) {
-    if (spriteBusy) return;
-    setSpriteBusy(masterId);
-    setError(null);
-    try {
-      const { sprite, source } = await autoSprite(masterId);
-      setMasters((prev) => (prev ?? []).map((m) => (m.id === masterId ? { ...m, sprite } : m)));
-      if (openEditor || spriteFor === masterId) {
-        setSpriteFor(masterId);
-        setSpriteDraft(sprite);
-      }
-      load();
-      toast(source === "llm" ? "形象已按角色卡生成。" : "形象按关键词生成了——卡里没写到的部位用默认值。", "ok");
-      haptic("success");
-    } catch (e) {
-      toast("形象生成失败，可以先手动调。", "err");
-      if (openEditor) {
-        setSpriteFor(masterId);
-        setSpriteDraft(masters?.find((m) => m.id === masterId)?.sprite ?? defaultDescriptor());
-      }
-      setError(e instanceof Error ? e.message : "形象生成失败。");
-    } finally {
-      setSpriteBusy(null);
-    }
-  }
-
   async function createByFields() {
     if (creating) return;
     setCreating(true);
@@ -207,7 +167,6 @@ export default function MastersScreen() {
       });
       resetForm();
       await choose(created.id);
-      void generateSprite(created.id, false);
       load();
       toast(`「${created.name}」已经上岗。`, "ok");
     } catch (e) {
@@ -318,7 +277,6 @@ export default function MastersScreen() {
       const created = commitImportedCard(card, false);
       if (avatarFile) saveMasterAvatar(created.id, avatarFile);
       setImportMsg(`已请来「${created.name}」（${card.spec}），世界书词条 ${created.worldBookEntries ?? 0} 条`);
-      void generateSprite(created.id, false);
       load();
       haptic("success");
     } catch (e) {
@@ -354,7 +312,6 @@ export default function MastersScreen() {
         if (job.status === "done" && job.result) {
           if (pending.avatarFile) saveMasterAvatar(job.result.masterId, pending.avatarFile);
           setImportMsg(`已请来「${job.result.name}」（${pending.card.spec}），世界书词条 ${job.result.worldBookEntries} 条（已翻译）`);
-          void generateSprite(job.result.masterId, false);
           load();
           haptic("success");
           return;
@@ -381,21 +338,6 @@ export default function MastersScreen() {
     jobRef.current = null;
     setTranslating(false);
     if (id) cancelJob(id);
-  }
-
-  async function saveSprite() {
-    if (!spriteFor || !spriteDraft || spriteSaving) return;
-    setSpriteSaving(true);
-    try {
-      saveMasterSprite(spriteFor, spriteDraft);
-      setMasters((prev) => (prev ?? []).map((m) => (m.id === spriteFor ? { ...m, sprite: spriteDraft } : m)));
-      setSpriteFor(null);
-      toast("形象已保存", "ok");
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "保存形象失败。");
-    } finally {
-      setSpriteSaving(false);
-    }
   }
 
   function keepDefault() {
@@ -430,7 +372,6 @@ export default function MastersScreen() {
                 <Text style={styles.name}>{m.name}</Text>
                 <Text style={styles.intro}>{m.selfIntro}</Text>
               </View>
-              {m.sprite ? <PixelPet descriptor={m.sprite} display={52} animated={false} /> : null}
             </View>
             {m.backstory ? <Text style={styles.backstory}>{m.backstory}</Text> : null}
             {m.tags?.length ? (
@@ -466,47 +407,7 @@ export default function MastersScreen() {
                   <Text style={[styles.actionText, { color: C.dangerText }]}>清除头像</Text>
                 </Pressable>
               ) : null}
-              <Pressable
-                disabled={spriteBusy !== null}
-                onPress={() => {
-                  if (m.sprite) {
-                    const opening = spriteFor !== m.id;
-                    setSpriteFor(opening ? m.id : null);
-                    if (opening) setSpriteDraft(m.sprite);
-                    return;
-                  }
-                  void generateSprite(m.id, true);
-                }}
-              >
-                <Text style={styles.actionText}>
-                  {spriteBusy === m.id
-                    ? "按卡生成中…"
-                    : m.sprite
-                      ? spriteFor === m.id
-                        ? "收起形象"
-                        : "修改形象"
-                      : "生成形象"}
-                </Text>
-              </Pressable>
             </View>
-            {spriteFor === m.id && spriteDraft ? (
-              <View style={styles.spriteBox}>
-                <PetDesigner value={spriteDraft} onChange={setSpriteDraft} display={128} showAnimationSwitch />
-                <Pressable onPress={() => void generateSprite(m.id, true)} disabled={spriteBusy !== null || spriteSaving}>
-                  <Text style={[styles.actionText, { textAlign: "center" }]}>
-                    {spriteBusy === m.id ? "正在按角色卡重生成……" : "按角色卡重新生成（会覆盖当前草稿）"}
-                  </Text>
-                </Pressable>
-                <View style={{ flexDirection: "row", gap: S.sm }}>
-                  <Button variant="primary" onPress={() => void saveSprite()} loading={spriteSaving} style={{ flex: 1 }}>
-                    保存形象
-                  </Button>
-                  <Button variant="outline" onPress={() => setSpriteFor(null)} style={{ flex: 1 }}>
-                    取消
-                  </Button>
-                </View>
-              </View>
-            ) : null}
             {!isActive && m.isCustom ? (
               <Pressable onPress={() => setRemoveTarget(m)}>
                 <Text style={[styles.actionText, { textAlign: "center", color: C.muted }]}>删除这位会长</Text>
@@ -657,7 +558,6 @@ const styles = StyleSheet.create({
   tagText: { fontFamily: Fonts.body, fontSize: 9, color: C.muted },
   actionsRow: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center", gap: S.lg, marginTop: 2 },
   actionText: { fontFamily: Fonts.body, fontSize: 10, color: C.muted },
-  spriteBox: { gap: S.sm, marginTop: S.sm, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: C.border, paddingTop: S.sm },
   inviteHead: { flexDirection: "row", alignItems: "center", gap: S.md },
   inviteIcon: {
     width: 44,

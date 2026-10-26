@@ -12,8 +12,6 @@ CREATE TABLE IF NOT EXISTS masters (
   name TEXT NOT NULL,
   persona_json TEXT NOT NULL,
   avatar TEXT,
-  -- 形象参数（像素小人 descriptor JSON）；NULL = 未设置
-  sprite TEXT,
   is_official INTEGER NOT NULL DEFAULT 0,
   -- P1 软删除：非空即已归档（从候选人列表隐藏，历史保留）
   archived_at INTEGER,
