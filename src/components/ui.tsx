@@ -294,7 +294,6 @@ export function Screen({
   right,
   scroll = true,
   contentStyle,
-  onHeaderPress,
   dust = false,
 }: {
   title: string;
@@ -305,8 +304,6 @@ export function Screen({
   right?: ReactNode;
   scroll?: boolean;
   contentStyle?: StyleProp<ViewStyle>;
-  /** 点标题/副标题区（设置页的 R18 暗门用） */
-  onHeaderPress?: () => void;
   /** 背景淡金尘埃（对话页之外的页面按需开启） */
   dust?: boolean;
 }) {
@@ -319,21 +316,12 @@ export function Screen({
             <Ionicons name="chevron-back" size={22} color={C.gold} />
           </PressableScale>
         ) : null}
-        {onHeaderPress ? (
-          <Pressable onPress={onHeaderPress} style={{ flex: 1, minWidth: 0 }}>
-            <Text style={styles.title} numberOfLines={1}>
-              {title}
-            </Text>
-            {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
-          </Pressable>
-        ) : (
-          <View style={{ flex: 1, minWidth: 0 }}>
-            <Text style={styles.title} numberOfLines={1}>
-              {title}
-            </Text>
-            {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
-          </View>
-        )}
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <Text style={styles.title} numberOfLines={1}>
+            {title}
+          </Text>
+          {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+        </View>
         {right}
       </View>
       {scroll ? (

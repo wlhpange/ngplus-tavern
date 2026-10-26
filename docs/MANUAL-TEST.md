@@ -10,10 +10,12 @@ APK：`/Users/wlhpange/Downloads/ngplus-tavern-0.1.1.apk`
 - [ ] （可选）DeepSeek / OpenCode Go：填真实 Key 再测；没有 Key 会提示未配置。
 - [ ] 设置 → 生图：打开开关，填一个 OpenAI 兼容 `images/generations` 接口和模型；点「测试生图」，应出图。
 
-## 0.5 R18 暗门
-- [ ] 设置页**标题/副标题区**连点 5 下（4 秒内），出现「R18 内容」开关。
+## 0.5 R18 开关
+- [ ] 设置页「协会章程」里直接可见「R18 内容」开关（无需连点，无暗门）。
 - [ ] 打开后再进聊天/酒馆，提示词会注入 `R18_GUIDELINES` / `R18_POST_RULES`；关掉即恢复。
-- [ ] 点「收起」可重新隐藏入口（开关状态不变）。
+- [ ] 开关状态杀进程重开后保持；这是本机设置，Web 端不会同步。
+- [ ] 验证方法：把「模型与渠道」指向仓库的 `tools/stub-server.mjs`，发一条聊天消息，终端应打印
+      `[stub] chat prompt ... r18=true postRules=true`；关掉 R18 后再发一条，应变成 `r18=false postRules=false`。
 
 ## 1. 推门 / 会长
 - [ ] 清数据后首次启动：推门 → 选会长（薇拉/加洛/莱恩/墨）→ 进入任务对话。

@@ -103,6 +103,13 @@ function decide(body) {
   const user = lastUser(messages);
   const tools = body.tools || [];
 
+  // 联调辅助：打印系统提示词规模与 R18 是否注入（不打印正文，避免刷屏）
+  if (sys.includes("【怎么演】")) {
+    const r18 = sys.includes("IMPORTANT ROLE-PLAY GUIDELINE");
+    const post = sys.includes("2,000 to 5,000 Chinese characters");
+    console.log(`[stub] chat prompt sysLen=${sys.length} r18=${r18} postRules=${post} model=${body.model}`);
+  }
+
   if (sys.includes("结算复核员")) {
     return {
       kind: "json",

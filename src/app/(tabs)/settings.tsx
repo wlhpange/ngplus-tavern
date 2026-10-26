@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -6,7 +6,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { C, Fonts, R, S } from "@/constants/theme";
 import { Button, Card, ErrorBar, Field, Input, Loading, MultiInput, PressableScale, Screen, haptic } from "@/components/ui";
 import { useToast } from "@/components/Toast";
-import { registerSecretTap } from "@/weblib/secret";
 import {
   getUiPref,
   saveChatMaster,
@@ -17,8 +16,6 @@ import {
   userPersonaGet,
   type SettingsState,
 } from "@/lib/service";
-
-const ADULT_KEY = "adult.unlocked";
 
 function NavRow({ title, hint, onPress }: { title: string; hint: string; onPress: () => void }) {
   return (
@@ -39,12 +36,10 @@ export default function SettingsScreen() {
   const [error, setError] = useState<string | null>(null);
   const [sound, setSound] = useState(true);
   const [rpEnabled, setRpEnabled] = useState(false);
-  const [adultUnlocked, setAdultUnlocked] = useState(false);
   const [upName, setUpName] = useState("");
   const [upBrief, setUpBrief] = useState("");
   const [upDesc, setUpDesc] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
-  const taps = useRef<number[]>([]);
 
   const load = useCallback(() => {
     try {
@@ -61,7 +56,6 @@ export default function SettingsScreen() {
 
   useEffect(() => {
     setSound(getUiPref("sound", "1") !== "0");
-    setAdultUnlocked(getUiPref(ADULT_KEY, "0") === "1");
     try {
       const p = userPersonaGet();
       setUpName(p.name);
@@ -71,16 +65,6 @@ export default function SettingsScreen() {
       /* noop */
     }
   }, []);
-
-  function secretTap() {
-    const r = registerSecretTap(taps.current, Date.now());
-    taps.current = r.taps;
-    if (!r.unlocked || adultUnlocked) return;
-    setAdultUnlocked(true);
-    setUiPref(ADULT_KEY, "1");
-    haptic("success");
-    toast("……协会的暗门，开了。");
-  }
 
   function toggleSound() {
     const next = !sound;
@@ -127,10 +111,7 @@ export default function SettingsScreen() {
   }
 
   return (
-    <Screen title="设置" subtitle="协会章程 · 会长与酒馆的规矩都在这" onHeaderPress={secretTap}>
-      <Pressable onPress={secretTap} style={{ gap: 2 }}>
-        <Text style={styles.tapHint}>（设置 · 协会章程）</Text>
-      </Pressable>
+    <Screen title="设置" subtitle="协会章程 · 会长与酒馆的规矩都在这">
       {error ? <ErrorBar text={error} /> : null}
       {!state ? <Loading text="正在翻开协会章程……" /> : null}
       {state ? (
@@ -173,30 +154,15 @@ export default function SettingsScreen() {
               </View>
             </Pressable>
 
-            {adultUnlocked || rpEnabled ? (
-              <>
-                <Pressable style={styles.rowLine} onPress={toggleRp}>
-                  <Text style={styles.rowTitle}>R18 内容</Text>
-                  <View style={[styles.pill, rpEnabled ? { borderColor: C.danger, backgroundColor: C.dangerSoft } : null]}>
-                    <Text style={[styles.pillText, { color: rpEnabled ? C.dangerText : C.faint }]}>{rpEnabled ? "开" : "关"}</Text>
-                  </View>
-                </Pressable>
-                <Text style={styles.hint}>
-                  开启后，聊天模式注入 Evening-Truth 系解禁准则；配图提炼也会如实定格、不审查。
-                  {adultUnlocked ? (
-                    <Text
-                      style={{ textDecorationLine: "underline", color: C.faint }}
-                      onPress={() => {
-                        setAdultUnlocked(false);
-                        setUiPref(ADULT_KEY, "0");
-                      }}
-                    >
-                      {" "}收起
-                    </Text>
-                  ) : null}
-                </Text>
-              </>
-            ) : null}
+            <Pressable style={styles.rowLine} onPress={toggleRp}>
+              <Text style={styles.rowTitle}>R18 内容</Text>
+              <View style={[styles.pill, rpEnabled ? { borderColor: C.danger, backgroundColor: C.dangerSoft } : null]}>
+                <Text style={[styles.pillText, { color: rpEnabled ? C.dangerText : C.faint }]}>{rpEnabled ? "开" : "关"}</Text>
+              </View>
+            </Pressable>
+            <Text style={styles.hint}>
+              开启后，聊天模式注入 Evening-Truth 系解禁准则（重要场景 2k–5k 字）；配图提炼也会如实定格、不审查。仅本机生效。
+            </Text>
           </Card>
 
           <Card>
@@ -230,7 +196,6 @@ export default function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  tapHint: { fontFamily: Fonts.mono, fontSize: 10, color: C.faint, letterSpacing: 1 },
   cardTitle: { fontFamily: Fonts.display, fontSize: 18, color: C.fg, marginBottom: 2 },
   navRow: {
     flexDirection: "row",
