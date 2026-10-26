@@ -7,6 +7,7 @@ import { ATTR_LABEL } from "@/weblib/labels";
 import { Button, Card, Chip, Empty, ErrorBar, Loading, Screen, haptic } from "@/components/ui";
 import { ConfirmDialog } from "@/components/Dialogs";
 import { useToast } from "@/components/Toast";
+import { playCue } from "@/lib/audio";
 import { questBoard, repeatQuest, sendChat } from "@/lib/service";
 
 interface Quest {
@@ -169,6 +170,7 @@ export default function QuestsScreen() {
   }
 
   function handleDispute(q: Quest) {
+    playCue("dispute");
     haptic("medium");
     toast("已把异议递给会长，正在复核……");
     void sendChat({ message: `我对「${q.title}」的结算有异议：属性归属好像不对，你复核一下。`, mode: "quest" }).catch((e) => {

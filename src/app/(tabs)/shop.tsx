@@ -6,6 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { C, Fonts, R, S } from "@/constants/theme";
 import { Button, Card, ErrorBar, Loading, Screen, haptic } from "@/components/ui";
 import { useToast } from "@/components/Toast";
+import { playCue } from "@/lib/audio";
 import { shopBuy, shopData, shopGift } from "@/lib/service";
 
 interface ShopItem {
@@ -53,6 +54,7 @@ export default function ShopScreen() {
     setError(null);
     try {
       const receipt = action === "gift" ? shopGift(item.key) : shopBuy(item.key);
+      playCue(action === "gift" ? "gift" : "purchase");
       if (action === "gift") {
         const r = receipt as { name?: string; stageUp?: boolean; intimacyLabel?: string };
         toast(r.stageUp ? `他收下了「${r.name}」。你们的交情到了「${r.intimacyLabel}」` : "他收下了", "ok");

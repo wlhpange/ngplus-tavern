@@ -5,6 +5,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { C, Fonts, S } from "@/constants/theme";
 import { Button, Card, ErrorBar, Loading, Screen, haptic } from "@/components/ui";
 import { useToast } from "@/components/Toast";
+import { playCue } from "@/lib/audio";
 import { skillsData, unlockSkill } from "@/lib/service";
 
 interface SkillView {
@@ -44,6 +45,7 @@ export default function SkillsScreen() {
     setError(null);
     try {
       unlockSkill(s.key);
+      playCue("purchase");
       toast(`点亮了「${s.name}」。它已经生效了。`, "ok");
       haptic("success");
       load();

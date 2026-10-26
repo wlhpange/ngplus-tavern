@@ -6,12 +6,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { C, Fonts, R, S } from "@/constants/theme";
 import { Button, Card, ErrorBar, Field, Input, Loading, MultiInput, PressableScale, Screen, haptic } from "@/components/ui";
 import { useToast } from "@/components/Toast";
+import { playCue, setSoundEnabled, soundEnabled } from "@/lib/audio";
 import {
-  getUiPref,
   saveChatMaster,
   saveRp,
   userPersonaSave,
-  setUiPref,
   settingsState,
   userPersonaGet,
   type SettingsState,
@@ -55,7 +54,7 @@ export default function SettingsScreen() {
   useFocusEffect(useCallback(() => load(), [load]));
 
   useEffect(() => {
-    setSound(getUiPref("sound", "1") !== "0");
+    setSound(soundEnabled());
     try {
       const p = userPersonaGet();
       setUpName(p.name);
@@ -69,7 +68,8 @@ export default function SettingsScreen() {
   function toggleSound() {
     const next = !sound;
     setSound(next);
-    setUiPref("sound", next ? "1" : "0");
+    setSoundEnabled(next);
+    if (next) playCue("button");
     haptic("select");
   }
 

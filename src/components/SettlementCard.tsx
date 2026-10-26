@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 
 import { ATTR_LABEL, KIND_LABEL, itemDisplay } from "@/weblib/labels";
+import { playCue } from "@/lib/audio";
 import { A, C, Fonts, R, S } from "@/constants/theme";
 import { haptic } from "./ui";
 import { SparkleBurst } from "./Sparkle";
@@ -34,7 +35,16 @@ function Seal({ children, tone }: { children: string; tone?: "partial" | "normal
   );
 }
 
-export function SettlementCard({ s, fresh = false }: { s: SettlementCardData; fresh?: boolean }) {
+export function SettlementCard({
+  s,
+  fresh = false,
+  silent = false,
+}: {
+  s: SettlementCardData;
+  fresh?: boolean;
+  /** 同一轮有更隆重的仪式（升级/晋段）时静音，避免音效叠放 */
+  silent?: boolean;
+}) {
   const kindLabel = KIND_LABEL[s.kind] ?? s.kind;
   const title = s.questTitle ?? kindLabel;
   const isGain = s.kind === "quest_complete" || s.kind === "mainline_complete" || s.kind === "bonus";
@@ -46,9 +56,22 @@ export function SettlementCard({ s, fresh = false }: { s: SettlementCardData; fr
   const hasDetails = attrs.length > 0 || Boolean(rarity) || Boolean(itemKey) || Boolean(reason);
   const [open, setOpen] = useState(fresh || !hasDetails);
 
+  // 本轮新卡：按事件类型播一声（历史卡片重放不发声）
+  // firedRef 防止 silent 变化（例如仪式晚到）时把同一张卡再播一遍。
+  const firedRef = useRef(false);
   useEffect(() => {
-    if (fresh) haptic(isGain ? "success" : "light");
-  }, [fresh, isGain]);
+    if (!fresh || firedRef.current) return;
+    firedRef.current = true;
+    haptic(isGain ? "success" : "light");
+    if (silent) return;
+    if (s.kind === "quest_complete" || s.kind === "mainline_complete") {
+      playCue(partial ? "settle_partial" : "settle");
+    } else if (s.kind === "purchase") {
+      playCue("purchase");
+    } else if (s.kind === "gift") {
+      playCue("gift");
+    }
+  }, [fresh, silent, isGain, partial, s.kind]);
 
   const glow = useSharedValue(0);
   useEffect(() => {

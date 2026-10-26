@@ -660,7 +660,7 @@ export default function ChatScreen() {
             }
             const it = item.item;
             if (it.type === "settlement") {
-              return <SettlementCard s={it.settlement} fresh={it.fresh} />;
+              return <SettlementCard s={it.settlement} fresh={it.fresh} silent={ceremony != null} />;
             }
             const msg = it.message;
             if (msg.role === "user") {

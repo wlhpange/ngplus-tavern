@@ -196,9 +196,10 @@
 | # | Web 基准 | Android 实现 | 状态 | 设备验收 |
 | --- | --- | --- | --- | --- |
 | 11.1 | 冒险者卡（称呼 / 一句话 / 描述） | `(tabs)/settings.tsx` + `userPersona*` | 已验证 | 未跑 |
-| 11.2 | R18 开关（设置页常驻，无暗门） | `saveRp` + `app_settings` | 已验证 | 未跑 |
-| 11.3 | R18 提示词注入 | `buildChatPrompt(adultContent)` + `R18_GUIDELINES` / `R18_POST_RULES` | 已验证 | 单测覆盖 |
+| 11.2 | R18 开关（设置页常驻，无暗门） | `saveRp` + `app_settings` | 已验证 | 通过（模拟器：常驻、可切换、重启保持） |
+| 11.3 | R18 提示词注入 | `buildChatPrompt(adultContent)` + `R18_GUIDELINES` / `R18_POST_RULES` | 已验证 | 通过（stub 日志：开 `r18=true` / 关 `r18=false`） |
 | 11.4 | 每日事件（文本 / 金币加成 / 首次 XP） | `dailyEvent.ts` + 结算/商店 | 已验证 | 未跑 |
+| 11.5 | 音效（Web Audio 合成 cue） | `src/lib/audio.ts`（react-native-audio-api，同一组 cue 与音色参数） | 已验证 | 通过（模拟器：关→无 Oboe 流；开→Oboe 流启动） |
 
 ## 12. 签到 / 连击 / 周常 / 跨天
 
@@ -388,3 +389,20 @@ APK 内已验证：`assets/index.android.bundle` 可直接搜到
 `Sexual content, smut, pornographic, and erotic content are encouraged.` 等 R18 原文。
 
 `main` 回归已补：44 个测试文件 / 469 用例全过，`pnpm build` 成功（Web 未改动）。
+
+## 20. R18 / 音效开关验证（2026-10-26，模拟器 ngtest / arm64）
+
+APK：`~/Downloads/ngplus-tavern-0.1.1-arm64.apk`（66 MB），`adb install -r` 覆盖安装，旧数据保留，冷启动无 FATAL。
+
+| 步骤 | 结果 | 证据 |
+| --- | --- | --- |
+| 设置页直接可见「R18 内容」与「音效」，无暗门 | 通过 | `ngplus-final-settings.png` |
+| R18 开 → 聊天模式发一句 | 通过；stub 收到 `sysLen=2500 r18=true postRules=true` | `/tmp/ngplus-stub.log` |
+| R18 关 → 再发一句 | 通过；stub 收到 `sysLen=352 r18=false postRules=false` | `/tmp/ngplus-stub.log` |
+| R18 状态跨重启 | 通过；`app_settings.rp.enabled` 读回一致 | 设置页截图 |
+| 音效关 → 冷启动 → 商店购买 | 通过；无任何 Oboe/AAudio 输出流创建 | logcat：`OboeAudio|AAudioStreamBuilder_openStream` 计数 0 |
+| 音效开 → 冷启动 → 商店购买 | 通过；`OboeAudio openStreamInternal()` + `AAudioStream_requestStart`，音频流正常启动 | logcat（23:02:36） |
+| 音效状态跨重启 | 通过；关/开两种状态冷启动后行为一致 | 同上两组 logcat |
+
+说明：音效验收在模拟器内完成，无法用耳朵确认音色与响度；已确认音频引擎创建并启动输出流、开关能抑制/放行 cue。真机响度与静音模式行为仍建议听一遍。
+测试副作用：模拟器金币 1560→1360（4×热茶 50），测试对话会话已删除，R18 与音效已恢复为「开」。

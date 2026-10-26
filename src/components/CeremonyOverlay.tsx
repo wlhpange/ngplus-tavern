@@ -1,8 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, { FadeIn, FadeInDown, FadeOut, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 
+import { playCue } from "@/lib/audio";
 import { ATTR_LABEL } from "@/weblib/labels";
 import { C, Fonts, R, S } from "@/constants/theme";
 
@@ -22,7 +23,12 @@ function scopeLabel(scope?: string) {
 
 export function CeremonyOverlay({ event, onDone }: { event: CeremonyEvent; onDone: () => void }) {
   const isRank = event.type === "rank_up";
+  // onDone 通常是父组件内联箭头函数，每次渲染都会变；用 ref 避免它把
+  // 音效和自动消失计时器重新触发一遍。
+  const onDoneRef = useRef(onDone);
+  onDoneRef.current = onDone;
   useEffect(() => {
+    playCue(isRank ? "rank_up" : "level_up");
     try {
       void Haptics.notificationAsync(
         isRank ? Haptics.NotificationFeedbackType.Success : Haptics.NotificationFeedbackType.Warning,
@@ -30,9 +36,9 @@ export function CeremonyOverlay({ event, onDone }: { event: CeremonyEvent; onDon
     } catch {
       /* noop */
     }
-    const timer = setTimeout(onDone, isRank ? 3000 : 2400);
+    const timer = setTimeout(() => onDoneRef.current(), isRank ? 3000 : 2400);
     return () => clearTimeout(timer);
-  }, [event, isRank, onDone]);
+  }, [event, isRank]);
 
   const pulse = useSharedValue(0.85);
   useEffect(() => {

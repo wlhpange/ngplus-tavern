@@ -57,6 +57,14 @@
         {
           "color": "#D9B061"
         }
+      ],
+      [
+        "react-native-audio-api",
+        {
+          "iosBackgroundMode": false,
+          "androidPermissions": [],
+          "androidForegroundService": false
+        }
       ]
     ],
     "experiments": {
