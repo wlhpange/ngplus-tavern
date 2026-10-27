@@ -225,11 +225,31 @@ export function createMasterByFields(input: {
   return createMasterFromFields(db, userId, { name, persona, avatar: str(c.avatar ?? undefined) || null });
 }
 
+/**
+ * 酒馆式：角色卡 PNG 的整张图就是头像。上传的是 PNG 就顺手存下来。
+ * 失败（超大 / 磁盘异常）不影响导入本身，返回 null —— 与 Web 的
+ * `src/app/api/masters/import/route.ts` 里 saveCardAvatar 行为一致。
+ */
+function saveCardAvatar(bytes: Uint8Array, filename: string): string | null {
+  try {
+    return isPng(bytes) ? saveAsset("avatar", bytes, filename || "card.png", "image/png") : null;
+  } catch {
+    return null;
+  }
+}
+
 export function previewImportedCard(bytes: Uint8Array, filename: string) {
   const card = toImportedCard(parseCardBytes(bytes, filename));
   const pv = translationPreview(card);
-  const avatarFile = isPng(bytes) ? saveAsset("avatar", bytes, filename || "card.png", "image/png") : null;
-  return { card, ...pv, avatarFile, name: card.name, spec: card.spec };
+  const avatarFile = saveCardAvatar(bytes, filename);
+  return {
+    card,
+    ...pv,
+    avatarFile,
+    avatarSkipped: isPng(bytes) && !avatarFile,
+    name: card.name,
+    spec: card.spec,
+  };
 }
 
 export function commitImportedCard(card: ImportedCard, translate: boolean) {

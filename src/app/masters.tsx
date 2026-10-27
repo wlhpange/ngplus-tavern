@@ -34,6 +34,7 @@ type PendingImport = {
   fields: number;
   entries: number;
   avatarFile: string | null;
+  avatarSkipped: boolean;
 };
 
 export default function MastersScreen() {
@@ -261,10 +262,17 @@ export default function MastersScreen() {
       const bytes = await file.bytes();
       const pv = previewImportedCard(bytes, asset.name || "");
       if (pv.needed) {
-        setPendingImport({ card: pv.card, name: pv.name, fields: pv.fields, entries: pv.entries, avatarFile: pv.avatarFile });
+        setPendingImport({
+          card: pv.card,
+          name: pv.name,
+          fields: pv.fields,
+          entries: pv.entries,
+          avatarFile: pv.avatarFile,
+          avatarSkipped: pv.avatarSkipped,
+        });
         return;
       }
-      await commitImport(pv.card, pv.avatarFile);
+      await commitImport(pv.card, pv.avatarFile, pv.avatarSkipped);
     } catch (e) {
       setError(e instanceof Error ? e.message : "导入失败。");
     } finally {
@@ -272,11 +280,12 @@ export default function MastersScreen() {
     }
   }
 
-  async function commitImport(card: ImportedCard, avatarFile: string | null) {
+  async function commitImport(card: ImportedCard, avatarFile: string | null, avatarSkipped = false) {
     try {
       const created = commitImportedCard(card, false);
       if (avatarFile) saveMasterAvatar(created.id, avatarFile);
-      setImportMsg(`已请来「${created.name}」（${card.spec}），世界书词条 ${created.worldBookEntries ?? 0} 条`);
+      const skipped = avatarSkipped ? "；卡面图未自动设为头像（超过 8MB 时跳过）" : "";
+      setImportMsg(`已请来「${created.name}」（${card.spec}），世界书词条 ${created.worldBookEntries ?? 0} 条${skipped}`);
       load();
       haptic("success");
     } catch (e) {
@@ -290,7 +299,7 @@ export default function MastersScreen() {
     if (!pending) return;
     if (!translate) {
       setImporting(true);
-      await commitImport(pending.card, pending.avatarFile);
+      await commitImport(pending.card, pending.avatarFile, pending.avatarSkipped);
       setImporting(false);
       return;
     }
@@ -311,7 +320,8 @@ export default function MastersScreen() {
         setProgress({ done: job.done, total: job.total });
         if (job.status === "done" && job.result) {
           if (pending.avatarFile) saveMasterAvatar(job.result.masterId, pending.avatarFile);
-          setImportMsg(`已请来「${job.result.name}」（${pending.card.spec}），世界书词条 ${job.result.worldBookEntries} 条（已翻译）`);
+          const skipped = pending.avatarSkipped ? "；卡面图未自动设为头像（超过 8MB 时跳过）" : "";
+          setImportMsg(`已请来「${job.result.name}」（${pending.card.spec}），世界书词条 ${job.result.worldBookEntries} 条（已翻译）${skipped}`);
           load();
           haptic("success");
           return;
