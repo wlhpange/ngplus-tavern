@@ -2,7 +2,7 @@
   "expo": {
     "name": "二周目协会",
     "slug": "ngplus-tavern",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "ngplus",

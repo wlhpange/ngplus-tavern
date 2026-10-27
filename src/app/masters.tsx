@@ -274,7 +274,10 @@ export default function MastersScreen() {
       }
       await commitImport(pv.card, pv.avatarFile, pv.avatarSkipped);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "导入失败。");
+      const msg = e instanceof Error ? e.message : "导入失败。";
+      setError(msg);
+      // 导入按钮在页面底部，顶部错误条可能看不到，再弹一次 toast
+      toast(msg, "err");
     } finally {
       setImporting(false);
     }
@@ -289,7 +292,9 @@ export default function MastersScreen() {
       load();
       haptic("success");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "导入失败。");
+      const msg = e instanceof Error ? e.message : "导入失败。";
+      setError(msg);
+      toast(msg, "err");
     }
   }
 

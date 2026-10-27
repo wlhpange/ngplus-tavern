@@ -1,6 +1,6 @@
 # 手动验收清单（Android）
 
-APK：`/Users/wlhpange/Downloads/ngplus-tavern-0.1.1.apk`  
+APK：`/Users/wlhpange/Downloads/ngplus-tavern-0.1.2-arm64.apk`  
 包名：`com.wlhpange.ngplus`（debug 签名，可直接侧载；不要上架）
 
 > 建议在一台真机上测；模拟器（尤其 SwiftShader）的帧率和文件选择器不能代表真机。

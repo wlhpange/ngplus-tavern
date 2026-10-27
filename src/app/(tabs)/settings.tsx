@@ -187,7 +187,7 @@ export default function SettingsScreen() {
             <Text style={styles.hint}>
               全部数据只存在本机 SQLite；API Key 只进系统安全存储（Android Keystore）。不上传云端、不依赖电脑常开、不迁移 Web 数据。
             </Text>
-            <Text style={styles.version}>二周目协会 · Android v0.1.1</Text>
+            <Text style={styles.version}>二周目协会 · Android v0.1.2</Text>
           </Card>
         </>
       ) : null}
