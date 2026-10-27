@@ -419,3 +419,20 @@ Android 之前没接住异常，整个导入会报「文件太大了（上限 8M
 | 删除测试会长 | 通过；列表恢复原状 | `ngplus-cleaned-master.png` |
 
 `.json` 卡本来就不走资产保存，没有 8MB 限制；上限只影响 PNG 卡自动设头像。
+
+## 22. 用户真实角色卡 character.png（2026-10-27，0.1.2）
+
+文件：`~/Downloads/character.png`，8.47MB，PNG V2，卡名「何洁韵」，
+description 10,731 字，`character_book` 41 条（其中 6 条为英文）。
+
+| 步骤 | 结果 | 证据 |
+| --- | --- | --- |
+| 0.1.1（10-25 旧包）导入 | 失败；卡面图 8.88MB 触发 `saveAsset` 的 8MB 上限，整个导入中断。错误条在页面顶部，导入按钮在底部，用户容易看不到反馈 | logcat / 旧包 bundle |
+| 0.1.2 选择文件 | 弹出「要翻译『何洁韵』吗？」：0 处外语提示词、6 条外语世界书 | `ngplus-translate-prompt.png` |
+| 0.1.2「保留原文」 | 通过；创建会长「何洁韵」，世界书 41 条，提示卡面图未自动设头像 | `ngplus-hejie-bottom.png` |
+| 0.1.2「翻译后导入」 | 通过；翻译任务完成并落库 | `ngplus-translating.png` |
+| 0.1.2 删除测试会长 | 通过；列表恢复为墨 / Aster | `ngplus-012-cleaned.png` |
+
+卡面图 8.88MB > 8MB，按 8MB 规则不自动设头像；卡片数据不受影响。
+旧 0.1.1 包已移到 `~/Downloads/old-apk/`，避免与新包混淆；设置页底部
+显示 `Android v0.1.2` 即可确认装的是新包。
