@@ -35,6 +35,12 @@
 - 单用户、没有登录与鉴权，**不要部署到公网**。
 - `public/sprites/lpc/` 的像素素材按各自许可分发，署名见 [docs/CREDITS-lpc.md](./docs/CREDITS-lpc.md)。
 
+## 分支
+
+- `main`：Web 端（Next.js），当前主要开发分支。
+- `android`：Android 端归档（Expo / React Native，最后版本 0.1.2），仅作备份，不再维护。
+- `web`：旧的 Web 归档分支，内容与 `main` 相同。
+
 ## 环境要求
 
 - Node.js **22+**
