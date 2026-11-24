@@ -87,7 +87,7 @@ function allowedAttrsFor(category: string | null, primaryAttr: AttrKey): {
   if (category && whitelist[category]) {
   return { allowed: whitelist[category], inferred: false };
   }
-  for (const [cat, attrs] of Object.entries(whitelist)) {
+  for (const attrs of Object.values(whitelist)) {
   if (attrs.includes(primaryAttr)) {
   return { allowed: attrs, inferred: true };
   }

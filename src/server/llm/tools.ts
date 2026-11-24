@@ -8,10 +8,9 @@ import {
   settlementLog,
   memory,
   saves,
-  users,
   items,
 } from "../db/schema";
-import { config, ATTR_KEYS, type AttrKey } from "../engine/config";
+import { config, type AttrKey } from "../engine/config";
 import { settleQuest } from "../engine/settlement";
 import { applyOnceBonus } from "../engine/rarity";
 import { reviveQuestAfterSettlement } from "../cron/jobs";

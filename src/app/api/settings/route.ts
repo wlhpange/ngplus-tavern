@@ -25,7 +25,8 @@ export const dynamic = "force-dynamic";
 
 /**
  * 模型设置（V1.5，P11 简化）：参考开源智能体应用的自定义模型设置。
- * 两个渠道的 Key 已服务端明文内置（llm/keys.ts），前端只换渠道与模型。
+ * 内置渠道的 Key 一律从环境变量读取（见 llm/keys.ts），前端只换渠道与模型；
+ * 自定义渠道的 Key 存在本机数据库，永不回传明文。
  * GET：当前渠道 / 模型状态（Key 永不回传明文）。
  * POST：
  *   - action=save    保存 provider / model / judgeModel

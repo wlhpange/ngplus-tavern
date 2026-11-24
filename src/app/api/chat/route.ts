@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { bootstrap } from "@/server/bootstrap";
-import { runConversation, runChatConversation, ensureChatGreeting, chatGreetingOptions, cycleChatGreeting } from "@/server/llm/conversation";
+import { runConversation, runChatConversation, cycleChatGreeting } from "@/server/llm/conversation";
 import { MissingApiKeyError } from "@/server/llm/client";
 import {
   markPending,
   clearPending,
   pendingKey,
-  isPending,
 } from "@/server/llm/pending";
 import { modelFromDb } from "@/server/modelConfig";
 import type { ChatMode } from "@/server/records";

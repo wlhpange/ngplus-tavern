@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { eq, and } from "drizzle-orm";
 import type { Db } from "../../src/server/db";
-import { quests, character, settlementLog, memory, users, disputes, items } from "../../src/server/db/schema";
+import { quests, character, settlementLog, memory, disputes, items } from "../../src/server/db/schema";
 import { executeTool, createToolContext, TOOL_DEFINITIONS } from "../../src/server/llm/tools";
 import { settleQuest } from "../../src/server/engine/settlement";
 import { createTestDb } from "./helpers";
@@ -590,7 +590,7 @@ describe("主线达成（V2.0）", () => {
       primary_attr: "vitality", attr_reason: "耐力大目标",
     }), ctx);
     const main = db.select().from(quests).where(eq(quests.type, "mainline")).get()!;
-    for (const [i, title] of ["能连续跑 5 公里", "报名并完赛"].entries()) {
+    for (const title of ["能连续跑 5 公里", "报名并完赛"]) {
       executeTool(db, userId, "create_quest", JSON.stringify({
         title, type: "mainline_milestone", category: "独自运动",
         primary_attr: "vitality", attr_reason: "耐力大目标", parent_quest_id: main.id,

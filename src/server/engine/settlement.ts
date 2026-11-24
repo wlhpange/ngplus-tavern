@@ -2,7 +2,8 @@ import { config, type AttrKey, type QuestType } from "./config";
 import { streakBonusMultiplier } from "./streak";
 
 /**
- * 每日软上限：当日累计前 120 XP 全额，超出部分 ×0.3
+ * 每日软上限：当日累计前 `daily_soft_cap.xp_full_amount`（当前 150）XP 全额，
+ * 超出部分 ×`excess_ratio`（当前 0.3）。
  * @param incomingXp 本次结算原始 XP（可为小数）
  * @param todaySettledXp 今日已结算 XP 累计
  */

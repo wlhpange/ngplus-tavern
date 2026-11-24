@@ -69,7 +69,7 @@ const ATTR_LABELS: Record<string, string> = {
   creativity: "创造",
 };
 
-function buildJudgeSystemPrompt(ctx: ReviewContext): string {
+function buildJudgeSystemPrompt(): string {
   const attrList = Object.keys(ATTR_LABELS)
   .map((k) => `${k}(${ATTR_LABELS[k]})`)
   .join("、");
@@ -119,7 +119,7 @@ export class DeepSeekReviewer implements SettlementReviewer {
   const { object } = await generateObject({
   model: this.model,
   schema: ReviewVerdictSchema,
-  system: buildJudgeSystemPrompt(ctx),
+  system: buildJudgeSystemPrompt(),
   prompt: buildJudgeUserPrompt(ctx),
   // 复核不得阻塞对话：30 秒拿不到判定就放弃（fail-open）
   abortSignal: AbortSignal.timeout(30_000),

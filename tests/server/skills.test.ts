@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import type { Db } from "../../src/server/db";
-import { character, items, memory, settlementLog, userSkills } from "../../src/server/db/schema";
+import { character, memory, settlementLog, userSkills } from "../../src/server/db/schema";
 import {
   computeModifiers,
   findSkill,

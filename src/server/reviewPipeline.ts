@@ -1,14 +1,12 @@
 import { eq } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import type { Db } from "./db";
-import { character, chatLog, disputes, quests, settlementLog, titles } from "./db/schema";
+import { character, chatLog, disputes, quests, settlementLog } from "./db/schema";
 import { getTodaySettledXp } from "./character";
-import { startOfToday } from "./util/time";
 import {
   applyReviewAdjustments,
   type ReviewVerdict,
 } from "./engine/review";
-import { levelFromXp } from "./engine/leveling";
 import { applyRankPromotion } from "./rankPromotion";
 import type { AttrKey } from "./engine/config";
 import type { SettlementReviewer, ReviewContext } from "./llm/reviewer";

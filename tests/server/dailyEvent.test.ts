@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import type { Db } from "../../src/server/db";
 import { character, dailyEvents, settlementLog } from "../../src/server/db/schema";
 import {

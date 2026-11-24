@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, inArray } from "drizzle-orm";
+import { and, eq, gte, inArray } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import {
   generateText,
@@ -13,15 +13,13 @@ import {
 import type { Db } from "../db";
 import {
   saves,
-  masters,
   memory,
   quests,
   character,
   chatLog,
   settlementLog,
-  chatSessions,
 } from "../db/schema";
-import { getCharacterSummary, getSettlementsSince, type SettlementRecord } from "../character";
+import { getSettlementsSince, type SettlementRecord } from "../character";
 import { modelFromDb } from "../modelConfig";
 import { startOfToday } from "../util/time";
 import { countActiveQuests } from "../cron/jobs";
@@ -30,44 +28,22 @@ import { checkinReward } from "../engine/checkin";
 import { applyRankPromotion } from "../rankPromotion";
 import { getSkillModifiers } from "../skills";
 import { evaluateAchievements, type AchievementDef } from "../achievements";
-import { getWeeklyBossState, maybeClaimWeeklyBoss } from "../weeklyBoss";
+import { maybeClaimWeeklyBoss } from "../weeklyBoss";
 import { dailyEventNarrative, rollDailyEvent } from "../dailyEvent";
 import {
   TOOL_DEFINITIONS,
   createToolContext,
   executeToolArgs,
-  type ToolContext,
 } from "./tools";
-import {
-  createDeepSeekReviewer,
-  createMemoryReviewer,
-  createMemoryExtractor,
-  type SettlementReviewer,
-  type MemoryReviewer,
-  type MemoryExtractor,
-} from "./reviewer";
 import { runSettlementReview } from "../reviewPipeline";
-import { parseCard, deriveGreeting, allGreetings } from "../cards";
-import { getAffinity, getChatMasterId } from "../masters";
-import { loadMemories, loadMemoriesForScope, saveExtractedMemories } from "../memory";
-import { sessionHasUserMessage, touchSession } from "../chatSessions";
-import { activateWorldBook, listWorldBookEntries } from "../worldbook";
-import { getRpSettings } from "../rp";
-import { getUserPersona, buildUserPersonaLayer } from "../userPersona";
 import {
   buildSystemPrompt,
-  buildChatPrompt,
   buildStateLayer,
   expandReplyMacros,
-  type PersonaJson,
-  type QuestBrief,
-  type SettlementBrief,
-  type ChatPromptContext,
 } from "./prompts";
 
 import {
   insertChat,
-  loadChatPromptContext,
   loadHistory,
   loadPromptContext,
   recentContext,
@@ -115,10 +91,8 @@ import {
   MAX_TOOL_ROUNDS,
   isTimeoutError,
   type ConversationOptions,
-  type ConversationStreamEvent,
 } from "./turnShared";
 import {
-  defaultMemoryExtractor,
   defaultMemoryReviewer,
   defaultReviewer,
 } from "./promptContext";

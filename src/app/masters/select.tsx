@@ -7,10 +7,8 @@ import ConfirmDialog from "@/components/ConfirmDialog";
 import MasterCard, { type MasterItem } from "@/components/masters/MasterCard";
 import { SwitchingOverlay, TranslatingOverlay } from "@/components/masters/Overlays";
 import Avatar from "@/components/Avatar";
-import ChatText from "@/components/ChatText";
 import ImportTranslateDialog from "@/components/ImportTranslateDialog";
-import PetDesigner, { defaultDescriptor } from "@/components/PetDesigner";
-import PixelPet from "@/components/PixelPet";
+import { defaultDescriptor } from "@/components/PetDesigner";
 import type { PetDescriptor } from "@/lib/petCatalog";
 
 interface PendingImport {

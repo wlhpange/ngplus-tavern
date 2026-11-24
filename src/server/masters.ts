@@ -1,9 +1,8 @@
-import { and, desc, eq, gte, isNull, or } from "drizzle-orm";
+import { and, desc, eq, isNull, or } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import type { Db } from "./db";
-import { masters, masterHistory, saves, chatLog, masterAffinity } from "./db/schema";
+import { masters, masterHistory, saves, masterAffinity } from "./db/schema";
 import { config } from "./engine/config";
-import { startOfDayTs } from "./util/time";
 import type { PersonaJson } from "./llm/prompts";
 import { normalizeCard, parseCard, normalizeRelationshipStages } from "./cards";
 import type { ImportedCard } from "./cardImport";
@@ -493,7 +492,7 @@ export function createMasterFromCard(
  */
 export function setMasterAvatar(
   db: Db,
-  userId: string,
+  _userId: string,
   masterId: string,
   avatar: string | null,
 ): boolean {
@@ -514,7 +513,7 @@ export function setMasterAvatar(
 /** 设置 / 清除会长的像素小人形象参数（descriptor JSON 字符串） */
 export function setMasterSprite(
   db: Db,
-  userId: string,
+  _userId: string,
   masterId: string,
   sprite: string | null,
 ): boolean {
