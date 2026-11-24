@@ -29,210 +29,18 @@ import { giftItem, purchaseItem, shopCatalog } from "../shop";
 import { addMemory, isMemoryCategory } from "../memory";
 import { getTodaySettledXp } from "../character";
 import { startOfToday } from "../util/time";
-/** OpenAI function calling 形态的工具定义（TOOL_DEFINITIONS 的数据格式，AI SDK 侧由 buildToolSet 转换） */
-export interface ToolDefinition {
-  type: "function";
-  function: {
-  name: string;
-  description: string;
-  parameters: Record<string, unknown>;
-  };
-}
+import { tx } from "../db/tx";
+import {
+  ATTR_ENUM,
+  CATEGORY_ENUM,
+  QUEST_TYPE_ENUM,
+  TOOL_DEFINITIONS,
+  type ToolDefinition,
+} from "./toolDefinitions";
 
-const ATTR_ENUM = ATTR_KEYS;
-const QUEST_TYPE_ENUM = ["daily", "once", "weekly", "mainline", "mainline_milestone"];
-const CATEGORY_ENUM = Object.keys(config.attr_whitelist);
-
-/** 动态生成白名单速查文本（注入 create_quest 描述，降低属性越界打回率） */
-const WHITELIST_HINT = Object.entries(config.attr_whitelist)
-  .map(([cat, attrs]) => `${cat}→${attrs.join("/")}`)
-  .join("；");
-
-/**
- * 六个工具的 JSON Schema。
- * DESIGN-DECISION: create_quest 增加 category（§8 要求 LLM 先给任务类别，
- * 服务端对照白名单校验属性）与 parent_quest_id（mainline_milestone 必须挂主线）两个参数。
- * V0.5: description 动态注入白名单速查，LLM 第一次就能判对属性，减少打回重判浪费。
- */
-export const TOOL_DEFINITIONS: ToolDefinition[] = [
-  {
-  type: "function",
-  function: {
-  name: "create_quest",
-  description:
-  `从对话中提取用户意图，创建任务草稿（status=proposed，待用户确认）。必须先判断任务类别 category，再按类别允许的属性分配 primary/secondary_attr。白名单速查：${WHITELIST_HINT}。`,
-  parameters: {
-  type: "object",
-  properties: {
-  title: { type: "string" },
-  description: { type: "string" },
-  type: {
-  type: "string",
-  enum: QUEST_TYPE_ENUM,
-  description:
-  "任务类型：daily/once/weekly 常规；mainline=主线大目标（不挂父任务）；mainline_milestone=主线里程碑（必须提供 parent_quest_id，且在主线被用户接受前一次拆完）",
-  },
-  category: {
-  type: "string",
-  enum: CATEGORY_ENUM,
-  description: "任务类别，决定允许分配的属性白名单",
-  },
-  primary_attr: { type: "string", enum: ATTR_ENUM },
-  primary_weight: { type: "number", minimum: 0.6, maximum: 1.0 },
-  secondary_attr: { type: "string", enum: ATTR_ENUM },
-  secondary_weight: { type: "number", minimum: 0.2, maximum: 0.4 },
-  attr_reason: { type: "string", description: "为什么这样分配属性" },
-  difficulty: { type: "number", minimum: 0.5, maximum: 3.0 },
-  deadline: { type: "string", format: "date" },
-  parent_quest_id: {
-  type: "string",
-  description: "mainline_milestone 必填，挂到主线任务",
-  },
-  checkin: {
-  type: "boolean",
-  description:
-  "签到委托：每天第一次对话自动完成，无需汇报（仅 daily 可用）。当用户提到低摩擦的到场型习惯（如打卡、报到）时，主动建议此项。",
-  },
-  },
-  required: ["title", "type", "category", "primary_attr", "attr_reason"],
-  },
-  },
-  },
-  {
-  type: "function",
-  function: {
-  name: "respond_to_quest",
-  description: "用户接受/拒绝提议中的任务",
-  parameters: {
-  type: "object",
-  properties: {
-  quest_id: { type: "string" },
-  action: { type: "string", enum: ["accept", "reject"] },
-  },
-  required: ["quest_id", "action"],
-  },
-  },
-  },
-  {
-  type: "function",
-  function: {
-  name: "lookup_quests",
-  description: "查询任务列表（AI 不靠自己记忆任务，必须调用此工具）",
-  parameters: {
-  type: "object",
-  properties: {
-  status: {
-  type: "string",
-  enum: ["proposed", "active", "overdue", "all"],
-  },
-  },
-  required: ["status"],
-  },
-  },
-  },
-  {
-  type: "function",
-  function: {
-  name: "settle_completion",
-  description:
-  "用户汇报完成某任务时调用。引擎校验并计算实际奖励，返回结算结果",
-  parameters: {
-  type: "object",
-  properties: {
-  quest_id: { type: "string" },
-  evidence: { type: "string", description: "用户汇报中的关键证据" },
-  completion_ratio: { type: "number", minimum: 0, maximum: 1.2 },
-  confidence: { type: "number", minimum: 0, maximum: 1 },
-  },
-  required: ["quest_id", "completion_ratio", "confidence"],
-  },
-  },
-  },
-  {
-  type: "function",
-  function: {
-  name: "query_character",
-  description: "查询角色面板（等级/属性/金币/称号）",
-  parameters: { type: "object", properties: {} },
-  },
-  },
-  {
-  type: "function",
-  function: {
-  name: "add_memory",
-  description: "记录值得长期记住的用户信息",
-  parameters: {
-  type: "object",
-  properties: {
-  category: {
-  type: "string",
-  enum: ["profile", "preference", "event", "goal", "story", "relationship"],
-  },
-  content: { type: "string" },
-  },
-  required: ["category", "content"],
-  },
-  },
-  },
-  {
-  type: "function",
-  function: {
-  name: "buy_item",
-  description:
-  "用户要在协会商店买东西、囤休整卷轴，或想给你买礼物时调用。价格与金币由服务端校验；买下的礼物只是放进抽屉，等 ta 送给你（送礼调用 gift_item），你接一句人话即可。",
-  parameters: {
-  type: "object",
-  properties: {
-  item_key: {
-  type: "string",
-  description:
-  "商品 key，如 rest_scroll / gift_tea / gift_book / gift_sweet / gift_pocket_watch",
-  },
-  },
-  required: ["item_key"],
-  },
-  },
-  },
-  {
-  type: "function",
-  function: {
-  name: "gift_item",
-  description:
-  "用户要把一件已买下的礼物送给你时调用（休整卷轴不是礼物）。服务端校验抽屉里的持有数量并消耗一份、推进你们的交情；抽屉里没有存货时不要调用本工具，改用 buy_item 提议先买一份。",
-  parameters: {
-  type: "object",
-  properties: {
-  item_key: {
-  type: "string",
-  description:
-  "礼物 key：gift_tea / gift_book / gift_sweet / gift_pocket_watch",
-  },
-  },
-  required: ["item_key"],
-  },
-  },
-  },
-  {
-  type: "function",
-  function: {
-  name: "file_dispute",
-  description:
-  "用户对某笔结算不服（属性归属/判定不公/漏算收获）时调用。服务端自动定位该委托最近一次结算并当场触发复核管线，复核结论稍后以系统复核消息回给你。",
-  parameters: {
-  type: "object",
-  properties: {
-  quest_id: { type: "string" },
-  claim: {
-  type: "string",
-  description: "用户的异议主张，保留原话要点",
-  },
-  },
-  required: ["quest_id", "claim"],
-  },
-  },
-  },
-];
-
+// 保持原有对外路径：conversation / tests 仍从 ./tools 取工具定义
+export { TOOL_DEFINITIONS };
+export type { ToolDefinition };
 /** 每轮对话的工具执行上下文（越界打回计数 + 可注入随机源） */
 export interface ToolContext {
   attrRejections: number;
@@ -677,202 +485,205 @@ function execSettleCompletion(db: Db, userId: string, args: Args, ctx: ToolConte
   }
   }
 
-  // 评级突破（只升不降；XP 不减，故按等级计算值天然单调）：酬金 + 突破礼 + 称号
-  // 共用 applyRankPromotion（突破礼=休整卷轴、留痕、记忆都在那里）
-  let rankUp: {
-  from: string;
-  to: string;
-  gold: number;
-  items: { name: string; count: number }[];
-  } | null = null;
-  const promotion = applyRankPromotion(
-  db,
-  userId,
-  before.totalXp,
-  after.totalXp,
-  questId,
-  "结算触发评级突破",
-  );
-  if (promotion.from && promotion.to) {
-  after.gold += promotion.gold;
-  rankUp = {
-  from: promotion.from,
-  to: promotion.to,
-  gold: promotion.gold,
-  items: promotion.items.map((i) => ({ name: i.name, count: i.count })),
-  };
-  }
+  // 以下全部是写库动作：放进一个事务，任一步失败就整体回滚（含评级/主线奖励）
+  return tx(db, () => {
+    // 评级突破（只升不降；XP 不减，故按等级计算值天然单调）：酬金 + 突破礼 + 称号
+    // 共用 applyRankPromotion（突破礼=休整卷轴、留痕、记忆都在那里）
+    let rankUp: {
+    from: string;
+    to: string;
+    gold: number;
+    items: { name: string; count: number }[];
+    } | null = null;
+    const promotion = applyRankPromotion(
+    db,
+    userId,
+    before.totalXp,
+    after.totalXp,
+    questId,
+    "结算触发评级突破",
+    );
+    if (promotion.from && promotion.to) {
+    after.gold += promotion.gold;
+    rankUp = {
+    from: promotion.from,
+    to: promotion.to,
+    gold: promotion.gold,
+    items: promotion.items.map((i) => ({ name: i.name, count: i.count })),
+    };
+    }
 
-  // 更新角色面板
-  db.update(character).set(after).where(eq(character.userId, userId)).run();
+    // 更新角色面板
+    db.update(character).set(after).where(eq(character.userId, userId)).run();
 
-  // 更新任务状态：daily 连击 +1 并保持 active；once/weekly/milestone 置 completed
-  const now = Date.now();
-  if (quest.type === "daily") {
-  db.update(quests)
-  .set({ streak: quest.streak + 1, breakStreak: 0, lastCheckedAt: now })
-  .where(eq(quests.id, questId))
-  .run();
-  } else {
-  db.update(quests)
-  .set({ status: "completed", completedAt: now })
-  .where(eq(quests.id, questId))
-  .run();
-  }
+    // 更新任务状态：daily 连击 +1 并保持 active；once/weekly/milestone 置 completed
+    const now = Date.now();
+    if (quest.type === "daily") {
+    db.update(quests)
+    .set({ streak: quest.streak + 1, breakStreak: 0, lastCheckedAt: now })
+    .where(eq(quests.id, questId))
+    .run();
+    } else {
+    db.update(quests)
+    .set({ status: "completed", completedAt: now })
+    .where(eq(quests.id, questId))
+    .run();
+    }
 
-  // 结算留痕
-  const settlementId = randomUUID();
-  const settlementAdjustments: Record<string, unknown> = {};
-  if (rarityRoll.roll.rarity !== "common") {
-  settlementAdjustments.rarity = rarityRoll.roll.rarity;
-  settlementAdjustments.gold_multiplier = rarityRoll.roll.multiplier;
-  }
-  if (wasOverdue) settlementAdjustments.was_overdue = true;
-  if (morningBonus > 0) settlementAdjustments.morning_bonus = morningBonus;
-  if (dailyGold > 0) settlementAdjustments.daily_gold_ratio = dailyGold;
-  if (starryXpRatio > 0) settlementAdjustments.starry_xp_ratio = starryXpRatio;
-  db.insert(settlementLog)
-  .values({
-  id: settlementId,
-  userId,
-  questId,
-  kind: "quest_complete",
-  completionRatio,
-  confidence,
-  xpAwarded: result.xpAwarded,
-  goldAwarded,
-  attrSplitJson: JSON.stringify(result.attrSplit),
-  adjustmentsJson:
-  Object.keys(settlementAdjustments).length > 0
-  ? JSON.stringify(settlementAdjustments)
-  : null,
-  llmReasoning: evidence || null,
-  createdAt: now,
-  })
-  .run();
+    // 结算留痕
+    const settlementId = randomUUID();
+    const settlementAdjustments: Record<string, unknown> = {};
+    if (rarityRoll.roll.rarity !== "common") {
+    settlementAdjustments.rarity = rarityRoll.roll.rarity;
+    settlementAdjustments.gold_multiplier = rarityRoll.roll.multiplier;
+    }
+    if (wasOverdue) settlementAdjustments.was_overdue = true;
+    if (morningBonus > 0) settlementAdjustments.morning_bonus = morningBonus;
+    if (dailyGold > 0) settlementAdjustments.daily_gold_ratio = dailyGold;
+    if (starryXpRatio > 0) settlementAdjustments.starry_xp_ratio = starryXpRatio;
+    db.insert(settlementLog)
+    .values({
+    id: settlementId,
+    userId,
+    questId,
+    kind: "quest_complete",
+    completionRatio,
+    confidence,
+    xpAwarded: result.xpAwarded,
+    goldAwarded,
+    attrSplitJson: JSON.stringify(result.attrSplit),
+    adjustmentsJson:
+    Object.keys(settlementAdjustments).length > 0
+    ? JSON.stringify(settlementAdjustments)
+    : null,
+    llmReasoning: evidence || null,
+    createdAt: now,
+    })
+    .run();
 
-  // V2.0 主线推进：最后一个里程碑结清 → 主线达成 + 章节奖励（配置驱动）
-  let mainlineComplete: { title: string; xp: number; gold: number } | null = null;
-  if (quest.type === "mainline_milestone" && quest.parentQuestId) {
-  const siblings = db
-  .select()
-  .from(quests)
-  .where(eq(quests.parentQuestId, quest.parentQuestId))
-  .all();
-  const parent = db
-  .select()
-  .from(quests)
-  .where(eq(quests.id, quest.parentQuestId))
-  .get();
-  const allDone =
-  siblings.length > 0 && siblings.every((s) => s.status === "completed");
-  if (allDone && parent && parent.status !== "completed") {
-  const bonus = config.mainline.completion_bonus;
-  const charNow = db
-  .select()
-  .from(character)
-  .where(eq(character.userId, userId))
-  .get();
-  if (charNow) {
-  const current = charNow as unknown as Record<string, number>;
-  const attrCol = `${parent.primaryAttr}Xp`;
-  const updates: Record<string, number> = {
-  totalXp: current.totalXp + bonus.xp,
-  gold: current.gold + bonus.gold,
-  };
-  updates[attrCol] = (current[attrCol] ?? 0) + bonus.xp;
-  const promotion = applyRankPromotion(
-  db,
-  userId,
-  current.totalXp,
-  updates.totalXp,
-  parent.id,
-  `主线「${parent.title}」达成奖励触发评级晋升`,
-  );
-  updates.gold += promotion.gold;
-  const bonusAt = Date.now();
-  db.update(character)
-  .set(updates as Partial<typeof character.$inferInsert>)
-  .where(eq(character.userId, userId))
-  .run();
-  db.update(quests)
-  .set({ status: "completed", completedAt: bonusAt })
-  .where(eq(quests.id, parent.id))
-  .run();
-  db.insert(settlementLog)
-  .values({
-  id: randomUUID(),
-  userId,
-  questId: parent.id,
-  kind: "mainline_complete",
-  completionRatio: 1,
-  confidence: 1,
-  xpAwarded: bonus.xp,
-  goldAwarded: bonus.gold,
-  attrSplitJson: JSON.stringify({ [parent.primaryAttr]: bonus.xp }),
-  adjustmentsJson: JSON.stringify({ milestones: siblings.length }),
-  llmReasoning: `主线「${parent.title}」的 ${siblings.length} 个里程碑全部完成`,
-  createdAt: bonusAt,
-  })
-  .run();
-  const activeMaster = db
-  .select({ id: saves.activeMasterId })
-  .from(saves)
-  .where(eq(saves.userId, userId))
-  .get();
-  db.insert(memory)
-  .values({
-  id: randomUUID(),
-  userId,
-  masterId: activeMaster?.id ?? null,
-  category: "event",
-  content: `达成主线「${parent.title}」`,
-  createdAt: bonusAt,
-  })
-  .run();
-  mainlineComplete = { title: parent.title, xp: bonus.xp, gold: bonus.gold };
-  }
-  }
-  }
+    // V2.0 主线推进：最后一个里程碑结清 → 主线达成 + 章节奖励（配置驱动）
+    let mainlineComplete: { title: string; xp: number; gold: number } | null = null;
+    if (quest.type === "mainline_milestone" && quest.parentQuestId) {
+    const siblings = db
+    .select()
+    .from(quests)
+    .where(eq(quests.parentQuestId, quest.parentQuestId))
+    .all();
+    const parent = db
+    .select()
+    .from(quests)
+    .where(eq(quests.id, quest.parentQuestId))
+    .get();
+    const allDone =
+    siblings.length > 0 && siblings.every((s) => s.status === "completed");
+    if (allDone && parent && parent.status !== "completed") {
+    const bonus = config.mainline.completion_bonus;
+    const charNow = db
+    .select()
+    .from(character)
+    .where(eq(character.userId, userId))
+    .get();
+    if (charNow) {
+    const current = charNow as unknown as Record<string, number>;
+    const attrCol = `${parent.primaryAttr}Xp`;
+    const updates: Record<string, number> = {
+    totalXp: current.totalXp + bonus.xp,
+    gold: current.gold + bonus.gold,
+    };
+    updates[attrCol] = (current[attrCol] ?? 0) + bonus.xp;
+    const promotion = applyRankPromotion(
+    db,
+    userId,
+    current.totalXp,
+    updates.totalXp,
+    parent.id,
+    `主线「${parent.title}」达成奖励触发评级晋升`,
+    );
+    updates.gold += promotion.gold;
+    const bonusAt = Date.now();
+    db.update(character)
+    .set(updates as Partial<typeof character.$inferInsert>)
+    .where(eq(character.userId, userId))
+    .run();
+    db.update(quests)
+    .set({ status: "completed", completedAt: bonusAt })
+    .where(eq(quests.id, parent.id))
+    .run();
+    db.insert(settlementLog)
+    .values({
+    id: randomUUID(),
+    userId,
+    questId: parent.id,
+    kind: "mainline_complete",
+    completionRatio: 1,
+    confidence: 1,
+    xpAwarded: bonus.xp,
+    goldAwarded: bonus.gold,
+    attrSplitJson: JSON.stringify({ [parent.primaryAttr]: bonus.xp }),
+    adjustmentsJson: JSON.stringify({ milestones: siblings.length }),
+    llmReasoning: `主线「${parent.title}」的 ${siblings.length} 个里程碑全部完成`,
+    createdAt: bonusAt,
+    })
+    .run();
+    const activeMaster = db
+    .select({ id: saves.activeMasterId })
+    .from(saves)
+    .where(eq(saves.userId, userId))
+    .get();
+    db.insert(memory)
+    .values({
+    id: randomUUID(),
+    userId,
+    masterId: activeMaster?.id ?? null,
+    category: "event",
+    content: `达成主线「${parent.title}」`,
+    createdAt: bonusAt,
+    })
+    .run();
+    mainlineComplete = { title: parent.title, xp: bonus.xp, gold: bonus.gold };
+    }
+    }
+    }
 
-  // 开发期对账摘要
-  console.log(
-  `[settle] 「${quest.title}」ratio=${completionRatio} conf=${confidence} ` +
-  `raw=${result.questXpRaw.toFixed(1)} xp=+${result.xpAwarded} gold=+${goldAwarded} ` +
-  `split=${JSON.stringify(result.attrSplit)} mult=${JSON.stringify(result.multipliers)} ` +
-  `today_settled=${todaySettledXp + result.xpAwarded} ` +
-  (levelUps.length ? `level_ups=${JSON.stringify(levelUps)} ` : "") +
-  (rankUp ? `rank_up=${rankUp.from}->${rankUp.to} +${rankUp.gold}g` : "") +
-  (mainlineComplete
-  ? `mainline_complete=「${mainlineComplete.title}」 +${mainlineComplete.xp}xp +${mainlineComplete.gold}g`
-  : ""),
-  );
+    // 开发期对账摘要
+    console.log(
+    `[settle] 「${quest.title}」ratio=${completionRatio} conf=${confidence} ` +
+    `raw=${result.questXpRaw.toFixed(1)} xp=+${result.xpAwarded} gold=+${goldAwarded} ` +
+    `split=${JSON.stringify(result.attrSplit)} mult=${JSON.stringify(result.multipliers)} ` +
+    `today_settled=${todaySettledXp + result.xpAwarded} ` +
+    (levelUps.length ? `level_ups=${JSON.stringify(levelUps)} ` : "") +
+    (rankUp ? `rank_up=${rankUp.from}->${rankUp.to} +${rankUp.gold}g` : "") +
+    (mainlineComplete
+    ? `mainline_complete=「${mainlineComplete.title}」 +${mainlineComplete.xp}xp +${mainlineComplete.gold}g`
+    : ""),
+    );
 
-  return {
-  ok: true,
-  data: {
-  quest_id: questId,
-  settlement_id: settlementId,
-  title: quest.title,
-  xp_awarded: result.xpAwarded,
-  gold_awarded: goldAwarded,
-  rarity: rarityRoll.roll.rarity,
-  attr_split: result.attrSplit,
-  streak: quest.type === "daily" ? quest.streak + 1 : quest.streak,
-  level_ups: levelUps,
-  rank_up: rankUp,
-  mainline_complete: mainlineComplete,
-  was_overdue: wasOverdue,
-  },
-  summary:
-  `结算「${quest.title}」：+${result.xpAwarded} XP，+${goldAwarded} 金币${raritySuffix}` +
-  (levelUps.length
-  ? `；升级：${levelUps.map((l) => `${l.scope} ${l.from}→${l.to}`).join("、")}`
-  : "") +
-  (rankUp ? `；评级晋升 ${rankUp.from}→${rankUp.to}` : "") +
-  (mainlineComplete ? `；主线达成「${mainlineComplete.title}」` : ""),
-  stateChanged: true,
-  };
+    return {
+    ok: true,
+    data: {
+    quest_id: questId,
+    settlement_id: settlementId,
+    title: quest.title,
+    xp_awarded: result.xpAwarded,
+    gold_awarded: goldAwarded,
+    rarity: rarityRoll.roll.rarity,
+    attr_split: result.attrSplit,
+    streak: quest.type === "daily" ? quest.streak + 1 : quest.streak,
+    level_ups: levelUps,
+    rank_up: rankUp,
+    mainline_complete: mainlineComplete,
+    was_overdue: wasOverdue,
+    },
+    summary:
+    `结算「${quest.title}」：+${result.xpAwarded} XP，+${goldAwarded} 金币${raritySuffix}` +
+    (levelUps.length
+    ? `；升级：${levelUps.map((l) => `${l.scope} ${l.from}→${l.to}`).join("、")}`
+    : "") +
+    (rankUp ? `；评级晋升 ${rankUp.from}→${rankUp.to}` : "") +
+    (mainlineComplete ? `；主线达成「${mainlineComplete.title}」` : ""),
+    stateChanged: true,
+    };
+  });
 }
 
 // ---------- query_character / add_memory ----------

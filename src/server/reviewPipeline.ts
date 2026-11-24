@@ -12,6 +12,7 @@ import { levelFromXp } from "./engine/leveling";
 import { applyRankPromotion } from "./rankPromotion";
 import type { AttrKey } from "./engine/config";
 import type { SettlementReviewer, ReviewContext } from "./llm/reviewer";
+import { tx } from "./db/tx";
 
 /**
  * 复核管线（V1.5）：把判定器结论经引擎护栏套用后落账。
@@ -143,86 +144,89 @@ export async function runSettlementReview(
   let goldFromPromotion = 0;
   let promotionNote = "";
 
-  if (application.applied) {
-  // 评级晋升检查（复核前等级 → 复核后等级；只升不降，共用 applyRankPromotion）
-  const afterTotalXp = characterRow.totalXp + application.xpDelta;
-  const promotion = applyRankPromotion(
-  db,
-  userId,
-  characterRow.totalXp,
-  afterTotalXp,
-  quest.id,
-  "收获复核追加 XP 触发评级晋升",
-  );
-  if (promotion.gold > 0) {
-  goldFromPromotion = promotion.gold;
-  promotionNote = promotion.note;
-  }
-
-  // 角色面板更新（XP 增量 + 属性增量 + 可能的晋升酬金）
-  const updates: Record<string, number> = {
-  totalXp: afterTotalXp,
-  gold: characterRow.gold + goldFromPromotion,
-  };
-  const current = characterRow as unknown as Record<string, number>;
-  for (const [attr, delta] of Object.entries(application.attrDeltas)) {
-  updates[`${attr}Xp`] = (current[`${attr}Xp`] ?? 0) + delta;
-  }
-  db.update(character)
-  .set(updates as Partial<typeof character.$inferInsert>)
-  .where(eq(character.userId, userId))
-  .run();
-
-  // 复核留痕（adjustments_json 正式启用：完整判定 + 护栏应用明细）
-  db.insert(settlementLog)
-  .values({
-  id: randomUUID(),
-  userId,
-  questId: quest.id,
-  kind: "review_adjustment",
-  completionRatio: null,
-  confidence: verdict.confidence,
-  xpAwarded: application.xpDelta,
-  goldAwarded: 0,
-  attrSplitJson: JSON.stringify(application.attrDeltas),
-  adjustmentsJson: JSON.stringify({
-  settlement_id: settlementId,
-  verdict,
-  applied: {
-  xp_delta: application.xpDelta,
-  attr_deltas: application.attrDeltas,
-  reclassified: application.reclassified,
-  dropped: application.dropped,
-  },
-  reason: application.reason,
-  }),
-  llmReasoning: verdict.narrative_hint || null,
-  createdAt: Date.now(),
-  })
-  .run();
-  }
-
-  // 异议回写：当场裁决（applied → upheld，否则 rejected）
-  if (opts.disputeId) {
-  db.update(disputes)
-  .set({
-  status: application.applied ? "upheld" : "rejected",
-  resolution: application.applied
-  ? `${application.reason}${promotionNote}`
-  : application.reason,
-  resolvedAt: Date.now(),
-  })
-  .where(eq(disputes.id, opts.disputeId))
-  .run();
-  }
-
-  // 对话留痕（与 [工具] 摘要同级，chat_log system 记录）
+  // 判定器已返回，下面全是写库：放进一个事务（LLM await 必须在事务外）
   const label = opts.disputeId ? "异议复核" : "收获复核";
-  insertReviewLog(
-  db,
-  userId,
-  `[复核] ${label}「${quest.title}」→ ${application.applied ? "采纳" : "维持原判"}：${application.reason}`,
-  );
+  tx(db, () => {
+    if (application.applied) {
+    // 评级晋升检查（复核前等级 → 复核后等级；只升不降，共用 applyRankPromotion）
+    const afterTotalXp = characterRow.totalXp + application.xpDelta;
+    const promotion = applyRankPromotion(
+    db,
+    userId,
+    characterRow.totalXp,
+    afterTotalXp,
+    quest.id,
+    "收获复核追加 XP 触发评级晋升",
+    );
+    if (promotion.gold > 0) {
+    goldFromPromotion = promotion.gold;
+    promotionNote = promotion.note;
+    }
+
+    // 角色面板更新（XP 增量 + 属性增量 + 可能的晋升酬金）
+    const updates: Record<string, number> = {
+    totalXp: afterTotalXp,
+    gold: characterRow.gold + goldFromPromotion,
+    };
+    const current = characterRow as unknown as Record<string, number>;
+    for (const [attr, delta] of Object.entries(application.attrDeltas)) {
+    updates[`${attr}Xp`] = (current[`${attr}Xp`] ?? 0) + delta;
+    }
+    db.update(character)
+    .set(updates as Partial<typeof character.$inferInsert>)
+    .where(eq(character.userId, userId))
+    .run();
+
+    // 复核留痕（adjustments_json 正式启用：完整判定 + 护栏应用明细）
+    db.insert(settlementLog)
+    .values({
+    id: randomUUID(),
+    userId,
+    questId: quest.id,
+    kind: "review_adjustment",
+    completionRatio: null,
+    confidence: verdict.confidence,
+    xpAwarded: application.xpDelta,
+    goldAwarded: 0,
+    attrSplitJson: JSON.stringify(application.attrDeltas),
+    adjustmentsJson: JSON.stringify({
+    settlement_id: settlementId,
+    verdict,
+    applied: {
+    xp_delta: application.xpDelta,
+    attr_deltas: application.attrDeltas,
+    reclassified: application.reclassified,
+    dropped: application.dropped,
+    },
+    reason: application.reason,
+    }),
+    llmReasoning: verdict.narrative_hint || null,
+    createdAt: Date.now(),
+    })
+    .run();
+    }
+
+    // 异议回写：当场裁决（applied → upheld，否则 rejected）
+    if (opts.disputeId) {
+    db.update(disputes)
+    .set({
+    status: application.applied ? "upheld" : "rejected",
+    resolution: application.applied
+    ? `${application.reason}${promotionNote}`
+    : application.reason,
+    resolvedAt: Date.now(),
+    })
+    .where(eq(disputes.id, opts.disputeId))
+    .run();
+    }
+
+    // 对话留痕（与 [工具] 摘要同级，chat_log system 记录）
+    insertReviewLog(
+    db,
+    userId,
+    `[复核] ${label}「${quest.title}」→ ${application.applied ? "采纳" : "维持原判"}：${application.reason}`,
+    );
+  });
 
   const notice = application.applied
   ? `${label}「${quest.title}」：${application.reason}${promotionNote}`

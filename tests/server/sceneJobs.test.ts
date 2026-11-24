@@ -6,6 +6,7 @@ import {
   getSceneJob,
   isSceneGenerating,
   cancelSceneJob,
+  activeSceneJobs,
   __resetSceneJobs,
   type SceneWork,
 } from "../../src/server/image/jobs";
@@ -140,5 +141,25 @@ describe("配图任务取消（停止按钮）", () => {
     const j = getSceneJob("rec1", db);
     expect(j && (j.status === "queued" || j.status === "running")).toBeTruthy();
     release();
+  });
+});
+
+describe("批量在途查询（消息列表用）", () => {
+  it("一次查询即可列出所有正在生成的消息，结束后不再返回", async () => {
+    let release: () => void = () => {};
+    const work: SceneWork = () =>
+      new Promise<void>((r) => {
+        release = r;
+      });
+    startSceneJob(db, "u", msg("b1"), undefined, work);
+    await tick();
+
+    const map = activeSceneJobs(db);
+    expect(map.has("b1")).toBe(true);
+    expect(typeof map.get("b1")?.startedAt).toBe("number");
+
+    release();
+    await tick();
+    expect(activeSceneJobs(db).has("b1")).toBe(false);
   });
 });

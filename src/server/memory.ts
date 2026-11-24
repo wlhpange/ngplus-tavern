@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import type { Db } from "./db";
 import { memory } from "./db/schema";
@@ -85,21 +85,37 @@ export function loadMemoriesForScope(
   masterId: string | null | undefined,
   sessionId: string | null | undefined,
 ): MemoryEntry[] {
-  const rows = db
+  // 条件尽量下推到 SQL（两边都有索引）：曾在这里把该用户全部记忆读出来再用 JS
+  // 过滤，记忆书长大后每次组装提示词都会线性变慢。
+  const permanent = db
     .select()
     .from(memory)
-    .where(and(eq(memory.userId, userId), eq(memory.enabled, 1)))
+    .where(
+      and(
+        eq(memory.userId, userId),
+        eq(memory.enabled, 1),
+        isNull(memory.sessionId),
+        ...(masterId ? [eq(memory.masterId, masterId)] : []),
+      ),
+    )
     .orderBy(desc(memory.createdAt))
-    .all()
-    .filter((r) => {
-      const sid = r.sessionId ?? null;
-      if (sessionId) {
-        // 聊天：永久记忆（本会长）+ 本对话记忆
-        return (sid === null && (!masterId || r.masterId === masterId)) || sid === sessionId;
-      }
-      // 任务 / 默认：只取会长级永久记忆
-      return sid === null && (!masterId || r.masterId === masterId);
-    });
+    .all();
+  const sessionRows = sessionId
+    ? db
+      .select()
+      .from(memory)
+      .where(
+        and(
+          eq(memory.userId, userId),
+          eq(memory.enabled, 1),
+          eq(memory.sessionId, sessionId),
+        ),
+      )
+      .orderBy(desc(memory.createdAt))
+      .all()
+    : [];
+  // 聊天：永久记忆（本会长）+ 本对话记忆；任务：只有上面的永久记忆
+  const rows = [...permanent, ...sessionRows].sort((a, b) => b.createdAt - a.createdAt);
   const perCategory = new Map<string, number>();
   const memories: MemoryEntry[] = [];
   for (const m of rows) {
@@ -127,15 +143,18 @@ export function listMemories(
   return db
     .select()
     .from(memory)
-    .where(eq(memory.userId, userId))
+    .where(
+      and(
+        eq(memory.userId, userId),
+        ...(sessionId
+          ? [eq(memory.sessionId, sessionId)]
+          : masterId
+            ? [isNull(memory.sessionId), eq(memory.masterId, masterId)]
+            : []),
+      ),
+    )
     .orderBy(desc(memory.createdAt))
     .all()
-    .filter((r) => {
-      const sid = r.sessionId ?? null;
-      if (sessionId) return sid === sessionId;
-      if (masterId) return sid === null && r.masterId === masterId;
-      return true;
-    })
     .map(rowToRecord);
 }
 

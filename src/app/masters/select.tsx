@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import BottomNav from "@/components/BottomNav";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import MasterCard, { type MasterItem } from "@/components/masters/MasterCard";
+import { SwitchingOverlay, TranslatingOverlay } from "@/components/masters/Overlays";
 import Avatar from "@/components/Avatar";
 import ChatText from "@/components/ChatText";
 import ImportTranslateDialog from "@/components/ImportTranslateDialog";
@@ -28,20 +30,6 @@ interface ForgedCard {
   first_mes?: string;
   tags?: string[];
   [key: string]: unknown;
-}
-
-interface MasterItem {
-  id: string;
-  name: string;
-  /** 头像 URL（卡 PNG / 上传）；null = 首字兜底 */
-  avatar?: string | null;
-  /** 像素小人形象参数；null = 未设置 */
-  sprite?: PetDescriptor | null;
-  selfIntro: string;
-  backstory: string;
-  tags?: string[];
-  isOfficial?: boolean;
-  isCustom?: boolean;
 }
 
 /**
@@ -616,147 +604,37 @@ export default function MastersPage() {
             候选人们正在赶来……
           </p>
         )}
-        {masters?.map((m) => {
-          const isActive = m.id === activeId;
-          return (
-            <article
-              key={m.id}
-              className={`relative rounded-card border p-4 bg-surface transition-colors duration-200 ${
-                isActive
-                  ? "border-gold-line"
-                  : "border-border hover:border-border-strong"
-              }`}
-              style={isActive ? { boxShadow: "var(--inset-gold)" } : undefined}
-            >
-              {isActive && (
-                <span className="absolute right-3 top-3 rotate-3 rounded-full border border-gold-line bg-gold-soft px-2 py-0.5 font-numeric text-fs-micro text-gold">
-                  现任
-                </span>
-              )}
-              <div className="flex items-center gap-3">
-                {/* 头像圆章：现任金淡底金描边，其余 surface-3 底 + 宋体首字；有卡图则直接显示 */}
-                <Avatar
-                  src={m.avatar}
-                  name={m.name}
-                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-display text-lg ${
-                    isActive
-                      ? "border border-gold-line bg-gold-soft text-gold"
-                      : "bg-surface-3 text-fg"
-                  }`}
-                />
-                <div className="min-w-0 flex-1">
-                  <span className="font-display text-fs-h3">{m.name}</span>
-                  {/* 用 div 包 ChatText：它内部是 div+markdown 的 <p>，套在外层 <p> 里会非法嵌套（hydration 报错） */}
-                  <div className="mt-0.5 text-fs-sm leading-relaxed text-fg">
-                    <ChatText text={m.selfIntro} />
-                  </div>
-                </div>
-                {m.sprite && <PixelPet descriptor={m.sprite} display={56} className="ml-auto shrink-0" />}
-              </div>
-              {m.backstory && (
-                <div className="mt-2 text-fs-micro leading-relaxed text-muted line-clamp-3">
-                  <ChatText text={m.backstory} />
-                </div>
-              )}
-              {!isActive && (
-                <button
-                  className="mt-3 w-full rounded-btn border border-accent-line py-2 text-fs-sm text-accent transition-colors hover:bg-accent-soft disabled:opacity-40"
-                  disabled={switching !== null}
-                  onClick={() => choose(m.id)}
-                >
-                  {isFirstPick ? `请 ${m.name} 执掌协会` : `换成 ${m.name}`}
-                </button>
-              )}
-              {isActive && (
-                <button
-                  className="mt-3 w-full rounded-btn border border-gold-line py-2 text-fs-sm text-gold opacity-70"
-                  disabled
-                >
-                  当前会长
-                </button>
-              )}
-              {/* 头像：酒馆式一张图即头像（任何会长都可设置 / 更换 / 清除） */}
-              <div className="mt-2 flex items-center justify-center gap-4 text-fs-micro">
-                <button
-                  type="button"
-                  className="text-muted hover:text-fg py-1 transition-colors disabled:opacity-40"
-                  disabled={avatarUploading || switching !== null}
-                  onClick={() => {
-                    setAvatarTarget(m.id);
-                    avatarInputRef.current?.click();
-                  }}
-                >
-                  {avatarUploading && avatarTarget === m.id
-                    ? "正在上传……"
-                    : m.avatar
-                      ? "更换头像"
-                      : "设置头像"}
-                </button>
-                {m.avatar && (
-                  <button
-                    type="button"
-                    className="text-muted hover:text-danger-text py-1 transition-colors disabled:opacity-40"
-                    disabled={avatarUploading || switching !== null}
-                    onClick={() => void clearAvatar(m.id)}
-                  >
-                    清除头像
-                  </button>
-                )}
-              </div>
-              {/* 像素小人形象：AI 按卡描述生成过，也可手动改 */}
-              <div className="mt-1 flex items-center justify-center">
-                <button
-                  type="button"
-                  className="text-muted hover:text-fg py-1 text-fs-micro transition-colors"
-                  onClick={() => {
-                    setSpriteEditorFor((v) => (v === m.id ? null : m.id));
-                    setSpriteDraft(m.sprite ?? defaultDescriptor());
-                  }}
-                >
-                  {m.sprite ? "修改形象" : "生成形象"}
-                </button>
-              </div>
-              {spriteEditorFor === m.id && spriteDraft && (
-                <div className="border-border mt-2 space-y-2 border-t pt-3">
-                  <PetDesigner
-                    value={spriteDraft}
-                    onChange={setSpriteDraft}
-                    display={128}
-                    showAnimationSwitch
-                  />
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      className="bg-accent text-on-accent rounded-btn flex-1 py-1.5 text-fs-sm font-medium transition-transform active:scale-95 disabled:opacity-40"
-                      disabled={spriteSaving}
-                      onClick={() => void saveSprite(m.id, spriteDraft)}
-                    >
-                      {spriteSaving ? "保存中……" : "保存形象"}
-                    </button>
-                    <button
-                      type="button"
-                      className="border-border-strong text-muted hover:text-fg rounded-btn border px-3 py-1.5 text-fs-sm transition-colors"
-                      onClick={() => setSpriteEditorFor(null)}
-                    >
-                      取消
-                    </button>
-                  </div>
-                </div>
-              )}
-              {/* P1：自己请来的会长可删除（归档，不动历史）；官方与在任者不可删 */}
-              {!isActive && m.isCustom && (
-                <button
-                  type="button"
-                  className="text-muted hover:text-danger-text mt-2 w-full py-1 text-center text-fs-micro transition-colors disabled:opacity-40"
-                  disabled={deleting !== null || switching !== null}
-                  onClick={() => setRemoveTarget({ id: m.id, name: m.name })}
-                >
-                  {deleting === m.id ? "正在归档……" : "删除这位会长"}
-                </button>
-              )}
-            </article>
-          );
-        })}
+        {masters?.map((m) => (
+          <MasterCard
+            key={m.id}
+            m={m}
+            isActive={m.id === activeId}
+            isFirstPick={isFirstPick}
+            switching={switching}
+            deleting={deleting}
+            avatarUploading={avatarUploading}
+            avatarTarget={avatarTarget}
+            spriteEditorFor={spriteEditorFor}
+            spriteDraft={spriteDraft}
+            spriteSaving={spriteSaving}
+            onChoose={choose}
+            onPickAvatar={(id) => {
+              setAvatarTarget(id);
+              avatarInputRef.current?.click();
+            }}
+            onClearAvatar={(id) => void clearAvatar(id)}
+            onToggleSprite={(item) => {
+              setSpriteEditorFor((v) => (v === item.id ? null : item.id));
+              setSpriteDraft(item.sprite ?? defaultDescriptor());
+            }}
+            onSpriteChange={setSpriteDraft}
+            onSaveSprite={(id) => {
+              if (spriteDraft) void saveSprite(id, spriteDraft);
+            }}
+            onCloseSprite={() => setSpriteEditorFor(null)}
+            onRemove={(item) => setRemoveTarget({ id: item.id, name: item.name })}
+          />
+        ))}
 
         {/* 新增会长：手填卡字段（与导入卡同一套字段）+ 可选 AI 一键生成 */}
         {masters !== null && (
@@ -950,23 +828,7 @@ export default function MastersPage() {
 
       {/* §6.5 交接瞬间：全局禁用浮层（bg 72% + blur + 金徽记），aria-busy 标注。
           用 fixed 铺满视口，避免落在滚动容器里只能遮住可见区、且底下的列表还能滑。 */}
-      {switching !== null && (
-        <div
-          aria-busy="true"
-          className="fixed inset-0 z-50 flex touch-none flex-col items-center justify-center gap-3 backdrop-blur-sm"
-          style={{ background: "color-mix(in oklch, var(--bg) 72%, transparent)" }}
-        >
-          <span
-            aria-hidden
-            className="flex h-12 w-12 items-center justify-center rounded-full border border-gold-line font-display text-gold shadow-glow-gold"
-          >
-            ✦
-          </span>
-          <p className="font-numeric text-fs-sm tracking-widest text-gold">
-            交接仪式进行中……
-          </p>
-        </div>
-      )}
+      {switching !== null && <SwitchingOverlay />}
 
       {/* P11 导入翻译确认弹窗 */}
       {pendingImport && (
@@ -981,39 +843,7 @@ export default function MastersPage() {
 
       {/* P11 翻译进度浮层：真进度条 + 耗时 + 取消 */}
       {translating && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center px-6"
-          style={{ background: "color-mix(in oklch, var(--bg) 78%, transparent)" }}
-        >
-          <div className="border-gold-line bg-surface rounded-card w-full max-w-sm border p-4 text-center">
-            <p className="text-fs-body">正在翻译角色卡……</p>
-            <p className="text-gold font-numeric text-fs-sm mt-1">
-              {progress.total > 0 ? `${progress.done} / ${progress.total} 段` : "准备中……"} · {elapsed}s
-            </p>
-            {/* 进度条 */}
-            <div className="bg-surface-3 mt-3 h-2 w-full overflow-hidden rounded-full">
-              <div
-                className="bg-gold h-full rounded-full transition-all duration-300"
-                style={{
-                  width:
-                    progress.total > 0
-                      ? `${Math.min(100, Math.round((progress.done / progress.total) * 100))}%`
-                      : "10%",
-                }}
-              />
-            </div>
-            <p className="text-fs-micro text-faint mt-2 leading-relaxed">
-              逐段忠实翻译（含世界书）。用较快的模型会明显更快。
-            </p>
-            <button
-              type="button"
-              className="border-border-strong text-muted hover:text-fg rounded-btn mt-3 w-full border py-2 text-fs-sm transition-colors"
-              onClick={cancelImport}
-            >
-              取消
-            </button>
-          </div>
-        </div>
+        <TranslatingOverlay progress={progress} elapsed={elapsed} onCancel={cancelImport} />
       )}
 
       {/* 复用式头像选择器（点卡片上的「设置/更换头像」触发） */}

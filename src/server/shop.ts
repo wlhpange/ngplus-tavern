@@ -1,4 +1,5 @@
 import { and, eq } from "drizzle-orm";
+import { tx } from "./db/tx";
 import { randomUUID } from "node:crypto";
 import type { Db } from "./db";
 import { character, items, memory, saves, settlementLog } from "./db/schema";
@@ -151,63 +152,65 @@ export function purchaseItem(
 
   const existing = getItemStock(db, userId, itemKey);
 
-  // 扣金币（对账不变式：金币 = settlement_log 的 gold_awarded 累计）
-  const goldLeft = char.gold - price;
-  db.update(character).set({ gold: goldLeft }).where(eq(character.userId, userId)).run();
+  return tx(db, () => {
+    // 扣金币（对账不变式：金币 = settlement_log 的 gold_awarded 累计）
+    const goldLeft = char.gold - price;
+    db.update(character).set({ gold: goldLeft }).where(eq(character.userId, userId)).run();
 
-  // 入袋
-  if (existing) {
-  db
-  .update(items)
-  .set({ count: existing.count + 1 })
-  .where(and(eq(items.userId, userId), eq(items.itemKey, item.key)))
-  .run();
-  } else {
-  db
-  .insert(items)
-  .values({ id: randomUUID(), userId, itemKey: item.key, count: 1 })
-  .run();
-  }
+    // 入袋
+    if (existing) {
+    db
+    .update(items)
+    .set({ count: existing.count + 1 })
+    .where(and(eq(items.userId, userId), eq(items.itemKey, item.key)))
+    .run();
+    } else {
+    db
+    .insert(items)
+    .values({ id: randomUUID(), userId, itemKey: item.key, count: 1 })
+    .run();
+    }
 
-  // 购买留痕（ 所有结算留痕；负金币保持对账闭合）
-  db.insert(settlementLog)
-  .values({
-  id: randomUUID(),
-  userId,
-  questId: null,
-  kind: "purchase",
-  completionRatio: null,
-  confidence: null,
-  xpAwarded: 0,
-  goldAwarded: -price,
-  attrSplitJson: "{}",
-  adjustmentsJson: JSON.stringify({
-  item_key: item.key,
-  type: item.type,
-  ...(discount ? { discount_ratio: discount.ratio } : {}),
-  }),
-  llmReasoning: null,
-  createdAt: now,
-  })
-  .run();
+    // 购买留痕（ 所有结算留痕；负金币保持对账闭合）
+    db.insert(settlementLog)
+    .values({
+    id: randomUUID(),
+    userId,
+    questId: null,
+    kind: "purchase",
+    completionRatio: null,
+    confidence: null,
+    xpAwarded: 0,
+    goldAwarded: -price,
+    attrSplitJson: "{}",
+    adjustmentsJson: JSON.stringify({
+    item_key: item.key,
+    type: item.type,
+    ...(discount ? { discount_ratio: discount.ratio } : {}),
+    }),
+    llmReasoning: null,
+    createdAt: now,
+    })
+    .run();
 
-  // V2.0：购买只放进抽屉，不再落「送给会长」记忆——
-  // 赠送是明确动作，走 giftItem（消耗 + 亲密度 + 留痕 + 记忆）。
-  const count = (existing?.count ?? 0) + 1;
-  return {
-  ok: true,
-  receipt: {
-  itemKey: item.key,
-  name: item.name,
-  type: item.type,
-  price,
-  ...(discount
-  ? { originalPrice: item.price, discountRatio: discount.ratio }
-  : {}),
-  goldLeft,
-  count,
-  },
-  };
+    // V2.0：购买只放进抽屉，不再落「送给会长」记忆——
+    // 赠送是明确动作，走 giftItem（消耗 + 亲密度 + 留痕 + 记忆）。
+    const count = (existing?.count ?? 0) + 1;
+    return {
+    ok: true,
+    receipt: {
+    itemKey: item.key,
+    name: item.name,
+    type: item.type,
+    price,
+    ...(discount
+    ? { originalPrice: item.price, discountRatio: discount.ratio }
+    : {}),
+    goldLeft,
+    count,
+    },
+    };
+  });
 }
 
 // V1.7.1 皮肤系统收敛：窗口装扮类目与装备动作已随「星穹秘契」单一视觉定稿移除。
@@ -269,68 +272,72 @@ export function giftItem(
     };
   }
 
-  // 消耗一份
-  db.update(items)
-  .set({ count: stock.count - 1 })
-  .where(and(eq(items.userId, userId), eq(items.itemKey, itemKey)))
-  .run();
+  // 扣库存 + 亲密度 + 留痕 + 记忆：一次事务，避免送出礼物却只扣了一半
+  const giftMasterId = save.activeMasterId;
+  return tx(db, () => {
+    // 消耗一份
+    db.update(items)
+    .set({ count: stock.count - 1 })
+    .where(and(eq(items.userId, userId), eq(items.itemKey, itemKey)))
+    .run();
 
-  // 亲密度推进（阈值见 economy_config.intimacy）：P11 按当前会长各记一份
-  const pointsMap = config.intimacy.gift_points as Record<string, number>;
-  const points = pointsMap[itemKey] ?? 1;
-  const affinity = addAffinityPoints(db, userId, save.activeMasterId, points);
-  const pointsTotal = affinity.points;
-  const stageAfter = affinity.toStage;
-  const stageUp = affinity.stageChanged;
+    // 亲密度推进（阈值见 economy_config.intimacy）：P11 按当前会长各记一份
+    const pointsMap = config.intimacy.gift_points as Record<string, number>;
+    const points = pointsMap[itemKey] ?? 1;
+    const affinity = addAffinityPoints(db, userId, giftMasterId, points);
+    const pointsTotal = affinity.points;
+    const stageAfter = affinity.toStage;
+    const stageUp = affinity.stageChanged;
 
-  // 留痕（不动金币，gold_awarded=0；面板历史可显示「礼物赠送」）
-  db.insert(settlementLog)
-  .values({
-  id: randomUUID(),
-  userId,
-  questId: null,
-  kind: "gift",
-  completionRatio: null,
-  confidence: null,
-  xpAwarded: 0,
-  goldAwarded: 0,
-  attrSplitJson: "{}",
-  adjustmentsJson: JSON.stringify({
-  item_key: itemKey,
-  intimacy_points: points,
-  intimacy_total: pointsTotal,
-  stage_up: stageUp,
-  }),
-  llmReasoning: null,
-  createdAt: now,
-  })
-  .run();
+    // 留痕（不动金币，gold_awarded=0；面板历史可显示「礼物赠送」）
+    db.insert(settlementLog)
+    .values({
+    id: randomUUID(),
+    userId,
+    questId: null,
+    kind: "gift",
+    completionRatio: null,
+    confidence: null,
+    xpAwarded: 0,
+    goldAwarded: 0,
+    attrSplitJson: "{}",
+    adjustmentsJson: JSON.stringify({
+    item_key: itemKey,
+    intimacy_points: points,
+    intimacy_total: pointsTotal,
+    stage_up: stageUp,
+    }),
+    llmReasoning: null,
+    createdAt: now,
+    })
+    .run();
 
-  // 记忆：会长在后续对话里自然记得收到过什么；阶段跨过时单独记一笔
-  const label = intimacyLabel(stageAfter);
-  db.insert(memory)
-  .values({
-  id: randomUUID(),
-  userId,
-  category: "event",
-  content: stageUp
-  ? `收到「${item.name}」，你们的关系更进一步了（交情：${label}）`
-  : `收到「${item.name}」`,
-  createdAt: now,
-  })
-  .run();
+    // 记忆：会长在后续对话里自然记得收到过什么；阶段跨过时单独记一笔
+    const label = intimacyLabel(stageAfter);
+    db.insert(memory)
+    .values({
+    id: randomUUID(),
+    userId,
+    category: "event",
+    content: stageUp
+    ? `收到「${item.name}」，你们的关系更进一步了（交情：${label}）`
+    : `收到「${item.name}」`,
+    createdAt: now,
+    })
+    .run();
 
-  return {
-  ok: true,
-  receipt: {
-  itemKey,
-  name: item.name,
-  points,
-  pointsTotal,
-  intimacyStage: stageAfter,
-  intimacyLabel: label,
-  stageUp,
-  countLeft: stock.count - 1,
-  },
-  };
+    return {
+    ok: true,
+    receipt: {
+    itemKey,
+    name: item.name,
+    points,
+    pointsTotal,
+    intimacyStage: stageAfter,
+    intimacyLabel: label,
+    stageUp,
+    countLeft: stock.count - 1,
+    },
+    };
+  });
 }

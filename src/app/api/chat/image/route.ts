@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
         prompt,
         signal: AbortSignal.timeout(30 * 60 * 1000),
       });
-      const filename = saveScene(randomUUID(), bytes);
+      const filename = await saveScene(randomUUID(), bytes);
       return NextResponse.json({
         ok: true,
         url: assetUrl("scene", filename),

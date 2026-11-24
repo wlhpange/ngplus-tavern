@@ -112,6 +112,9 @@ pnpm dev
 
 所有数据在 `data/`：`ngplus.db` 是数据库，`avatars/`、`scenes/`、`backgrounds/` 是图片。备份就整个拷走；删掉 `data/` 等于清档。
 
+新上传的头像 / 背景 / 配图会自动压到合适尺寸并转 WebP；老图可以跑一次
+`pnpm assets:optimize`（先备份 `data/`，`--dry-run` 可预览）瘦身。
+
 ## 常见问题
 
 - **会长不说话**：模型没配好或 Key 没填，去「设置 → 模型与渠道」测试连接。

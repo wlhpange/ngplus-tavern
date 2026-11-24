@@ -566,9 +566,12 @@ export function archiveMaster(
   // P12：清除该会长的全部对话数据——任务模式与酒馆模式的消息、会话，
   // 会长级永久记忆与各对话私有记忆（只清 chat 会话是漏的）。
   const purged = purgeMasterChatData(db, userId, masterId);
-  // 消息配图（以消息 id 命名的 data/scenes/<id>.png）与头像文件一并删掉
+  // 消息配图（以消息 id 命名的 data/scenes/<id>.<ext>）与头像文件一并删掉。
+  // 新档是 .webp，旧档可能是 .png/.jpg，逐个尝试删除。
   for (const messageId of purged.messageIds) {
-    deleteAsset("scene", `${messageId}.png`);
+    for (const ext of [".webp", ".png", ".jpg", ".jpeg"]) {
+      deleteAsset("scene", `${messageId}${ext}`);
+    }
   }
   deleteAsset("avatar", master.avatar);
   // 好感度跟着会长一起消失，避免之后重建同名会长继承旧数值

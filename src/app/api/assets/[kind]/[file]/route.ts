@@ -1,5 +1,7 @@
 import { NextRequest } from "next/server";
-import fs from "node:fs";
+import { createReadStream } from "node:fs";
+import { stat } from "node:fs/promises";
+import { Readable } from "node:stream";
 import { contentTypeFor, resolveAsset, type AssetKind } from "@/server/assets";
 
 export const dynamic = "force-dynamic";
@@ -20,11 +22,17 @@ export async function GET(
   if (!kind) return new Response("Not found", { status: 404 });
   const filePath = resolveAsset(kind, params.file);
   if (!filePath) return new Response("Not found", { status: 404 });
-  const bytes = fs.readFileSync(filePath);
-  return new Response(new Uint8Array(bytes), {
+
+  // 流式返回而不是整读进内存：头像/背景/配图上限 8MB，
+  // 同步 readFileSync 会阻塞事件循环，同进程的 SSE 流式回复会一起卡住。
+  const info = await stat(filePath).catch(() => null);
+  if (!info) return new Response("Not found", { status: 404 });
+
+  const body = Readable.toWeb(createReadStream(filePath)) as unknown as ReadableStream<Uint8Array>;
+  return new Response(body, {
     headers: {
       "Content-Type": contentTypeFor(params.file),
-      "Content-Length": String(bytes.length),
+      "Content-Length": String(info.size),
       "Cache-Control": "public, max-age=31536000, immutable",
     },
   });

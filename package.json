@@ -15,7 +15,8 @@
     "icons": "node scripts/gen-icons.mjs",
     "test": "vitest run",
     "build:next": "next build",
-    "postinstall": "node scripts/patch-sqlite3.mjs"
+    "postinstall": "node scripts/patch-sqlite3.mjs",
+    "assets:optimize": "node scripts/optimize-assets.mjs"
   },
   "dependencies": {
     "@ai-sdk/deepseek": "^3.0.42",
@@ -30,6 +31,7 @@
     "react-markdown": "^10.1.0",
     "rehype-sanitize": "^6.0.0",
     "remark-gfm": "^4.0.1",
+    "sharp": "^0.35.5",
     "zod": "^4.6.2"
   },
   "pnpm": {

@@ -191,7 +191,7 @@ export async function POST(req: NextRequest) {
         prompt,
         signal,
       });
-      const filename = saveScene(randomUUID(), bytes);
+      const filename = await saveScene(randomUUID(), bytes);
       return NextResponse.json({
         ok: true,
         url: assetUrl("scene", filename),

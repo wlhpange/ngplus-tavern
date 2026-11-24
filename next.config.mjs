@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 // Node-only 服务端依赖：better-sqlite3（原生模块，内部 require fs/path）、
-// web-push（https-proxy-agent → node:http/https/net）、node-cron（Node 定时器）。
+// sharp（原生图像库）、node-cron（Node 定时器）。
 // 这些包绝不能被 webpack 打进 bundle（否则报 Can't resolve 'fs'/'path'）。
-const NODE_EXTERNALS = ["better-sqlite3", "web-push", "node-cron"];
+const NODE_EXTERNALS = ["better-sqlite3", "node-cron", "sharp"];
 
 const nextConfig = {
   experimental: {

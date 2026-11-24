@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const saved = saveAsset(kind, bytes, filename, mime);
+    const saved = await saveAsset(kind, bytes, filename, mime);
     return NextResponse.json({ ok: true, file: saved });
   } catch (e) {
     return NextResponse.json(

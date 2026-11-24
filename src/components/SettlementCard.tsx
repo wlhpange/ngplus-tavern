@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { ATTR_LABEL, KIND_LABEL, itemDisplay } from "@/lib/labels";
 import { playCue } from "@/lib/audio";
 
@@ -30,7 +30,7 @@ function formatTime(ts: number): string {
  * - 部分结算（completionRatio<1）：蜡封暗铜色、金币雨减半
  * - 逾期补结算（adjustments.was_overdue）：蜡封带裂纹，随后自愈
  */
-export default function SettlementCard({
+function SettlementCard({
   s,
   fresh = false,
   silent = false,
@@ -143,3 +143,6 @@ export default function SettlementCard({
     </article>
   );
 }
+
+/** 历史结算卡片的内容不变就不重渲染（对话页频繁更新流式气泡/输入框） */
+export default memo(SettlementCard);

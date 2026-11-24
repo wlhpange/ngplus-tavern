@@ -249,3 +249,26 @@ describe("P0 对话模式隔离（quest / chat 两条流）", () => {
     expect(hasRecordsBefore(db, userId, line, "quest")).toBe(true);
   });
 });
+
+describe("增量轮询（since）", () => {
+  const base = new Date(2026, 8, 27, 12, 0).getTime();
+
+  it("只返回 since 之后落库的内容（含同毫秒边界，靠 id 去重）", () => {
+    addMessage("old1", "user", "旧消息", base - 5_000);
+    addMessage("edge", "user", "边界消息", base);
+    addMessage("new1", "master", "新消息", base + 5_000);
+
+    const r = queryRecords(db, userId, { since: base, mode: "quest", limit: 50 });
+    const ids = r.items.map((it) => (it.type === "message" ? it.id : it.settlement.id));
+    expect(ids).toEqual(["new1", "edge"]);
+  });
+
+  it("增量查询同时覆盖结算卡片", () => {
+    addSettlement("s_old", base - 5_000);
+    addSettlement("s_new", base + 5_000);
+
+    const r = queryRecords(db, userId, { since: base, mode: "quest", limit: 50 });
+    expect(r.items).toHaveLength(1);
+    expect(r.items[0].type).toBe("settlement");
+  });
+});

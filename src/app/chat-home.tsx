@@ -10,7 +10,7 @@
  * - 仪式事件：升级 / 晋段由 CeremonyOverlay 呈现
  * - 发送失败：撤掉本地乐观消息、退回输入框，可直接重发
  */
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
 import Avatar from "@/components/Avatar";
@@ -24,135 +24,53 @@ import GreetingEditor from "@/components/GreetingEditor";
 import ImageLightbox from "@/components/ImageLightbox";
 import PromptDialog from "@/components/PromptDialog";
 import CeremonyOverlay, { type CeremonyEvent } from "@/components/CeremonyOverlay";
-import SettlementCard, { type SettlementCardData } from "@/components/SettlementCard";
+import SettlementCard from "@/components/SettlementCard";
+import MessageRow from "@/components/chat/MessageRow";
+import Composer from "@/components/chat/Composer";
+import type {
+  ApiMessage,
+  ChatResponse,
+  ChatSessionSummary,
+  HistoryResponse,
+  Mode,
+  Notice,
+  TimelineItem,
+} from "@/components/chat/types";
+import {
+  dayKey,
+  dayLabel,
+  itemKey,
+  itemTime,
+  mergeItems,
+  messageOf,
+} from "@/components/chat/timeline";
 
 // SSR 期间不执行 layout effect（客户端首帧定位到底部，无滑动动画）
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
-
-interface ApiMessage {
-  id: string;
-  role: "user" | "master";
-  content: string;
-  sender: string;
-  createdAt: number;
-  /** 本地生图：该消息已配的情景图 URL（无则 null/undefined） */
-  image?: string | null;
-  /** 后台是否正在为该消息生成配图（刷新/重进后恢复「正在作画」） */
-  generating?: boolean;
-  generatingSince?: number;
-}
-
-type TimelineItem =
-  | { type: "message"; message: ApiMessage }
-  | { type: "settlement"; settlement: SettlementCardData; fresh?: boolean };
-
-/** P0 对话模式：quest=任务管线，chat=聊天（酒馆）管线 */
-type Mode = "quest" | "chat";
 
 /** 记住上次停留的模式，避免每次点「对话」都回到任务页 */
 const MODE_STORAGE_KEY = "ngplus.chat.mode";
 /** 时间线默认渲染条数（长列表优化）；「展开更早」每次 +60 */
 const RENDER_PAGE = 60;
-
-interface ChatResponse {
-  reply?: string;
-  error?: string;
-  code?: string;
-  reminderNotices?: string[];
-  settlementNotices?: string[];
-  settlements?: SettlementCardData[];
-  ceremony?: CeremonyEvent | null;
-  /** 本轮落库的真实消息 id（用它们替换本地假 id，生图/删除才找得到） */
-  userMessageId?: string;
-  masterMessageId?: string;
-}
-
-interface HistoryResponse {
-  masterName?: string;
-  /** 会长头像 URL（酒馆式：卡 PNG 当头像）；null = 用名字首字 */
-  masterAvatar?: string | null;
-  /** 会长像素小人形象参数；null = 没有 */
-  masterSprite?: PetDescriptor | null;
-  /** 当前聊天会话的背景图 URL（仅聊天模式） */
-  background?: string | null;
-  messages?: ApiMessage[];
-  settlements?: SettlementCardData[];
-  /** 三天窗口之前是否还有内容（任务模式显示「聊天记录」入口；聊天模式=会话还有更早消息） */
-  hasEarlier?: boolean;
-  /** 本地生图开关（关闭时不显示「给这一幕配图」按钮） */
-  imageEnabled?: boolean;
-  /** 聊天模式向前翻页游标：下一页 before（null/undefined = 没有更早的了） */
-  nextBefore?: number | null;
-  windowStart?: number;
-  /** P9 聊天模式：开场白候选与当前下标 */
-  greeting?: { greetings: string[]; currentIndex: number };
-  /** P9 当前会长 id（开场白编辑用） */
-  activeMasterId?: string;
-  /** P10 聊天会话 */
-  sessionId?: string | null;
-  sessions?: { id: string; title: string; updatedAt: number; messageCount: number }[];
-  /** 该 mode/会话是否仍有生成在途（切页回来恢复「正在回复」用） */
-  pending?: boolean;
-}
-
-interface Notice {
-  text: string;
-  at: number;
-}
-
 const NOTICE_TTL = 30_000;
 
-/** 同一毫秒内的排序权重：用户发言 → 结算卡片 → 会长回复 */
-function itemRank(it: TimelineItem): number {
-  if (it.type === "settlement") return 1;
-  return it.message.role === "user" ? 0 : 2;
-}
-
-function itemTime(it: TimelineItem): number {
-  return it.type === "message" ? it.message.createdAt : it.settlement.createdAt;
-}
-
-function itemKey(it: TimelineItem): string {
-  return it.type === "message" ? it.message.id : `s_${it.settlement.id}`;
-}
-
-/** 合并两段时间线：按时间升序、同刻按角色定序、按 id 去重（翻页重叠安全） */
-function mergeItems(base: TimelineItem[], add: TimelineItem[]): TimelineItem[] {
-  const seen = new Map<string, TimelineItem>();
-  for (const it of [...base, ...add]) {
-    if (!seen.has(itemKey(it))) seen.set(itemKey(it), it);
-  }
-  return [...seen.values()].sort(
-    (a, b) => itemTime(a) - itemTime(b) || itemRank(a) - itemRank(b),
-  );
-}
-
-function dayKey(ts: number): string {
-  const d = new Date(ts);
-  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-}
-
-function dayLabel(ts: number): string {
-  const d = new Date(ts);
-  const now = new Date();
-  const yesterday = new Date(now);
-  yesterday.setDate(now.getDate() - 1);
-  if (dayKey(ts) === dayKey(now.getTime())) return "今天";
-  if (dayKey(ts) === dayKey(yesterday.getTime())) return "昨天";
-  if (d.getFullYear() === now.getFullYear()) return `${d.getMonth() + 1}月${d.getDate()}日`;
-  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
-}
-
-function messageOf(it: TimelineItem): ApiMessage | null {
-  return it.type === "message" ? it.message : null;
-}
-
-export default function Home() {
-  const [masterName, setMasterName] = useState("会长");
+export default function Home({
+  initial,
+}: {
+  /** 服务端首屏数据（见 app/page.tsx）；缺省时退化为纯客户端加载 */
+  initial?: { mode: Mode; data: HistoryResponse };
+}) {
+  const initialData = initial?.data;
+  const initialGenerating = initialData?.messages?.find((m) => m.generating);
+  const [masterName, setMasterName] = useState(initialData?.masterName ?? "会长");
   /** 会长头像 URL（来自卡 PNG / 上传）；null 回落名字首字 */
-  const [masterAvatar, setMasterAvatar] = useState<string | null>(null);
+  const [masterAvatar, setMasterAvatar] = useState<string | null>(
+    initialData?.masterAvatar ?? null,
+  );
   /** 会长像素小人形象参数；null = 不显示 */
-  const [masterSprite, setMasterSprite] = useState<PetDescriptor | null>(null);
+  const [masterSprite, setMasterSprite] = useState<PetDescriptor | null>(
+    (initialData?.masterSprite as PetDescriptor | null | undefined) ?? null,
+  );
   /** 点小人互动：短暂播放 emote */
   const [petReact, setPetReact] = useState(false);
   /** 对话页是否显示像素小人（本机偏好，设置页可关） */
@@ -161,22 +79,36 @@ export default function Home() {
   const [moodFace, setMoodFace] = useState<FaceId | null>(null);
   const moodTimer = useRef(0);
   /** 当前聊天会话背景 URL（仅聊天模式生效） */
-  const [background, setBackground] = useState<string | null>(null);
+  const [background, setBackground] = useState<string | null>(
+    initialData?.background ?? null,
+  );
   /** 背景设置面板开合 / 上传中 */
   const [bgPanelOpen, setBgPanelOpen] = useState(false);
   const [bgUploading, setBgUploading] = useState(false);
   /** P0 对话模式：quest=任务管线，chat=聊天（酒馆）管线 */
-  const [mode, setMode] = useState<Mode>("quest");
+  const [mode, setMode] = useState<Mode>(initial?.mode ?? "quest");
   /** 模式是否已从本机偏好恢复（恢复前先不拉时间线，避免先闪任务页） */
-  const [modeReady, setModeReady] = useState(false);
-  /** null = 首次加载中 */
-  const [items, setItems] = useState<TimelineItem[] | null>(null);
-  const [hasEarlier, setHasEarlier] = useState(false);
+  const [modeReady, setModeReady] = useState(Boolean(initial));
+  /** null = 首次加载中；有服务端首屏数据时直接渲染 */
+  const [items, setItems] = useState<TimelineItem[] | null>(() => {
+    if (!initialData) return null;
+    const msgs: TimelineItem[] = (initialData.messages ?? []).map((message) => ({
+      type: "message",
+      message,
+    }));
+    const sets: TimelineItem[] = (initialData.settlements ?? []).map((settlement) => ({
+      type: "settlement",
+      settlement,
+    }));
+    return mergeItems(msgs, sets);
+  });
+  const [hasEarlier, setHasEarlier] = useState(Boolean(initialData?.hasEarlier));
   /** 聊天模式向前翻页游标（加载更早的对话用；null = 到头） */
-  const [chatNextBefore, setChatNextBefore] = useState<number | null>(null);
+  const [chatNextBefore, setChatNextBefore] = useState<number | null>(
+    initialData?.nextBefore ?? null,
+  );
   const [chatLoadingEarlier, setChatLoadingEarlier] = useState(false);
   const [notices, setNotices] = useState<Notice[]>([]);
-  const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   /** 流式生成中的临时正文（SSE delta 累积；done 后并入时间线） */
   const [streamingReply, setStreamingReply] = useState("");
@@ -189,18 +121,21 @@ export default function Home() {
   /** 展开更早前记录 scrollHeight，渲染后按差值补偿，避免内容跳动 */
   const expandAnchorRef = useRef<number | null>(null);
   /** 服务端仍在生成（本页发起之外的回合，如切页回来后）：显示「正在回复」并轮询 */
-  const [serverPending, setServerPending] = useState(false);
+  const [serverPending, setServerPending] = useState(Boolean(initialData?.pending));
   const [error, setError] = useState<string | null>(null);
   /** 本地生图：正在为哪条消息作画（messageId）；null = 空闲 */
-  const [sceneBusy, setSceneBusy] = useState<string | null>(null);
+  const [sceneBusy, setSceneBusy] = useState<string | null>(
+    initialGenerating?.id ?? null,
+  );
   const [sceneError, setSceneError] = useState<string | null>(null);
   /** 本地生图是否开启（关闭则隐藏「给这一幕配图」按钮） */
-  const [imageEnabled, setImageEnabled] = useState(false);
+  const [imageEnabled, setImageEnabled] = useState(Boolean(initialData?.imageEnabled));
   /** 点开预览的大图 URL；null = 关闭 */
   const [lightbox, setLightbox] = useState<string | null>(null);
   /** 生图开始时间戳 + 已用秒数（作画中每秒刷新，给进度感） */
-  const [sceneStartedAt, setSceneStartedAt] = useState<number | null>(null);
-  const [sceneElapsed, setSceneElapsed] = useState(0);
+  const [sceneStartedAt, setSceneStartedAt] = useState<number | null>(
+    initialGenerating?.generatingSince ?? (initialGenerating ? Date.now() : null),
+  );
   /** 待确认删除的消息 */
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; preview: string } | null>(null);
   /** P10 会话改名 / 删除：应用内弹窗（替代原生 prompt/confirm） */
@@ -212,27 +147,35 @@ export default function Home() {
   const [deleting, setDeleting] = useState(false);
   const [ceremony, setCeremony] = useState<CeremonyEvent | null>(null);
   /** P9 聊天模式：开场白候选与当前下标 */
-  const [greeting, setGreeting] = useState<{ greetings: string[]; currentIndex: number } | null>(null);
+  const [greeting, setGreeting] = useState<{ greetings: string[]; currentIndex: number } | null>(
+    initialData?.greeting ?? null,
+  );
   const [greetingEditorOpen, setGreetingEditorOpen] = useState(false);
-  const [activeMasterId, setActiveMasterId] = useState<string | null>(null);
+  const [activeMasterId, setActiveMasterId] = useState<string | null>(
+    initialData?.activeMasterId ?? null,
+  );
   /** 本任期用户是否已开口（开口后不再允许换开场白） */
-  const [userSpoke, setUserSpoke] = useState(false);
+  const [userSpoke, setUserSpoke] = useState(
+    (initialData?.messages ?? []).some((m) => m.role === "user"),
+  );
   /** P10 聊天会话 */
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [sessions, setSessions] = useState<
-    { id: string; title: string; updatedAt: number; messageCount: number }[]
-  >([]);
+  const [sessionId, setSessionId] = useState<string | null>(initialData?.sessionId ?? null);
+  const [sessions, setSessions] = useState<ChatSessionSummary[]>(initialData?.sessions ?? []);
   const [sessionMenuOpen, setSessionMenuOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
   const isNearBottom = useRef(true);
   /** 首屏是否已瞬时定位到底部（定位前不做平滑滚动） */
   const initialPositioned = useRef(false);
+  /** 服务端首屏数据只跳过一次请求；之后切模式/会话照常拉取 */
+  const initialConsumed = useRef(false);
   /** 当前 mode/会话的镜像：供在途 send() 完成时判断是否已切走 */
   const modeRef = useRef<Mode>("quest");
   const sessionRef = useRef<string | null>(null);
+  /** 时间线的镜像：loadTimeline 是空依赖 useCallback，增量轮询需要读到最新 items */
+  const itemsRef = useRef<TimelineItem[] | null>(null);
   modeRef.current = mode;
   sessionRef.current = sessionId;
+  itemsRef.current = items;
   /** 本轮在途是否属于「当前 mode/会话」——切模式后不在别的模式里显示点 */
   const sendingHere =
     sending && sendingCtx?.mode === mode && sendingCtx?.sessionId === sessionId;
@@ -253,6 +196,17 @@ export default function Home() {
       }
       const q = new URLSearchParams({ mode: m });
       if (m === "chat" && sessId) q.set("sessionId", sessId);
+      // 静默刷新且仍停在同一条时间线上时走增量：只拉 since 之后落库的内容。
+      // 切换模式/会话、翻页、首次加载仍取全量。
+      const canIncremental =
+        Boolean(opts?.quiet) &&
+        modeRef.current === m &&
+        (sessId ?? null) === sessionRef.current &&
+        (itemsRef.current?.length ?? 0) > 0;
+      const since = canIncremental
+        ? Math.max(...(itemsRef.current ?? []).map(itemTime))
+        : null;
+      if (since != null) q.set("since", String(since));
       fetch(`/api/chat?${q.toString()}`)
         .then((r) => r.json())
         .then((d: HistoryResponse) => {
@@ -269,13 +223,13 @@ export default function Home() {
             type: "settlement",
             settlement: s,
           }));
-          // 聊天模式的静默刷新（轮询）要与已加载的旧页合并，否则翻过的历史会丢
+          // 静默刷新（轮询/回到标签）要与已加载的旧页合并，否则翻过的历史会丢。
+          // 增量响应只含新内容，同样按 id 去重追加。
           setItems((prev) =>
-            opts?.quiet && m === "chat"
-              ? mergeItems(prev ?? [], mergeItems(msgs, sets))
-              : mergeItems(msgs, sets),
+            opts?.quiet ? mergeItems(prev ?? [], mergeItems(msgs, sets)) : mergeItems(msgs, sets),
           );
-          setHasEarlier(Boolean(d.hasEarlier));
+          // 增量响应省略了静态字段：只在字段存在时更新，避免把会话列表/开场白清空
+          if (d.hasEarlier !== undefined) setHasEarlier(Boolean(d.hasEarlier));
           if (!opts?.quiet) setChatNextBefore(d.nextBefore ?? null);
           // 服务端仍在为某条消息生成配图：恢复「正在作画」，交给轮询接手
           const gen = (d.messages ?? []).find((m2) => m2.generating);
@@ -283,9 +237,9 @@ export default function Home() {
             setSceneBusy(gen.id);
             setSceneStartedAt(gen.generatingSince ?? Date.now());
           }
-          setGreeting(d.greeting ?? null);
-          setActiveMasterId(d.activeMasterId ?? null);
-          setUserSpoke((d.messages ?? []).some((m2) => m2.role === "user"));
+          if (d.greeting !== undefined) setGreeting(d.greeting ?? null);
+          if (d.activeMasterId !== undefined) setActiveMasterId(d.activeMasterId ?? null);
+          if (!since) setUserSpoke((d.messages ?? []).some((m2) => m2.role === "user"));
           if (d.sessionId !== undefined) setSessionId(d.sessionId ?? null);
           if (d.sessions) setSessions(d.sessions);
           setServerPending(Boolean(d.pending));
@@ -313,8 +267,12 @@ export default function Home() {
 
   useEffect(() => {
     if (!modeReady) return;
+    if (initial && !initialConsumed.current && mode === initial.mode) {
+      initialConsumed.current = true;
+      return;
+    }
     loadTimeline(mode);
-  }, [mode, modeReady, loadTimeline]);
+  }, [mode, modeReady, loadTimeline, initial]);
 
   // 服务端仍有生成在途（典型场景：发完消息切到别的页面再回来）：显示「正在回复」
   // 并每 2.5s 静默刷新，直到回复落库、pending 变回 false。
@@ -341,6 +299,8 @@ export default function Home() {
   function switchMode(next: Mode) {
     if (next === mode) return;
     window.localStorage.setItem(MODE_STORAGE_KEY, next);
+    // 服务端首屏据此渲染正确模式（localStorage 只在客户端可读）
+    document.cookie = `ngplus_mode=${next}; path=/; max-age=31536000; samesite=lax`;
     setNotices([]);
     setError(null);
     setCeremony(null);
@@ -544,19 +504,6 @@ export default function Home() {
     return () => window.clearInterval(timer);
   }, [notices]);
 
-  // 生图计时：作画中每秒刷新已用时间（每张约 2 分钟，给用户进度感）
-  useEffect(() => {
-    if (sceneStartedAt == null) {
-      setSceneElapsed(0);
-      return;
-    }
-    setSceneElapsed(Math.floor((Date.now() - sceneStartedAt) / 1000));
-    const timer = window.setInterval(() => {
-      setSceneElapsed(Math.floor((Date.now() - sceneStartedAt) / 1000));
-    }, 1000);
-    return () => window.clearInterval(timer);
-  }, [sceneStartedAt]);
-
   // 后台配图轮询：sceneBusy 有值就每 3 秒查一次，完成/失败才停。
   // 手机锁屏 / 切页造成的网络中断不会终止它——恢复后继续查，图已落盘就能拿到。
   useEffect(() => {
@@ -653,6 +600,23 @@ export default function Home() {
     }
   }
 
+  // MessageRow 是 memo 组件：回调必须稳定，否则每次渲染都会重新渲染历史消息。
+  // 生图/停止函数依赖当前 state（sceneBusy），用 ref 转发最新实现。
+  const generateSceneRef = useRef(generateScene);
+  const stopSceneRef = useRef(stopScene);
+  generateSceneRef.current = generateScene;
+  stopSceneRef.current = stopScene;
+  const handleDeleteMessage = useCallback((msg: ApiMessage) => {
+    setDeleteTarget({ id: msg.id, preview: msg.content });
+  }, []);
+  const handleGenerateScene = useCallback((messageId: string) => {
+    void generateSceneRef.current(messageId);
+  }, []);
+  const handleStopScene = useCallback(() => {
+    void stopSceneRef.current();
+  }, []);
+  const handleOpenImage = useCallback((url: string) => setLightbox(url), []);
+
   /** 删除单条消息：本地未落库的乐观消息只移除；已落库的走接口并连带删配图 */
   async function confirmDelete() {
     const t = deleteTarget;
@@ -681,16 +645,15 @@ export default function Home() {
     }
   }
 
-  async function send() {
-    const text = input.trim();
-    if (!text || sending || serverPending) return;
+  /** 发送一条消息；返回 false 表示失败（输入框会把文字还回去） */
+  async function send(text: string): Promise<boolean> {
+    if (!text || sending || serverPending) return false;
     const localId = `local_u_${Date.now()}`;
     const optimistic: TimelineItem = {
       type: "message",
       message: { id: localId, role: "user", content: text, sender: "", createdAt: Date.now() },
     };
     setItems((prev) => mergeItems(prev ?? [], [optimistic]));
-    setInput("");
     setError(null);
     setSending(true);
     setStreamingReply("");
@@ -790,11 +753,12 @@ export default function Home() {
         }
         // 不自动 focus 输入框：手机上会在回复结束时自动弹输入法，用户想打字时自己点
       }
+      return true;
     } catch (e) {
       // 失败撤回乐观消息，把内容还给输入框，用户可直接重发
       setItems((prev) => (prev ?? []).filter((it) => itemKey(it) !== localId));
-      setInput(text);
       setError(e instanceof Error && e.message ? e.message : "网络不通，消息没能送到协会。");
+      return false;
     } finally {
       setSending(false);
       setSendingCtx(null);
@@ -804,26 +768,39 @@ export default function Home() {
 
   /** 聊天模式有背景时：背景铺满整页，消息泡转半透明，让场景真正透出来 */
   const bgVisible = mode === "chat" && Boolean(background);
-  const pageStyle: React.CSSProperties | undefined = bgVisible
-    ? {
-        backgroundImage: `linear-gradient(color-mix(in oklch, var(--bg) 48%, transparent), color-mix(in oklch, var(--bg) 48%, transparent)), url(${background})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }
-    : undefined;
-  const bubbleStyle: React.CSSProperties | undefined = bgVisible
-    ? {
-        backgroundColor: "color-mix(in oklch, var(--surface) 62%, transparent)",
-        // 会长气泡往往很长、数量多；模糊收窄到 2px（大面积 blur 在手机上是主要开销）
-        backdropFilter: "blur(2px)",
-        WebkitBackdropFilter: "blur(2px)",
-      }
-    : undefined;
+  // 样式对象必须稳定：MessageRow 用 memo，浅比较下每次新建对象会让 memo 失效
+  const pageStyle = useMemo<React.CSSProperties | undefined>(
+    () =>
+      bgVisible
+        ? {
+            backgroundImage: `linear-gradient(color-mix(in oklch, var(--bg) 48%, transparent), color-mix(in oklch, var(--bg) 48%, transparent)), url(${background})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+          }
+        : undefined,
+    [bgVisible, background],
+  );
+  const bubbleStyle = useMemo<React.CSSProperties | undefined>(
+    () =>
+      bgVisible
+        ? {
+            backgroundColor: "color-mix(in oklch, var(--surface) 62%, transparent)",
+            // 会长气泡往往很长、数量多；模糊收窄到 2px（大面积 blur 在手机上是主要开销）
+            backdropFilter: "blur(2px)",
+            WebkitBackdropFilter: "blur(2px)",
+          }
+        : undefined,
+    [bgVisible],
+  );
   // 用户气泡短，去掉 backdrop blur，只保留半透明——省掉一层大面积模糊
-  const userBubbleStyle: React.CSSProperties | undefined = bgVisible
-    ? { backgroundColor: "color-mix(in oklch, var(--accent-soft) 72%, transparent)" }
-    : undefined;
+  const userBubbleStyle = useMemo<React.CSSProperties | undefined>(
+    () =>
+      bgVisible
+        ? { backgroundColor: "color-mix(in oklch, var(--accent-soft) 72%, transparent)" }
+        : undefined,
+    [bgVisible],
+  );
 
   // 时间线渲染（附日期分隔）。长列表：默认只渲染最后 visibleCount 条
   const allItems = items ?? [];
@@ -861,110 +838,49 @@ export default function Home() {
     if (msg.role === "user") {
       prevMasterSender = null;
       rendered.push(
-        <div key={itemKey(it)} className="flex flex-col items-end">
-          <div
-            className="border-accent-line bg-accent-soft rounded-card rounded-br-chip min-w-0 max-w-[80%] border px-4 py-2 text-fs-body leading-relaxed break-words"
-            style={userBubbleStyle}
-          >
-            {msg.content}
-          </div>
-          <button
-            type="button"
-            onClick={() => setDeleteTarget({ id: msg.id, preview: msg.content })}
-            className="text-fs-micro text-faint hover:text-danger-text mt-1 transition-colors"
-          >
-            删除
-          </button>
-        </div>,
+        <MessageRow
+          key={itemKey(it)}
+          msg={msg}
+          masterName={masterName}
+          masterAvatar={masterAvatar}
+          mode={mode}
+          imageEnabled={imageEnabled}
+          sceneBusy={false}
+          anySceneBusy={false}
+          sceneStartedAt={null}
+          switched={null}
+          bubbleStyle={bubbleStyle}
+          userBubbleStyle={userBubbleStyle}
+          onDelete={handleDeleteMessage}
+          onGenerateScene={handleGenerateScene}
+          onStopScene={handleStopScene}
+          onOpenImage={handleOpenImage}
+        />,
       );
       continue;
     }
     const sender = msg.sender || masterName;
-    const switched = prevMasterSender !== null && prevMasterSender !== sender;
+    const switched = prevMasterSender !== null && prevMasterSender !== sender ? sender : null;
     prevMasterSender = sender;
     rendered.push(
-      <div key={itemKey(it)}>
-        {switched && (
-          <div className="flex items-center gap-3 py-1" aria-hidden>
-            <span className="border-border flex-1 border-t" />
-            <span className="text-fs-micro text-muted tracking-widest">
-              {sender} 接管了协会
-            </span>
-            <span className="border-border flex-1 border-t" />
-          </div>
-        )}
-        <div className="flex items-start gap-2">
-          <Avatar
-            src={sender === masterName ? masterAvatar : null}
-            name={sender}
-            className="border-border bg-surface-3 text-muted mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs"
-          />
-          <div className="min-w-0">
-            <p className="text-fs-micro text-muted mb-1 tracking-widest">{sender}</p>
-            <div
-              className="border-border bg-surface shadow-card rounded-card rounded-tl-chip max-w-[85%] border px-4 py-2 text-fs-body whitespace-pre-wrap leading-relaxed"
-              style={bubbleStyle}
-            >
-              <ChatText text={msg.content} />
-            </div>
-            {msg.image && (
-              <button
-                type="button"
-                onClick={() => setLightbox(msg.image ?? null)}
-                aria-label="查看大图"
-                className="block text-left"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={msg.image}
-                  alt=""
-                  loading="lazy"
-                  className="border-border mt-2 w-full max-w-[85%] rounded-card border"
-                />
-              </button>
-            )}
-            {!msg.image && sceneBusy === msg.id && (
-              <div className="text-fs-micro text-accent mt-1.5 flex flex-wrap items-center gap-2">
-                <span className="flex items-center gap-2">
-                  <span className="vn-typing" aria-hidden>
-                    <i />
-                    <i />
-                    <i />
-                  </span>
-                  正在作画… 已 {sceneElapsed}s
-                </span>
-                <span className="text-faint">（后台生成，切页 / 锁屏都不影响）</span>
-                <button
-                  type="button"
-                  onClick={() => void stopScene()}
-                  className="border-danger text-danger-text rounded-btn border px-2 py-0.5 transition-colors hover:bg-surface-2"
-                >
-                  停止
-                </button>
-              </div>
-            )}
-            <div className="text-fs-micro mt-1 flex flex-wrap items-center gap-3">
-              {mode === "chat" && imageEnabled && !msg.image && sceneBusy !== msg.id && (
-                <button
-                  type="button"
-                  disabled={sceneBusy !== null}
-                  onClick={() => void generateScene(msg.id)}
-                  className="text-faint hover:text-accent transition-colors disabled:opacity-40"
-                >
-                  {sceneBusy ? "另一张正在作画…" : "🖼 给这一幕配图"}
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => setDeleteTarget({ id: msg.id, preview: msg.content })}
-                className="text-faint hover:text-danger-text transition-colors"
-              >
-                删除
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>,
+      <MessageRow
+        key={itemKey(it)}
+        msg={msg}
+        masterName={masterName}
+        masterAvatar={masterAvatar}
+        mode={mode}
+        imageEnabled={imageEnabled}
+        sceneBusy={sceneBusy === msg.id}
+        anySceneBusy={sceneBusy !== null}
+        sceneStartedAt={sceneBusy === msg.id ? sceneStartedAt : null}
+        switched={switched}
+        bubbleStyle={bubbleStyle}
+        userBubbleStyle={userBubbleStyle}
+        onDelete={handleDeleteMessage}
+        onGenerateScene={handleGenerateScene}
+        onStopScene={handleStopScene}
+        onOpenImage={handleOpenImage}
+      />,
     );
   }
 
@@ -1286,26 +1202,8 @@ export default function Home() {
         </div>
       )}
 
-      {/* 输入区 */}
-      <div className="border-border flex items-center gap-2 border-t px-4 py-3">
-        <input
-          ref={inputRef}
-          className="border-border-strong bg-surface-2 text-fs-sm text-fg placeholder:text-faint focus:border-accent rounded-pill flex-1 border px-4 py-2 outline-none transition-colors"
-          placeholder={mode === "chat" ? "和会长随便聊聊……" : "和会长说说今天……"}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.nativeEvent.isComposing) send();
-          }}
-        />
-        <button
-          className="bg-accent text-on-accent rounded-pill px-4 py-2 text-fs-sm font-medium transition-transform active:scale-95 disabled:opacity-40"
-          onClick={send}
-          disabled={sending || serverPending || !input.trim()}
-        >
-          发送
-        </button>
-      </div>
+      {/* 输入区（草稿状态在组件内部，打字不重渲染时间线） */}
+      <Composer mode={mode} disabled={sending || serverPending} onSend={send} />
 
       {/* 回到最新：滚离底部时浮出 */}
       {showJump && (

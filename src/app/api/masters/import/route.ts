@@ -42,9 +42,9 @@ async function readUpload(req: NextRequest): Promise<{ bytes: Buffer; filename: 
  * 酒馆式：角色卡 PNG 的整张图就是头像。上传的是 PNG 就顺手存下来。
  * 失败（超大等）不影响导入本身，返回 null。
  */
-function saveCardAvatar(bytes: Buffer, filename: string): string | null {
+async function saveCardAvatar(bytes: Buffer, filename: string): Promise<string | null> {
   try {
-    return isPng(bytes) ? saveAsset("avatar", bytes, filename, "image/png") : null;
+    return isPng(bytes) ? await saveAsset("avatar", bytes, filename, "image/png") : null;
   } catch {
     return null;
   }
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
   if (preview) {
     const pv = translationPreview(card);
     // 酒馆式：PNG 卡的整张图就是头像，先存下来，commit 成功后由前端回填
-    const avatarFile = saveCardAvatar(upload.bytes, upload.filename);
+    const avatarFile = await saveCardAvatar(upload.bytes, upload.filename);
     return NextResponse.json({
       ok: true,
       preview: {
@@ -133,7 +133,7 @@ export async function POST(req: NextRequest) {
   // ── 兼容旧用法：直接落库（不翻译） ───────────────────────────────────────
   const { db, userId } = bootstrap();
   try {
-    const avatar = saveCardAvatar(upload.bytes, upload.filename);
+    const avatar = await saveCardAvatar(upload.bytes, upload.filename);
     const created = createMasterFromCard(db, userId, card, { avatar });
     return NextResponse.json({ ok: true, spec: card.spec, ...created, avatarFile: avatar });
   } catch (e) {

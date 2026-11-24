@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, like } from "drizzle-orm";
 import type { Db } from "../db";
-import { masters } from "../db/schema";
+import { appSettings, masters } from "../db/schema";
 import { extractScene } from "./scene";
 import { buildScenePrompt, generateImage } from "./mflux";
 import { getImageConfig } from "./config";
@@ -36,6 +36,8 @@ export interface SceneJob {
 }
 
 const jobs = new Map<string, SceneJob>();
+/** 生成窗口上限：超过这个时间仍在 queued/running 视为进程已丢，镜像作废 */
+const SCENE_STALE_MS = 35 * 60 * 1000;
 /**
  * 每个在途任务的取消控制器：用户点「停止」→ abort → mflux 子进程被 kill。
  * 与 jobs 分开存（SceneJob 要序列化给前端，不塞不可序列化的对象）。
@@ -78,7 +80,7 @@ export function getSceneJob(messageId: string, db?: Db | null): SceneJob | undef
     // 兜底：超过最长生成窗口仍在跑 → 视为失效（进程已没了），清掉
     if (
       (o.status === "queued" || o.status === "running") &&
-      Date.now() - startedAt > 35 * 60 * 1000
+      Date.now() - startedAt > SCENE_STALE_MS
     ) {
       clearMirror(db, messageId);
       return undefined;
@@ -87,6 +89,39 @@ export function getSceneJob(messageId: string, db?: Db | null): SceneJob | undef
   } catch {
     return undefined;
   }
+}
+
+/**
+ * 批量读取在途配图任务（消息列表用）。
+ *
+ * 对话页 GET 会对每条消息问「这张在作画吗」。逐条 getSceneJob 会变成
+ * N 次 SQL（内存未命中时），300 条消息就是 300 次查询；这里一次 LIKE 拿全。
+ */
+export function activeSceneJobs(db: Db): Map<string, { startedAt: number }> {
+  const prefix = inflightKey("scene", "");
+  const rows = db
+    .select({ key: appSettings.key, value: appSettings.value })
+    .from(appSettings)
+    .where(like(appSettings.key, `${prefix}%`))
+    .all();
+  const out = new Map<string, { startedAt: number }>();
+  for (const row of rows) {
+    const messageId = row.key.slice(prefix.length);
+    if (!messageId) continue;
+    try {
+      const o = JSON.parse(row.value) as { status?: SceneJobStatus; startedAt?: number };
+      if (o.status !== "queued" && o.status !== "running") continue;
+      const startedAt = o.startedAt ?? Date.now();
+      if (Date.now() - startedAt > SCENE_STALE_MS) {
+        delInflightRow(db, row.key);
+        continue;
+      }
+      out.set(messageId, { startedAt });
+    } catch {
+      /* 坏数据忽略 */
+    }
+  }
+  return out;
 }
 
 /** 该消息是否正在（排队或运行）生成 */
@@ -285,7 +320,7 @@ async function runSceneWork(
     signal: AbortSignal.any([signal, AbortSignal.timeout(30 * 60 * 1000)]),
   });
 
-  const filename = saveScene(message.id, bytes);
+  const filename = await saveScene(message.id, bytes);
   if (!filename) throw new Error("配图保存失败");
 }
 
