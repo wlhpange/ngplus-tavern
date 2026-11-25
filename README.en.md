@@ -102,6 +102,10 @@ Everything lives in `data/`: `ngplus.db` (database), `avatars/`, `scenes/`, `bac
 - **Can't find the R18 toggle**: tap the settings title area 5 times.
 - **Moving machines**: `pnpm install && pnpm db:migrate`, and bring `data/` along.
 
+## Version
+
+Current release: **v1.0.0**. See [CHANGELOG.md](./CHANGELOG.md) for details.
+
 ## Development
 
 ```bash

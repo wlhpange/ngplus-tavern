@@ -123,6 +123,10 @@ pnpm dev
 - **R18 开关找不到**：设置页连点标题区 5 下。
 - **换机/换环境**：`pnpm install && pnpm db:migrate`，把 `data/` 一起带过去即可。
 
+## 版本
+
+当前 **v1.0.0**。完整变更记录见 [CHANGELOG.md](./CHANGELOG.md)。
+
 ## 开发
 
 ```bash
